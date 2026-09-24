@@ -16,6 +16,31 @@ export type AdminEventList = {
   totalPages: number;
 };
 
+// Build absolute URL and forward cookies when running on the server; use relative URL on the client
+async function makeRequest(
+  path: string,
+  init?: RequestInit,
+): Promise<Response> {
+  if (typeof window !== "undefined") {
+    return fetch(path, init);
+  }
+  const { headers: nextHeaders, cookies: nextCookies } =
+    await import("next/headers");
+  const h = await nextHeaders();
+  const host = h.get("x-forwarded-host") || h.get("host") || "localhost";
+  const proto = h.get("x-forwarded-proto") || "http";
+  const base = `${proto}://${host}`;
+  const absolute = new URL(path, base).toString();
+  const cookieStore = await nextCookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
+  const headers = new Headers(init?.headers);
+  if (cookieHeader) headers.set("cookie", cookieHeader);
+  return fetch(absolute, { ...init, headers });
+}
+
 export async function listEvents(params: {
   page?: number;
   limit?: number;
@@ -24,16 +49,15 @@ export async function listEvents(params: {
   sort?: string;
   order?: string;
 }): Promise<AdminEventList> {
-  const url = new URL("/api/v1/admin/events", "http://localhost");
-  if (params.page) url.searchParams.set("page", String(params.page));
-  if (params.limit) url.searchParams.set("limit", String(params.limit));
-  if (params.search) url.searchParams.set("search", params.search);
-  if (params.status) url.searchParams.set("status", params.status);
-  if (params.sort) url.searchParams.set("sort", params.sort);
-  if (params.order) url.searchParams.set("order", params.order);
-  const res = await fetch(`${url.pathname}${url.search}`, {
-    cache: "no-store",
-  });
+  const qs = new URLSearchParams();
+  if (params.page) qs.set("page", String(params.page));
+  if (params.limit) qs.set("limit", String(params.limit));
+  if (params.search) qs.set("search", params.search);
+  if (params.status) qs.set("status", params.status);
+  if (params.sort) qs.set("sort", params.sort);
+  if (params.order) qs.set("order", params.order);
+  const path = `/api/v1/admin/events${qs.toString() ? `?${qs.toString()}` : ""}`;
+  const res = await makeRequest(path, { cache: "no-store" });
   const data = await res.json();
   if (!res.ok || !data.success)
     throw new Error(data?.error?.message || "Failed to load events");
@@ -41,7 +65,7 @@ export async function listEvents(params: {
 }
 
 export async function getEvent(eventId: string): Promise<any> {
-  const res = await fetch(`/api/v1/admin/events/${eventId}`, {
+  const res = await makeRequest(`/api/v1/admin/events/${eventId}`, {
     cache: "no-store",
   });
   const data = await res.json();
@@ -113,15 +137,11 @@ export async function listTicketTypes(
   total: number;
   totalPages: number;
 }> {
-  const url = new URL(
-    `/api/v1/admin/events/${eventId}/ticket-types`,
-    "http://localhost",
-  );
-  url.searchParams.set("page", String(page));
-  url.searchParams.set("limit", String(limit));
-  const res = await fetch(`${url.pathname}${url.search}`, {
-    cache: "no-store",
-  });
+  const qs = new URLSearchParams();
+  qs.set("page", String(page));
+  qs.set("limit", String(limit));
+  const path = `/api/v1/admin/events/${eventId}/ticket-types?${qs.toString()}`;
+  const res = await makeRequest(path, { cache: "no-store" });
   const data = await res.json();
   if (!res.ok || !data.success)
     throw new Error(data?.error?.message || "Failed to load ticket types");

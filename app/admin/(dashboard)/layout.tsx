@@ -5,8 +5,13 @@ import { redirect } from "next/navigation";
 
 async function getMeServer() {
   // Call existing backend /me so auth stays centralized
+  const jar = await cookies();
+  const cookieHeader = jar
+    .getAll()
+    .map((c) => `${c.name}=${encodeURIComponent(c.value)}`)
+    .join("; ");
   const res = await fetch(`${process.env.APP_URL || ""}/api/v1/auth/me`, {
-    headers: { cookie: cookies().toString() },
+    headers: cookieHeader ? { cookie: cookieHeader } : undefined,
     cache: "no-store",
   });
   if (res.status === 401) return null;
@@ -40,13 +45,13 @@ export default async function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] text-[#171717]">
-      <header className="h-14 border-b border-[#E8E8E5] bg-white">
+    <div className="min-h-screen bg-(--surface-muted) text-(--text-primary)">
+      <header className="h-14 border-b border-(--border) bg-white">
         <div className="mx-auto max-w-7xl h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <Link href="/admin" className="font-semibold">
             SerenArt Admin
           </Link>
-          <div className="text-sm text-[#6B6B6B]">{me.email}</div>
+          <div className="text-sm text-(--text-muted)">{me.email}</div>
         </div>
       </header>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-12 gap-6 py-8">
@@ -58,13 +63,13 @@ export default async function AdminLayout({
                 <Link
                   key={n.href}
                   href={n.href}
-                  className="block rounded-lg px-3 py-2 hover:bg-[#F3F3F0] border border-transparent hover:border-[#E8E8E5]"
+                  className="block rounded-lg px-3 py-2 hover:bg-(--surface-muted) border border-transparent hover:border-(--border)"
                 >
                   {n.label}
                 </Link>
               ))}
             <form action="/api/v1/auth/logout" method="post">
-              <button className="mt-4 w-full text-left rounded-lg px-3 py-2 hover:bg-[#F3F3F0] border border-[#E8E8E5]">
+              <button className="mt-4 w-full text-left rounded-lg px-3 py-2 hover:bg-(--surface-muted) border border-(--border)">
                 Logout
               </button>
             </form>

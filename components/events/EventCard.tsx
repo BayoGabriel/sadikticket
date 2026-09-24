@@ -13,35 +13,48 @@ export function EventCard({ event }: { event: EventSummary }) {
   return (
     <Link
       href={`/events/${event.slug}`}
-      className="group rounded-xl border border-(--border) bg-white overflow-hidden shadow-sm hover:shadow-md transition"
+      className="group block rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition will-change-transform"
     >
-      <div className="relative aspect-4/3 bg-(--surface-muted)">
+      <div className="relative aspect-4/3 rounded-3xl overflow-hidden">
         {event.coverImage ? (
           <Image
             src={event.coverImage}
             alt={event.name}
             fill
-            className="object-cover group-hover:scale-[1.03] transition"
+            className="object-cover transition duration-300 group-hover:scale-[1.03]"
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            style={{ height: "100%", width: "100%" }}
           />
         ) : (
-          <div className="absolute inset-0 grid place-items-center text-(--text-muted)">
+          <div className="absolute inset-0 grid place-items-center bg-(--surface-muted) text-(--text-muted)">
             No image
           </div>
         )}
+        <div className="absolute inset-0 bg-linear-to-t from-black/40 via-black/10 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <div className="flex items-center gap-2 text-white text-xs">
+            {event.city && (
+              <span className="inline-flex items-center rounded-full bg-black/40 backdrop-blur px-2 py-0.5">
+                {event.city}
+              </span>
+            )}
+            <span className="inline-flex items-center rounded-full bg-black/40 backdrop-blur px-2 py-0.5">
+              {dateFmt}
+            </span>
+          </div>
+          <h3 className="mt-2 text-white text-lg font-semibold drop-shadow line-clamp-2">
+            {event.name}
+          </h3>
+        </div>
       </div>
-      <div className="p-4">
-        <h3 className="text-(--text-primary) text-base font-semibold line-clamp-2">
-          {event.name}
-        </h3>
-        <p className="mt-1 text-sm text-(--text-muted)">
-          {dateFmt}
-          {event.venueName ? ` · ${event.venueName}` : ""}
-        </p>
+      <div className="px-1 pt-2 flex items-center justify-between">
+        <div className="text-sm text-(--text-muted)">
+          {event.venueName || ""}
+        </div>
         {event.fromPrice != null && (
-          <p className="mt-2 text-sm font-medium text-(--text-primary)">
+          <div className="text-sm font-medium text-(--text-primary)">
             From ₦{(event.fromPrice / 100).toLocaleString()}
-          </p>
+          </div>
         )}
       </div>
     </Link>

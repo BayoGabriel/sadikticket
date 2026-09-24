@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { use, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   createOrder,
@@ -8,8 +8,13 @@ import {
   listTicketTypesBySlug,
 } from "@/features/checkout/api";
 
-export default function CheckoutPage({ params }: { params: { slug: string } }) {
+export default function CheckoutPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const router = useRouter();
+  const { slug } = use(params);
   const sp = useSearchParams();
   const preTicketTypeId = sp.get("ticketTypeId") || "";
   const preQty = Number(sp.get("quantity") || "1");
@@ -34,8 +39,8 @@ export default function CheckoutPage({ params }: { params: { slug: string } }) {
   useMemo(() => {
     (async () => {
       const [ev, tts] = await Promise.all([
-        getEventBySlug(params.slug),
-        listTicketTypesBySlug(params.slug),
+        getEventBySlug(slug),
+        listTicketTypesBySlug(slug),
       ]);
       setEventDetail(ev);
       setTypes(tts);
@@ -43,7 +48,7 @@ export default function CheckoutPage({ params }: { params: { slug: string } }) {
         setTickets([{ ticketTypeId: tts[0].id, quantity: 1 }]);
       }
     })();
-  }, [params.slug]);
+  }, [slug]);
 
   const summary = useMemo(() => {
     const lines = tickets
@@ -102,7 +107,7 @@ export default function CheckoutPage({ params }: { params: { slug: string } }) {
       <section className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12 grid gap-8 lg:grid-cols-3">
         <form
           onSubmit={onSubmit}
-          className="lg:col-span-2 rounded-2xl bg-white border border-(--border) p-6 space-y-4"
+          className="lg:col-span-2 rounded-2xl bg-white border border-(--border) p-6 space-y-4 shadow-sm"
         >
           <h1 className="text-2xl font-semibold">Checkout</h1>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -145,7 +150,7 @@ export default function CheckoutPage({ params }: { params: { slug: string } }) {
           </button>
         </form>
 
-        <aside className="lg:col-span-1 rounded-2xl bg-white border border-(--border) p-6">
+        <aside className="lg:col-span-1 rounded-2xl bg-white border border-(--border) p-6 shadow-sm">
           <h2 className="font-semibold">Order summary</h2>
           <div className="mt-4 space-y-3">
             {summary.lines.map((l, i) => (

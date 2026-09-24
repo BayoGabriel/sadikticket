@@ -29,10 +29,35 @@ export type PublicTicketType = {
   status: string;
 };
 
+// Server-aware request: absolute URL + forwarded cookies on server, relative on client
+async function makeRequest(
+  path: string,
+  init?: RequestInit,
+): Promise<Response> {
+  if (typeof window !== "undefined") return fetch(path, init);
+  const { headers: nextHeaders, cookies: nextCookies } =
+    await import("next/headers");
+  const h = await nextHeaders();
+  const host = h.get("x-forwarded-host") || h.get("host") || "localhost";
+  const proto = h.get("x-forwarded-proto") || "http";
+  const base = `${proto}://${host}`;
+  const absolute = new URL(path, base).toString();
+  const cookieStore = await nextCookies();
+  const cookieHeader = cookieStore
+    .getAll()
+    .map((c) => `${c.name}=${c.value}`)
+    .join("; ");
+  const headers = new Headers(init?.headers);
+  if (cookieHeader) headers.set("cookie", cookieHeader);
+  return fetch(absolute, { ...init, headers });
+}
+
 export async function getEventBySlug(
   slug: string,
 ): Promise<PublicEventDetail | null> {
-  const res = await fetch(`/api/v1/events/${slug}`, { cache: "no-store" });
+  const res = await makeRequest(`/api/v1/events/${slug}`, {
+    cache: "no-store",
+  });
   if (!res.ok) return null;
   const data = await res.json();
   if (!data.success) return null;
@@ -57,7 +82,7 @@ export function ticketsUrlForOrder(orderId: string) {
 export async function listTicketTypesBySlug(
   slug: string,
 ): Promise<PublicTicketType[]> {
-  const res = await fetch(`/api/v1/events/${slug}/ticket-types`, {
+  const res = await makeRequest(`/api/v1/events/${slug}/ticket-types`, {
     cache: "no-store",
   });
   const data = await res.json();
