@@ -44,7 +44,7 @@ export default async function AdminLayout({
       <header className="h-14 border-b border-[#E8E8E5] bg-white">
         <div className="mx-auto max-w-7xl h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <Link href="/admin" className="font-semibold">
-            SadikTicket Admin
+            SerenArt Admin
           </Link>
           <div className="text-sm text-[#6B6B6B]">{me.email}</div>
         </div>

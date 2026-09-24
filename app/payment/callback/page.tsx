@@ -7,10 +7,6 @@ import {
 } from "@/features/checkout/api";
 import type { OrderStatusPayload } from "@/features/checkout/types";
 
-export const metadata = {
-  robots: { index: false, follow: false },
-};
-
 export default function PaymentCallbackPage() {
   const sp = useSearchParams();
   const router = useRouter();

@@ -14,15 +14,15 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Discover events and get tickets | sadikticket",
+  title: "Discover events and get tickets | SerenArt",
   description:
     "Find events, buy tickets securely with Paystack, and get QR-code tickets for seamless check-in.",
   openGraph: {
-    title: "Discover events and get tickets | sadikticket",
+    title: "Discover events and get tickets | SerenArt",
     description:
       "Find events, buy tickets securely with Paystack, and get QR-code tickets for seamless check-in.",
     url: "/",
-    siteName: "sadikticket",
+    siteName: "SerenArt",
     type: "website",
   },
 };
