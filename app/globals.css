@@ -1,8 +1,27 @@
 @import "tailwindcss";
 
 :root {
+  color-scheme: light;
+  /* semantic surfaces */
   --background: #ffffff;
-  --foreground: #171717;
+  --surface: #ffffff;
+  --surface-muted: #fafaf8;
+  --border: #e8e8e5;
+  /* text */
+  --text-primary: #1a1a1a;
+  --text-secondary: #4a4a45;
+  --text-muted: #6b6b6b;
+  /* brand */
+  --brand-primary: #004130;
+  --brand-primary-hover: #003225;
+  --brand-primary-soft: #e6eeeb;
+  --brand-accent: #e66d0b;
+  --brand-accent-hover: #c45d0a;
+  --brand-accent-soft: #fff1e5;
+  /* focus */
+  --focus: #004130;
+  /* theme mapping */
+  --foreground: var(--text-primary);
 }
 
 @theme inline {
@@ -14,13 +33,22 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* enforce light visuals even in dark OS */
+    color-scheme: light;
+    --background: #ffffff;
+    --surface: #ffffff;
+    --surface-muted: #fafaf8;
+    --border: #e8e8e5;
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a45;
+    --text-muted: #6b6b6b;
+    --foreground: var(--text-primary);
   }
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
+  color: var(--text-primary);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* #004130  #e66d0b */

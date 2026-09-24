@@ -43,17 +43,17 @@ export default async function TicketsPage({
   const { order, event, tickets, typeNameById } = data;
 
   return (
-    <main className="min-h-screen bg-[#FAFAF8]">
+    <main className="min-h-screen bg-(--surface-muted)">
       <section className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8 py-12">
         <h1 className="text-2xl font-semibold">Your tickets</h1>
         {event && (
-          <div className="mt-2 text-[#6B6B6B]">
+          <div className="mt-2 text-(--text-muted)">
             {event.name} · {event.city ? `${event.city}, ` : ""}
             {event.country || ""}
           </div>
         )}
         {order.status !== "PAID" && (
-          <div className="mt-4 rounded-2xl bg-white border border-[#E8E8E5] p-6 text-[#6B6B6B]">
+          <div className="mt-4 rounded-2xl bg-white border border-(--border) p-6 text-(--text-muted)">
             Payment not confirmed yet. Please check back shortly.
           </div>
         )}
@@ -61,17 +61,17 @@ export default async function TicketsPage({
           {tickets.map((t: any) => (
             <div
               key={t._id.toString()}
-              className="rounded-2xl bg-white border border-[#E8E8E5] p-6"
+              className="rounded-2xl bg-white border border-(--border) p-6"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <div className="text-sm text-[#6B6B6B]">
+                  <div className="text-sm text-(--text-muted)">
                     {typeNameById[t.ticketTypeId?.toString() || ""] || "Ticket"}
                   </div>
                   <div className="text-lg font-semibold wrap-break-word">
                     {t.ticketCode}
                   </div>
-                  <div className="mt-1 text-sm text-[#6B6B6B]">
+                  <div className="mt-1 text-sm text-(--text-muted)">
                     {t.holderName}
                   </div>
                   <div className="mt-1 text-sm">Status: {t.status}</div>
@@ -80,7 +80,7 @@ export default async function TicketsPage({
                   {t.qrToken ? (
                     <TicketQRCode value={t.qrToken} size={192} />
                   ) : (
-                    <div className="w-48 h-48 bg-[#F3F3F0] grid place-items-center rounded-lg text-[#6B6B6B] text-xs">
+                    <div className="w-48 h-48 bg-(--surface-muted) grid place-items-center rounded-lg text-(--text-muted) text-xs">
                       QR unavailable
                     </div>
                   )}
@@ -89,7 +89,7 @@ export default async function TicketsPage({
             </div>
           ))}
           {tickets.length === 0 && (
-            <div className="rounded-2xl bg-white border border-[#E8E8E5] p-6">
+            <div className="rounded-2xl bg-white border border-(--border) p-6">
               No tickets found for this order.
             </div>
           )}

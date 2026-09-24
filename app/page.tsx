@@ -12,7 +12,7 @@ export default async function Home() {
       <FeaturedEvents />
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-[#171717] text-xl font-semibold">
+          <h2 className="text-(--text-primary) text-xl font-semibold">
             Explore Events
           </h2>
         </div>
@@ -21,14 +21,14 @@ export default async function Home() {
         </Suspense>
       </section>
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <div className="rounded-2xl bg-white border border-[#E8E8E5] p-8 text-center">
-          <h3 className="text-[#171717] text-lg font-semibold">
+        <div className="rounded-2xl bg-white border border-(--border) p-8 text-center">
+          <h3 className="text-(--text-primary) text-lg font-semibold">
             Can’t find what you’re looking for?
           </h3>
-          <p className="text-[#6B6B6B] mt-1">Browse all upcoming events</p>
+          <p className="text-(--text-muted) mt-1">Browse all upcoming events</p>
           <a
             href="/events"
-            className="inline-flex items-center rounded-full bg-emerald-600 text-white px-5 py-2.5 text-sm font-medium shadow-sm hover:bg-emerald-700 mt-4"
+            className="inline-flex items-center rounded-full bg-(--brand-primary) text-white px-5 py-2.5 text-sm font-medium shadow-sm hover:bg-(--brand-primary-hover) mt-4"
           >
             Browse all events
           </a>

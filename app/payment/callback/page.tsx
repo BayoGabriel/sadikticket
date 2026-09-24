@@ -67,12 +67,12 @@ function PaymentCallbackInner() {
   }, [reference]);
 
   return (
-    <main className="min-h-[60vh] grid place-items-center bg-[#FAFAF8]">
-      <div className="rounded-2xl bg-white border border-[#E8E8E5] p-8 text-center max-w-md">
+    <main className="min-h-[60vh] grid place-items-center bg-(--surface-muted)">
+      <div className="rounded-2xl bg-white border border-(--border) p-8 text-center max-w-md">
         {status === "processing" && (
           <>
             <h1 className="text-xl font-semibold">Confirming your payment</h1>
-            <p className="mt-2 text-[#6B6B6B]">
+            <p className="mt-2 text-(--text-muted)">
               We're securely confirming your payment and preparing your ticket.
               Please don't close this page.
             </p>
@@ -83,31 +83,31 @@ function PaymentCallbackInner() {
             <h1 className="text-xl font-semibold">
               Payment is being confirmed
             </h1>
-            <p className="mt-2 text-[#6B6B6B]">
+            <p className="mt-2 text-(--text-muted)">
               We're waiting for confirmation from the payment provider. This can
               take a few moments.
             </p>
-            <div className="mt-4 text-sm text-[#6B6B6B]">
+            <div className="mt-4 text-sm text-(--text-muted)">
               Elapsed: {elapsed}s
             </div>
           </>
         )}
         {status === "success" && payload && (
           <>
-            <h1 className="text-xl font-semibold text-emerald-700">
+            <h1 className="text-xl font-semibold text-(--brand-primary)">
               Payment confirmed
             </h1>
             {payload.event && (
-              <p className="mt-2 text-[#171717]">{payload.event.name}</p>
+              <p className="mt-2 text-(--text-primary)">{payload.event.name}</p>
             )}
-            <p className="mt-1 text-[#6B6B6B]">Your tickets are ready.</p>
+            <p className="mt-1 text-(--text-muted)">Your tickets are ready.</p>
             <a
               href={ticketsUrlForOrder(payload.id!)}
-              className="mt-4 inline-flex items-center rounded-lg bg-emerald-600 text-white px-4 py-2 font-medium hover:bg-emerald-700"
+              className="mt-4 inline-flex items-center rounded-lg bg-(--brand-primary) text-white px-4 py-2 font-medium hover:bg-(--brand-primary-hover)"
             >
               View my tickets
             </a>
-            <p className="mt-2 text-xs text-[#6B6B6B]">
+            <p className="mt-2 text-xs text-(--text-muted)">
               We've also sent ticket details to your email.
             </p>
           </>
@@ -117,12 +117,12 @@ function PaymentCallbackInner() {
             <h1 className="text-xl font-semibold text-red-600">
               Payment not confirmed
             </h1>
-            <p className="mt-2 text-[#6B6B6B]">
+            <p className="mt-2 text-(--text-muted)">
               We couldn't confirm this payment. No ticket has been issued.
             </p>
             <button
               onClick={() => router.push("/")}
-              className="mt-4 rounded-lg border border-[#E8E8E5] bg-white px-4 py-2 hover:bg-[#F3F3F0]"
+              className="mt-4 rounded-lg border border-(--border) bg-white px-4 py-2 hover:bg-(--surface-muted)"
             >
               Return home
             </button>
@@ -131,12 +131,12 @@ function PaymentCallbackInner() {
         {status === "notfound" && (
           <>
             <h1 className="text-xl font-semibold">Order not found</h1>
-            <p className="mt-2 text-[#6B6B6B]">
+            <p className="mt-2 text-(--text-muted)">
               We couldn't find this order reference.
             </p>
             <button
               onClick={() => router.push("/")}
-              className="mt-4 rounded-lg border border-[#E8E8E5] bg-white px-4 py-2 hover:bg-[#F3F3F0]"
+              className="mt-4 rounded-lg border border-(--border) bg-white px-4 py-2 hover:bg-(--surface-muted)"
             >
               Go home
             </button>
@@ -151,10 +151,10 @@ export default function PaymentCallbackPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-[60vh] grid place-items-center bg-[#FAFAF8]">
-          <div className="rounded-2xl bg-white border border-[#E8E8E5] p-8 text-center max-w-md">
+        <main className="min-h-[60vh] grid place-items-center bg-(--surface-muted)">
+          <div className="rounded-2xl bg-white border border-(--border) p-8 text-center max-w-md">
             <h1 className="text-xl font-semibold">Confirming your payment</h1>
-            <p className="mt-2 text-[#6B6B6B]">Please wait…</p>
+            <p className="mt-2 text-(--text-muted)">Please wait…</p>
           </div>
         </main>
       }
