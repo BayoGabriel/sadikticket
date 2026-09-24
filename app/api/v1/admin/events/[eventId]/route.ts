@@ -1,14 +1,18 @@
-import { NextRequest } from 'next/server';
-import { requireRole } from '@/lib/auth';
-import { ok, fail } from '@/lib/response';
-import { updateEventSchema } from '@/schemas/event';
-import { eventService } from '@/services/eventService';
+import { NextRequest } from "next/server";
+import { requireRole } from "@/lib/auth";
+import { ok, fail } from "@/lib/response";
+import { updateEventSchema } from "@/schemas/event";
+import { eventService } from "@/services/eventService";
 
 // GET /api/v1/admin/events/:eventId
-export async function GET(_req: NextRequest, { params }: { params: { eventId: string } }) {
+export async function GET(
+  _req: NextRequest,
+  ctx: { params: Promise<{ eventId: string }> },
+) {
   try {
-    await requireRole(['SUPER_ADMIN', 'EVENT_ADMIN']);
-    const ev = await eventService.getById(params.eventId);
+    await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    const { eventId } = await ctx.params;
+    const ev = await eventService.getById(eventId);
     return ok({
       id: ev._id.toString(),
       name: ev.name,
@@ -33,22 +37,34 @@ export async function GET(_req: NextRequest, { params }: { params: { eventId: st
 }
 
 // PATCH /api/v1/admin/events/:eventId
-export async function PATCH(req: NextRequest, { params }: { params: { eventId: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  ctx: { params: Promise<{ eventId: string }> },
+) {
   try {
-    await requireRole(['SUPER_ADMIN', 'EVENT_ADMIN']);
+    await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
     const patch = updateEventSchema.parse(await req.json());
-    const updated = await eventService.update(params.eventId, patch);
-    return ok({ id: updated._id.toString(), status: updated.status, updatedAt: updated.updatedAt });
+    const { eventId } = await ctx.params;
+    const updated = await eventService.update(eventId, patch);
+    return ok({
+      id: updated._id.toString(),
+      status: updated.status,
+      updatedAt: updated.updatedAt,
+    });
   } catch (e: any) {
     return fail(e);
   }
 }
 
 // DELETE /api/v1/admin/events/:eventId
-export async function DELETE(_req: NextRequest, { params }: { params: { eventId: string } }) {
+export async function DELETE(
+  _req: NextRequest,
+  ctx: { params: Promise<{ eventId: string }> },
+) {
   try {
-    await requireRole(['SUPER_ADMIN']);
-    await eventService.remove(params.eventId);
+    await requireRole(["SUPER_ADMIN"]);
+    const { eventId } = await ctx.params;
+    await eventService.remove(eventId);
     return ok({});
   } catch (e: any) {
     return fail(e);

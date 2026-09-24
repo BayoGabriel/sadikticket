@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   getOrderStatusByReference,
@@ -7,7 +7,7 @@ import {
 } from "@/features/checkout/api";
 import type { OrderStatusPayload } from "@/features/checkout/types";
 
-export default function PaymentCallbackPage() {
+function PaymentCallbackInner() {
   const sp = useSearchParams();
   const router = useRouter();
   const reference = sp.get("reference") || sp.get("trxref") || "";
@@ -144,5 +144,22 @@ export default function PaymentCallbackPage() {
         )}
       </div>
     </main>
+  );
+}
+
+export default function PaymentCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-[60vh] grid place-items-center bg-[#FAFAF8]">
+          <div className="rounded-2xl bg-white border border-[#E8E8E5] p-8 text-center max-w-md">
+            <h1 className="text-xl font-semibold">Confirming your payment</h1>
+            <p className="mt-2 text-[#6B6B6B]">Please wait…</p>
+          </div>
+        </main>
+      }
+    >
+      <PaymentCallbackInner />
+    </Suspense>
   );
 }

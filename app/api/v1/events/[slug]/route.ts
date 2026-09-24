@@ -1,11 +1,15 @@
-import { NextRequest } from 'next/server';
-import { ok, fail } from '@/lib/response';
-import { eventService } from '@/services/eventService';
+import { NextRequest } from "next/server";
+import { ok, fail } from "@/lib/response";
+import { eventService } from "@/services/eventService";
 
 // GET /api/v1/events/:slug (public event details)
-export async function GET(_req: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(
+  _req: NextRequest,
+  ctx: { params: Promise<{ slug: string }> },
+) {
   try {
-    const ev = await eventService.getPublicBySlug(params.slug);
+    const { slug } = await ctx.params;
+    const ev = await eventService.getPublicBySlug(slug);
     return ok({
       id: ev._id.toString(),
       name: ev.name,

@@ -1,21 +1,19 @@
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 import { connectDb } from "@/lib/db";
-import { OrderModel } from "@/models/order";
-import { TicketModel } from "@/models/ticket";
-import { EventModel } from "@/models/event";
+import { OrderModel, type Order } from "@/models/order";
+import { TicketModel, type Ticket } from "@/models/ticket";
+import { EventModel, type Event } from "@/models/event";
 import { TicketTypeModel } from "@/models/ticketType";
 import { TicketQRCode } from "@/features/tickets/components/TicketQRCode";
 
-export const metadata = { robots: { index: false, follow: false } };
-
 async function getTickets(orderId: string) {
   await connectDb();
-  const order = await OrderModel.findById(orderId).lean();
+  const order = await OrderModel.findById(orderId).lean<Order | null>();
   if (!order) return null;
   const [event, tickets] = await Promise.all([
-    EventModel.findById(order.eventId).lean(),
-    TicketModel.find({ orderId: order._id }).lean(),
+    EventModel.findById(order.eventId).lean<Event | null>(),
+    TicketModel.find({ orderId: order._id }).lean<Ticket[]>(),
   ]);
   // Fetch ticket type names for display
   const typeIds = Array.from(

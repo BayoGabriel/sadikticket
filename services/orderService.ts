@@ -1,10 +1,10 @@
-import { connectDb } from '@/lib/db';
-import { ApiError } from '@/lib/errors';
-import { OrderModel } from '@/models/order';
-import { EventModel } from '@/models/event';
-import { TicketTypeModel } from '@/models/ticketType';
-import { nanoid } from 'nanoid';
-import { Types } from 'mongoose';
+import { connectDb } from "@/lib/db";
+import { ApiError } from "@/lib/errors";
+import { OrderModel } from "@/models/order";
+import { EventModel, type Event } from "@/models/event";
+import { TicketTypeModel, type TicketType } from "@/models/ticketType";
+import { nanoid } from "nanoid";
+import { Types } from "mongoose";
 
 export const orderService = {
   async create(input: {
@@ -14,24 +14,36 @@ export const orderService = {
   }) {
     await connectDb();
 
-    const event = await EventModel.findById(input.eventId).lean();
-    if (!event) throw new ApiError('EVENT_NOT_FOUND', 'Event not found', 404);
-    if (event.status !== 'PUBLISHED') throw new ApiError('EVENT_NOT_PUBLISHED', 'Event is not published', 400);
+    const event = await EventModel.findById(input.eventId).lean<Event | null>();
+    if (!event) throw new ApiError("EVENT_NOT_FOUND", "Event not found", 404);
+    if (event.status !== "PUBLISHED")
+      throw new ApiError("EVENT_NOT_PUBLISHED", "Event is not published", 400);
 
     const typeIds = input.items.map((i) => new Types.ObjectId(i.ticketTypeId));
-    const types = await TicketTypeModel.find({ _id: { $in: typeIds }, eventId: event._id }).lean();
-    if (types.length !== typeIds.length) throw new ApiError('TICKET_TYPE_NOT_FOUND', 'Invalid ticket type(s)', 400);
+    const types = await TicketTypeModel.find({
+      _id: { $in: typeIds },
+      eventId: event._id,
+    }).lean<TicketType[]>();
+    if (types.length !== typeIds.length)
+      throw new ApiError(
+        "TICKET_TYPE_NOT_FOUND",
+        "Invalid ticket type(s)",
+        400,
+      );
 
     let subtotal = 0;
     const orderItems = input.items.map((it) => {
-      const type = types.find((t) => t._id.toString() === it.ticketTypeId)!;
+      const type = types.find((t) => String(t._id) === it.ticketTypeId)!;
       // Validate availability and sales window
       const now = new Date();
-      if (type.status !== 'ACTIVE') throw new ApiError('TICKET_SOLD_OUT', 'Ticket inactive', 400);
-      if (type.salesStart && now < type.salesStart) throw new ApiError('EVENT_SALES_CLOSED', 'Sales not started', 400);
-      if (type.salesEnd && now > type.salesEnd) throw new ApiError('EVENT_SALES_CLOSED', 'Sales ended', 400);
+      if (type.status !== "ACTIVE")
+        throw new ApiError("TICKET_SOLD_OUT", "Ticket inactive", 400);
+      if (type.salesStart && now < type.salesStart)
+        throw new ApiError("EVENT_SALES_CLOSED", "Sales not started", 400);
+      if (type.salesEnd && now > type.salesEnd)
+        throw new ApiError("EVENT_SALES_CLOSED", "Sales ended", 400);
       if ((type.quantitySold ?? 0) + it.quantity > (type.quantity ?? 0))
-        throw new ApiError('TICKET_SOLD_OUT', 'Not enough inventory', 400);
+        throw new ApiError("TICKET_SOLD_OUT", "Not enough inventory", 400);
 
       subtotal += type.price * it.quantity;
       return {
@@ -54,7 +66,7 @@ export const orderService = {
       customerName: input.customer.name,
       customerEmail: input.customer.email,
       customerPhone: input.customer.phone,
-      status: 'PENDING',
+      status: "PENDING",
       subtotal,
       fees,
       total,

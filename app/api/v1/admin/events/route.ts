@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
     const { items, total } = await eventService.list(parsed);
     return ok({
       items: items.map((e) => ({
-        id: e._id.toString(),
+        id: String((e as any)._id),
         name: e.name,
         slug: e.slug,
         startsAt: e.startsAt,

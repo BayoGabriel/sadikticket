@@ -1,10 +1,10 @@
-import { TicketModel } from '@/models/ticket';
-import { EventModel } from '@/models/event';
-import { TicketTypeModel } from '@/models/ticketType';
-import { emailService } from './emailService';
-import { qrCodeService } from './qrCodeService';
-import { env } from '@/lib/env';
-import { connectDb } from '@/lib/db';
+import { TicketModel } from "@/models/ticket";
+import { EventModel, type Event } from "@/models/event";
+import { TicketTypeModel, type TicketType } from "@/models/ticketType";
+import { emailService } from "./emailService";
+import { qrCodeService } from "./qrCodeService";
+import { env } from "@/lib/env";
+import { connectDb } from "@/lib/db";
 
 function ticketVerifyUrl(token: string) {
   return `${env.APP_URL}/ticket/verify/${token}`;
@@ -33,23 +33,30 @@ function ticketEmailHtml(params: {
 export const ticketEmailService = {
   async sendAllForOrder(orderId: string) {
     await connectDb();
-    const tickets = await TicketModel.find({ orderId, emailStatus: { $ne: 'SENT' } }).lean();
+    const tickets = await TicketModel.find({
+      orderId,
+      emailStatus: { $ne: "SENT" },
+    }).lean();
     if (tickets.length === 0) return { sent: 0 };
 
-    const event = await EventModel.findById(tickets[0].eventId).lean();
-    const types = await TicketTypeModel.find({ _id: { $in: tickets.map((t) => t.ticketTypeId) } }).lean();
+    const event = await EventModel.findById(
+      tickets[0].eventId,
+    ).lean<Event | null>();
+    const types = await TicketTypeModel.find({
+      _id: { $in: tickets.map((t) => t.ticketTypeId) },
+    }).lean<TicketType[]>();
 
     let sent = 0;
     for (const t of tickets) {
-      const type = types.find((x) => x._id.toString() === t.ticketTypeId.toString());
+      const type = types.find((x) => String(x._id) === String(t.ticketTypeId));
       const url = ticketVerifyUrl(t.qrToken);
       const qrDataUrl = await qrCodeService.toDataUrl(url);
       const html = ticketEmailHtml({
-        eventName: event?.name ?? 'Your Event',
-        venueName: event?.venueName,
+        eventName: event?.name ?? "Your Event",
+        venueName: event?.venueName ?? undefined,
         startsAt: event?.startsAt ?? new Date(),
         holderName: t.holderName,
-        ticketType: type?.name ?? 'Ticket',
+        ticketType: type?.name ?? "Ticket",
         ticketCode: t.ticketCode,
         qrDataUrl,
       });
@@ -57,13 +64,19 @@ export const ticketEmailService = {
       try {
         await emailService.sendTicketEmail({
           to: t.holderEmail,
-          subject: `Your ticket for ${event?.name ?? 'event'}`,
+          subject: `Your ticket for ${event?.name ?? "event"}`,
           html,
         });
-        await TicketModel.updateOne({ _id: t._id }, { $set: { emailStatus: 'SENT', emailedAt: new Date() } });
+        await TicketModel.updateOne(
+          { _id: t._id },
+          { $set: { emailStatus: "SENT", emailedAt: new Date() } },
+        );
         sent += 1;
       } catch {
-        await TicketModel.updateOne({ _id: t._id }, { $set: { emailStatus: 'FAILED' } });
+        await TicketModel.updateOne(
+          { _id: t._id },
+          { $set: { emailStatus: "FAILED" } },
+        );
       }
     }
 

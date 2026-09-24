@@ -5,12 +5,11 @@ import { ticketTypeService } from "@/services/ticketTypeService";
 // GET /api/v1/events/:slug/ticket-types (public, active and within sales window)
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { slug: string } },
+  ctx: { params: Promise<{ slug: string }> },
 ) {
   try {
-    const { types } = await ticketTypeService.listPublicByEventSlug(
-      params.slug,
-    );
+    const { slug } = await ctx.params;
+    const { types } = await ticketTypeService.listPublicByEventSlug(slug);
     return ok({
       items: types.map((t: any) => ({
         id: t._id.toString(),
