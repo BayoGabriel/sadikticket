@@ -13,9 +13,9 @@ export function EventCard({ event }: { event: EventSummary }) {
   return (
     <Link
       href={`/events/${event.slug}`}
-      className="group rounded-xl border border-[#E8E8E5] bg-white overflow-hidden shadow-sm hover:shadow-md transition"
+      className="group rounded-xl border border-(--border) bg-white overflow-hidden shadow-sm hover:shadow-md transition"
     >
-      <div className="relative aspect-4/3 bg-[#F3F3F0]">
+      <div className="relative aspect-4/3 bg-(--surface-muted)">
         {event.coverImage ? (
           <Image
             src={event.coverImage}
@@ -25,21 +25,21 @@ export function EventCard({ event }: { event: EventSummary }) {
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
           />
         ) : (
-          <div className="absolute inset-0 grid place-items-center text-[#6B6B6B]">
+          <div className="absolute inset-0 grid place-items-center text-(--text-muted)">
             No image
           </div>
         )}
       </div>
       <div className="p-4">
-        <h3 className="text-[#171717] text-base font-semibold line-clamp-2">
+        <h3 className="text-(--text-primary) text-base font-semibold line-clamp-2">
           {event.name}
         </h3>
-        <p className="mt-1 text-sm text-[#6B6B6B]">
+        <p className="mt-1 text-sm text-(--text-muted)">
           {dateFmt}
           {event.venueName ? ` · ${event.venueName}` : ""}
         </p>
         {event.fromPrice != null && (
-          <p className="mt-2 text-sm font-medium text-[#171717]">
+          <p className="mt-2 text-sm font-medium text-(--text-primary)">
             From ₦{(event.fromPrice / 100).toLocaleString()}
           </p>
         )}

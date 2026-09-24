@@ -33,12 +33,12 @@ export function FiltersShell({ initialEvents }: { initialEvents: any[] }) {
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-xl border border-[#E8E8E5] bg-white overflow-hidden"
+                className="rounded-xl border border-(--border) bg-white overflow-hidden"
               >
-                <div className="bg-[#F3F3F0] aspect-4/3 animate-pulse" />
+                <div className="bg-(--surface-muted) aspect-4/3 animate-pulse" />
                 <div className="p-4 space-y-2">
-                  <div className="h-4 bg-[#F3F3F0] rounded w-2/3 animate-pulse" />
-                  <div className="h-3 bg-[#F3F3F0] rounded w-1/2 animate-pulse" />
+                  <div className="h-4 bg-(--surface-muted) rounded w-2/3 animate-pulse" />
+                  <div className="h-3 bg-(--surface-muted) rounded w-1/2 animate-pulse" />
                 </div>
               </div>
             ))}

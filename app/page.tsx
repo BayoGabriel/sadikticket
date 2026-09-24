@@ -1,5 +1,7 @@
 import { FeaturedEvents } from "@/components/events/FeaturedEvents";
 import { Hero } from "@/components/layout/Hero";
+import { Blob } from "@/components/decorative/Blob";
+import { AccentCircle } from "@/components/decorative/AccentCircle";
 import { getEvents } from "@/features/events/server";
 import { FiltersShell } from "@/components/events/FiltersShell";
 import { Suspense } from "react";
@@ -7,7 +9,14 @@ import { Suspense } from "react";
 export default async function Home() {
   const initial = await getEvents({ limit: 9 });
   return (
-    <main className="flex-1">
+    <main className="flex-1 relative overflow-hidden">
+      {/* Decorative background elements */}
+      <Blob
+        className="pointer-events-none absolute -top-24 -left-24 w-96 h-96"
+        color="#E6EEEB"
+        opacity={0.8}
+      />
+      <AccentCircle className="pointer-events-none absolute -right-16 top-32 w-64 h-64" />
       <Hero />
       <FeaturedEvents />
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
