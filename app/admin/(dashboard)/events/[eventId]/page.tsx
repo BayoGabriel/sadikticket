@@ -43,6 +43,39 @@ export default async function EventOverviewPage({
       </div>
 
       <div className="rounded-2xl bg-white border border-[#E8E8E5] p-6">
+        <h3 className="font-semibold">Quick links</h3>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <a
+            href={`/admin/events/${ev.id}/tickets`}
+            className="rounded-lg border border-[#E8E8E5] bg-white px-3 py-2 text-sm hover:bg-[#F3F3F0]"
+          >
+            Manage tickets
+          </a>
+          <a
+            href={`/admin/events/${ev.id}/edit`}
+            className="rounded-lg border border-[#E8E8E5] bg-white px-3 py-2 text-sm hover:bg-[#F3F3F0]"
+          >
+            Edit details
+          </a>
+          {ev.slug && (
+            <a
+              href={`/events/${ev.slug}`}
+              target="_blank"
+              className="rounded-lg border border-[#E8E8E5] bg-white px-3 py-2 text-sm hover:bg-[#F3F3F0]"
+            >
+              View public page
+            </a>
+          )}
+        </div>
+        {ev.status !== "PUBLISHED" && (
+          <div className="mt-4 rounded-xl border border-dashed border-[#E8E8E5] p-4 text-sm text-[#6B6B6B]">
+            Publish your event for tickets to appear on the public page. Use the
+            Publish button above when ready.
+          </div>
+        )}
+      </div>
+
+      <div className="rounded-2xl bg-white border border-[#E8E8E5] p-6">
         <h3 className="font-semibold">Event information</h3>
         <dl className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>

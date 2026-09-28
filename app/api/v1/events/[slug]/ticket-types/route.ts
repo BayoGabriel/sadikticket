@@ -9,7 +9,8 @@ export async function GET(
 ) {
   try {
     const { slug } = await ctx.params;
-    const { types } = await ticketTypeService.listPublicByEventSlug(slug);
+    const now = new Date();
+    const { types } = await ticketTypeService.listPublicByEventSlug(slug, now);
     return ok({
       items: types.map((t: any) => ({
         id: t._id.toString(),
@@ -23,6 +24,9 @@ export async function GET(
         ),
         salesStart: t.salesStart,
         salesEnd: t.salesEnd,
+        isOnSale:
+          (!t.salesStart || new Date(t.salesStart) <= now) &&
+          (!t.salesEnd || new Date(t.salesEnd) >= now),
       })),
     });
   } catch (e: any) {

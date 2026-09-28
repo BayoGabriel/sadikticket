@@ -2,6 +2,7 @@ export type AdminEventSummary = {
   id: string;
   name: string;
   slug: string;
+  coverImage?: string | null;
   startsAt?: string;
   endsAt?: string;
   status: "DRAFT" | "PUBLISHED" | "CANCELLED" | string;

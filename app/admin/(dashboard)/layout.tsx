@@ -4,7 +4,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 async function getMeServer() {
-  // Call existing backend /me so auth stays centralized
   const jar = await cookies();
   const cookieHeader = jar
     .getAll()

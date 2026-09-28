@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { listEvents } from "@/features/admin/events/api";
 
 export default async function AdminEventsPage({
@@ -69,13 +70,45 @@ export default async function AdminEventsPage({
                 className="border-b last:border-b-0 border-[#E8E8E5] hover:bg-[#FAFAF8]"
               >
                 <td className="px-4 py-4">
-                  <div className="font-medium">{e.name}</div>
-                  <div className="text-sm text-[#6B6B6B]">/{e.slug}</div>
+                  <div className="flex items-center gap-3">
+                    <div className="relative h-12 w-16 overflow-hidden rounded-md bg-[#F3F3F0]">
+                      {e.coverImage ? (
+                        <Image
+                          src={e.coverImage}
+                          alt=""
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="grid h-full w-full place-items-center text-xs text-[#6B6B6B]">
+                          No image
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="font-medium">{e.name}</div>
+                      <div className="text-sm text-[#6B6B6B]">/{e.slug}</div>
+                    </div>
+                  </div>
                 </td>
                 <td className="px-4 py-4 text-sm">
                   {e.startsAt ? new Date(e.startsAt).toLocaleString() : "—"}
                 </td>
-                <td className="px-4 py-4 text-sm">{e.status}</td>
+                <td className="px-4 py-4 text-sm">
+                  <span
+                    className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                      e.status === "PUBLISHED"
+                        ? "bg-emerald-50 text-emerald-700"
+                        : e.status === "DRAFT"
+                          ? "bg-gray-100 text-gray-700"
+                          : e.status === "CANCELLED"
+                            ? "bg-red-50 text-red-700"
+                            : "bg-amber-50 text-amber-700"
+                    }`}
+                  >
+                    {e.status}
+                  </span>
+                </td>
                 <td className="px-4 py-4 text-sm">
                   {new Date(e.createdAt).toLocaleDateString()}
                 </td>
@@ -86,6 +119,12 @@ export default async function AdminEventsPage({
                       className="text-sm text-emerald-700 hover:underline"
                     >
                       View
+                    </Link>
+                    <Link
+                      href={`/admin/events/${e.id}/tickets`}
+                      className="text-sm text-emerald-700 hover:underline"
+                    >
+                      Tickets
                     </Link>
                     <Link
                       href={`/admin/events/${e.id}/edit`}
@@ -101,9 +140,25 @@ export default async function AdminEventsPage({
               <tr>
                 <td
                   colSpan={5}
-                  className="px-4 py-8 text-center text-[#6B6B6B]"
+                  className="px-4 py-12 text-center text-[#6B6B6B]"
                 >
-                  No events found
+                  <div className="mx-auto max-w-md">
+                    <div className="text-2xl">🗓️</div>
+                    <h3 className="mt-2 font-semibold text-[#171717]">
+                      No events yet
+                    </h3>
+                    <p className="mt-1 text-sm">
+                      Create your first event to get started.
+                    </p>
+                    <div className="mt-4">
+                      <Link
+                        href="/admin/events/new"
+                        className="inline-flex items-center rounded-lg bg-emerald-600 text-white px-4 py-2 font-medium hover:bg-emerald-700"
+                      >
+                        Create event
+                      </Link>
+                    </div>
+                  </div>
                 </td>
               </tr>
             )}

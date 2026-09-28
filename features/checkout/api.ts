@@ -20,13 +20,12 @@ export type PublicTicketType = {
   id: string;
   name: string;
   description?: string;
-  price: number;
-  currency: string;
-  quantity?: number;
-  quantitySold?: number;
+  price: number; // minor units (e.g., kobo)
+  currency: string; // e.g., NGN
+  quantityAvailable?: number; // computed on server
   salesStart?: string | null;
   salesEnd?: string | null;
-  status: string;
+  isOnSale?: boolean;
 };
 
 // Server-aware request: absolute URL + forwarded cookies on server, relative on client

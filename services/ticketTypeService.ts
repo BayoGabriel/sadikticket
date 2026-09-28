@@ -4,7 +4,7 @@ import { connectDb } from "@/lib/db";
 import { ApiError } from "@/lib/errors";
 
 export const ticketTypeService = {
-  async listPublicByEventSlug(slug: string, now = new Date()) {
+  async listPublicByEventSlug(slug: string, _now = new Date()) {
     await connectDb();
     const event = await EventModel.findOne({
       slug,
@@ -15,10 +15,6 @@ export const ticketTypeService = {
     const types = await TicketTypeModel.find({
       eventId: event._id,
       status: "ACTIVE",
-      $and: [
-        { $or: [{ salesStart: null }, { salesStart: { $lte: now } }] },
-        { $or: [{ salesEnd: null }, { salesEnd: { $gte: now } }] },
-      ],
     })
       .sort({ createdAt: 1 })
       .lean();

@@ -2,6 +2,7 @@
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getEvent, updateEvent } from "@/features/admin/events/api";
+import { ImageUploader } from "@/components/admin/events/ImageUploader";
 
 export default function EditEventPage({
   params,
@@ -85,6 +86,15 @@ export default function EditEventPage({
       </div>
 
       <form onSubmit={onSubmit} className="space-y-6">
+        <div className="rounded-2xl bg-white border border-[#E8E8E5] p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium">Event image</label>
+            <div className="mt-2">
+              <ImageUploader eventId={eventId} initialUrl={ev.coverImage} />
+            </div>
+          </div>
+        </div>
+
         <div className="rounded-2xl bg-white border border-[#E8E8E5] p-6 space-y-4">
           <div>
             <label className="block text-sm font-medium">Event name</label>

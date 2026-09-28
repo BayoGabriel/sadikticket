@@ -50,6 +50,7 @@ export async function GET(req: NextRequest) {
         id: String((e as any)._id),
         name: e.name,
         slug: e.slug,
+        coverImage: (e as any).coverImage || null,
         startsAt: e.startsAt,
         endsAt: e.endsAt,
         status: e.status,
