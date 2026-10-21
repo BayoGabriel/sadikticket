@@ -9,12 +9,14 @@ export async function fetchFeaturedEvents(): Promise<EventSummary[]> {
   return data.data.items;
 }
 
-export async function fetchEvents(params: { search?: string; page?: number; limit?: number; range?: 'today' | 'week' | 'month'; }): Promise<{ items: EventSummary[]; page: number; total: number; totalPages: number; }>{
+export async function fetchEvents(params: { search?: string; page?: number; limit?: number; range?: 'today' | 'week' | 'month'; city?: string; month?: string; }): Promise<{ items: EventSummary[]; page: number; total: number; totalPages: number; }>{
   const url = new URL(`${BASE}/events`, 'http://localhost');
   if (params.search) url.searchParams.set('search', params.search);
   if (params.page) url.searchParams.set('page', String(params.page));
   if (params.limit) url.searchParams.set('limit', String(params.limit));
   if (params.range) url.searchParams.set('range', params.range);
+  if (params.city) url.searchParams.set('city', params.city);
+  if (params.month) url.searchParams.set('month', params.month);
   const res = await fetch(`${url.pathname}${url.search}`, { next: { revalidate: 30 } });
   const data = await res.json();
   if (!res.ok || !data.success) throw new Error('Failed to load events');

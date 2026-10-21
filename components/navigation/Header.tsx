@@ -4,80 +4,72 @@ import Link from "next/link";
 import { useState } from "react";
 import Logo from "@/assets/images/artlogo.png";
 
+const links = [
+  { href: "/events", label: "Events" },
+  { href: "/experiences", label: "Experiences" },
+  { href: "/private-bookings", label: "Private Bookings" },
+  { href: "/business", label: "SerenArt Business" },
+  { href: "/gallery", label: "Gallery" },
+];
+
 export function Header() {
   const [open, setOpen] = useState(false);
   return (
-    <header className="sticky top-0 z-30 bg-(--surface-muted)/80 backdrop-blur border-b border-(--border)">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <Link href="/" className="font-semibold text-(--text-primary) text-lg">
+    <header className="sticky top-0 z-30 border-b border-(--border) bg-(--surface-muted)/85 backdrop-blur">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <Link href="/" className="flex items-center" aria-label="SerenArt home">
           <Image src={Logo} alt="SerenArt" width={100} height={100} />
         </Link>
-        <nav className="hidden md:flex items-center gap-6">
-          <Link
-            href="/"
-            className="text-(--text-primary) hover:text-(--brand-primary)"
-          >
-            Discover
-          </Link>
-          <Link
-            href="/about"
-            className="text-(--text-primary) hover:text-(--brand-primary)"
-          >
-            About
-          </Link>
+
+        <nav className="hidden items-center gap-6 lg:flex">
+          {links.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="text-sm font-medium text-(--text-primary) transition hover:text-(--brand-accent)"
+            >
+              {l.label}
+            </Link>
+          ))}
         </nav>
-        <div className="hidden md:flex items-center gap-3">
+
+        <div className="hidden lg:block">
           <Link
-            href="/login"
-            className="text-(--text-primary) hover:text-(--brand-primary)"
+            href="/events"
+            className="inline-flex items-center rounded-full bg-(--brand-accent) px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-(--brand-accent-hover)"
           >
-            Login
-          </Link>
-          <Link
-            href="/admin/events/new"
-            className="inline-flex items-center rounded-full bg-(--brand-primary) text-white px-4 py-2 text-sm font-medium shadow-sm hover:bg-(--brand-primary-hover) transition"
-          >
-            Create Event
+            Get Tickets
           </Link>
         </div>
+
         <button
           aria-label="Open menu"
-          className="md:hidden inline-flex items-center p-2"
-          onClick={() => setOpen(true)}
+          className="inline-flex items-center p-2 lg:hidden"
+          onClick={() => setOpen((v) => !v)}
         >
-          <span className="i-lucide-menu h-6 w-6">☰</span>
+          <span className="h-6 w-6 text-xl leading-6">{open ? "✕" : "☰"}</span>
         </button>
       </div>
+
       {open && (
-        <div className="md:hidden border-t border-(--border) bg-white">
-          <div className="px-4 py-3 flex flex-col gap-3">
+        <div className="border-t border-(--border) bg-white lg:hidden">
+          <div className="flex flex-col gap-3 px-4 py-4">
+            {links.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="text-(--text-primary)"
+              >
+                {l.label}
+              </Link>
+            ))}
             <Link
-              href="/"
+              href="/events"
               onClick={() => setOpen(false)}
-              className="text-(--text-primary)"
+              className="inline-flex w-fit items-center rounded-full bg-(--brand-accent) px-4 py-2 text-sm font-semibold text-white shadow-sm"
             >
-              Discover
-            </Link>
-            <Link
-              href="/about"
-              onClick={() => setOpen(false)}
-              className="text-(--text-primary)"
-            >
-              About
-            </Link>
-            <Link
-              href="/login"
-              onClick={() => setOpen(false)}
-              className="text-(--text-primary)"
-            >
-              Login
-            </Link>
-            <Link
-              href="/admin/events/new"
-              onClick={() => setOpen(false)}
-              className="inline-flex items-center rounded-full bg-(--brand-primary) text-white px-4 py-2 text-sm font-medium shadow-sm"
-            >
-              Create Event
+              Get Tickets
             </Link>
           </div>
         </div>

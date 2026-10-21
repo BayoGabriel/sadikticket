@@ -11,7 +11,9 @@ export const paginationQuerySchema = z.object({
 
 export const createEventSchema = z.object({
   name: z.string().min(3),
+  shortDescription: z.string().optional(),
   description: z.string().optional(),
+  includes: z.array(z.string()).optional(),
   venueName: z.string().min(1),
   venueAddress: z.string().min(1),
   city: z.string().min(1),

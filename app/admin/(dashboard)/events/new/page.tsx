@@ -17,6 +17,10 @@ export default function NewEventPage() {
       name: fd.get('name'),
       description: fd.get('description') || '',
       shortDescription: fd.get('shortDescription') || '',
+      includes: String(fd.get('includes') || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
       venueName: fd.get('venueName') || '',
       venueAddress: fd.get('venueAddress') || '',
       city: fd.get('city') || '',
@@ -57,6 +61,10 @@ export default function NewEventPage() {
           <div>
             <label className="block text-sm font-medium">Description</label>
             <textarea name="description" rows={4} className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">What's included (comma-separated)</label>
+            <input name="includes" placeholder="Canvas, paint and brushes, apron, drink, snack" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
           </div>
         </div>
 

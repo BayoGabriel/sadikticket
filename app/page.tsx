@@ -1,232 +1,367 @@
-import { Suspense } from "react";
+import Link from "next/link";
+import type { Metadata } from "next";
 
 import { getEvents } from "@/features/events/server";
-import { FiltersShell } from "@/components/events/FiltersShell";
+import { EventCard } from "@/components/events/EventCard";
+import { PhotoTile } from "@/components/ui/PhotoTile";
 
-import { Blob } from "@/components/decorative/Blob";
-import { AccentCircle } from "@/components/decorative/AccentCircle";
-import { BrushShape } from "@/components/decorative/BrushShape";
+export const metadata: Metadata = {
+  title: "SerenArt — Life's Too Short for Boring Plans",
+  description:
+    "Create art, vibe to your favourite playlists, meet your people and have a good time. Public events and private experiences in Lagos and Benin City.",
+};
 
-export default async function EventsPage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | undefined>>;
-}) {
-  const sp = await searchParams;
+const vibeTags = [
+  "Painting",
+  "Clay",
+  "Karaoke",
+  "Picnics",
+  "Trivia",
+  "RnB nights",
+  "Birthdays",
+  "Team days",
+];
 
-  const initial = await getEvents({
-    search: sp?.q || undefined,
-    limit: 12,
-  });
+const moods = [
+  {
+    title: "Creative Experiences",
+    body: "Canvas Painting, Clay Painting, Gypsum Art..",
+  },
+  {
+    title: "Social Experiences",
+    body: "Karaoke, games, trivia, Mixers…",
+  },
+  {
+    title: "Outdoor Experiences",
+    body: "Picnics, beach, retreats, outdoor games…",
+  },
+];
 
-  const ranges = [
-    { k: "", label: "All experiences" },
-    { k: "today", label: "Today" },
-    { k: "week", label: "This week" },
-    { k: "month", label: "This month" },
-  ];
+const steps = [
+  {
+    n: "1",
+    title: "Pick an event",
+    body: "Find one you like in your city.",
+  },
+  {
+    n: "2",
+    title: "Grab your ticket",
+    body: "Pay online, get your ticket by email.",
+  },
+  {
+    n: "3",
+    title: "Show up",
+    body: "We've got the setup. You bring the good mood.",
+  },
+];
+
+const galleryStrip = [
+  { kind: "PHOTO" as const, label: "PAINTING NIGHT" },
+  { kind: "PHOTO" as const, label: "KARAOKE" },
+  { kind: "VIDEO" as const, label: "PICNIC DAY" },
+  { kind: "PHOTO" as const, label: "PRIVATE PARTY" },
+  { kind: "PHOTO" as const, label: "TEAM DAY" },
+  { kind: "VIDEO" as const, label: "POTTERY" },
+];
+
+export default async function HomePage() {
+  const upcoming = await getEvents({ limit: 4 });
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#F8F7F3] text-[#171717]">
-      {/* Decorative atmosphere */}
-      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <Blob
-          className="absolute -left-48 -top-20 h-[460px] w-[460px]"
-          color="#DCEAE4"
-          opacity={0.72}
-        />
-
-        <AccentCircle className="absolute -right-32 top-16 h-80 w-80" />
-
-        <BrushShape
-          className="absolute left-[42%] top-[470px] h-72 w-[500px] -translate-x-1/2"
-          color="#FFE0C8"
-          opacity={0.32}
-        />
-      </div>
-
-      {/* Hero */}
-      <section className="relative">
-        <div className="mx-auto max-w-7xl px-5 pb-8 pt-10 sm:px-8 sm:pt-14 lg:px-10 lg:pb-12 lg:pt-16">
-          <div className="grid items-end gap-10 lg:grid-cols-[1fr_440px]">
-            {/* Intro */}
-            <div className="max-w-3xl">
-              <div className="mb-5 flex items-center gap-3">
-                <span className="h-[2px] w-9 bg-[#E66D0B]" />
-
-                <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#6B6B65]">
-                  Discover something different
-                </span>
-              </div>
-
-              <h1 className="max-w-2xl text-[2.75rem] font-semibold leading-[0.98] tracking-[-0.045em] text-[#004130] sm:text-5xl lg:text-[4.25rem]">
-                Find your next
-                <span className="relative ml-2 inline-block">
-                  experience.
-                  <span className="absolute -bottom-1 left-1 right-0 h-2 -rotate-1 rounded-full bg-[#E66D0B]/25" />
-                </span>
-              </h1>
-
-              <p className="mt-6 max-w-xl text-base leading-7 text-[#686860] sm:text-lg">
-                From creative workshops to unforgettable gatherings, discover
-                experiences worth stepping out for.
-              </p>
+    <main className="min-h-screen overflow-hidden bg-[#fffedd] text-[#1a1a1a]">
+      {/* 1. Hero */}
+      <section className="mx-auto max-w-7xl px-5 pb-14 pt-12 sm:px-8 sm:pt-16 lg:px-10">
+        <div className="grid items-center gap-10 lg:grid-cols-2">
+          <div>
+            <h1 className="text-5xl font-semibold leading-[0.98] tracking-[-0.045em] text-[#003118] sm:text-6xl lg:text-7xl">
+              Life's Too Short for Boring Plans.
+            </h1>
+            <p className="mt-6 max-w-xl text-base leading-7 text-[#4a4a45] sm:text-lg">
+              Create art, vibe to your favourite playlists, meet your people and
+              have a good time, with absolutely no pressure to be Picasso.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/events"
+                className="inline-flex items-center rounded-full bg-[#f27a00] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#d56c00]"
+              >
+                View Upcoming Event
+              </Link>
+              <Link
+                href="/private-bookings"
+                className="inline-flex items-center rounded-full border border-[#003118]/25 bg-white px-6 py-3 text-sm font-semibold text-[#003118] transition hover:border-[#003118]/50"
+              >
+                Plan A Private Experience
+              </Link>
             </div>
-
-            {/* Small editorial statement */}
-            <div className="hidden lg:block">
-              <div className="relative rounded-[1.75rem] bg-[#004130] p-7 text-white shadow-[0_20px_50px_rgba(0,65,48,0.12)]">
-                <div className="absolute right-5 top-5 h-12 w-12 rounded-full border-[7px] border-[#E66D0B]/70" />
-
-                <div className="text-xs font-bold uppercase tracking-[0.18em] text-white/50">
-                  What's happening
-                </div>
-
-                <p className="mt-4 max-w-xs text-xl font-medium leading-8 tracking-tight">
-                  Make plans. Meet people. Create memories.
-                </p>
-
-                <div className="mt-6 flex items-center gap-2 text-sm text-white/60">
-                  <span className="h-2 w-2 rounded-full bg-[#E66D0B]" />
-                  Browse upcoming experiences
-                </div>
-              </div>
+            <div className="mt-8 flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium text-[#6b6b6b]">
+              {vibeTags.map((t) => (
+                <span key={t} className="flex items-center gap-4">
+                  {t}
+                  <span className="text-[#f27a00] last:hidden">·</span>
+                </span>
+              ))}
             </div>
           </div>
 
-          {/* Search */}
-          <div className="relative mt-10 max-w-3xl sm:mt-12">
-            <form action="/events">
-              <label htmlFor="q" className="sr-only">
-                Search experiences
-              </label>
-
-              <div className="group relative">
-                <div className="pointer-events-none absolute -inset-1 rounded-[1.4rem] bg-[#004130]/5 opacity-0 blur transition-opacity group-focus-within:opacity-100" />
-
-                <div className="relative flex items-center rounded-[1.25rem] border border-[#E1E0D9] bg-white p-1.5 shadow-[0_10px_35px_rgba(0,0,0,0.055)] transition-shadow group-focus-within:shadow-[0_15px_45px_rgba(0,65,48,0.10)]">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center text-[#004130]">
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.8"
-                      className="h-5 w-5"
-                      aria-hidden="true"
-                    >
-                      <circle cx="11" cy="11" r="6.5" />
-                      <path d="m16 16 4 4" strokeLinecap="round" />
-                    </svg>
-                  </div>
-
-                  <input
-                    id="q"
-                    name="q"
-                    defaultValue={sp?.q || ""}
-                    placeholder="Search events, venues or cities"
-                    className="min-w-0 flex-1 bg-transparent px-1 py-3 text-[15px] text-[#004130] outline-none placeholder:text-[#9B9B93]"
-                  />
-
-                  <button
-                    type="submit"
-                    className="hidden h-11 shrink-0 items-center rounded-[0.9rem] bg-[#004130] px-5 text-sm font-semibold text-white transition hover:bg-[#00543F] sm:inline-flex"
-                  >
-                    Search
-                  </button>
-
-                  <button
-                    type="submit"
-                    aria-label="Search"
-                    className="mr-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-[0.9rem] bg-[#004130] text-white transition hover:bg-[#00543F] sm:hidden"
-                  >
-                    →
-                  </button>
-                </div>
-              </div>
-            </form>
-          </div>
-
-          {/* Quick filters */}
-          <div className="mt-5 flex flex-wrap items-center gap-2">
-            <span className="mr-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#96968E]">
-              When
-            </span>
-
-            {ranges.map((range) => {
-              const url = new URLSearchParams();
-
-              if (sp?.q) {
-                url.set("q", sp.q);
-              }
-
-              if (range.k) {
-                url.set("range", range.k);
-              }
-
-              const active = (sp?.range || "") === range.k;
-
-              return (
-                <a
-                  key={range.k || "all"}
-                  href={`/events?${url.toString()}`}
-                  className={[
-                    "inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition-all",
-                    active
-                      ? "bg-[#004130] text-white shadow-sm"
-                      : "border border-[#E4E3DD] bg-white text-[#004130] hover:border-[#004130]/20 hover:bg-[#FDFDFC]",
-                  ].join(" ")}
-                >
-                  {range.label}
-                </a>
-              );
-            })}
+          <div className="grid grid-cols-2 gap-4">
+            <PhotoTile
+              label="CANVAS PAINTING NIGHT"
+              className="col-span-2 aspect-[16/9]"
+            />
+            <PhotoTile label="KARAOKE" className="aspect-square" />
+            <PhotoTile label="PICNIC DAY" className="aspect-square" />
           </div>
         </div>
       </section>
 
-      {/* Event discovery */}
-      <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8 lg:px-10 lg:pb-24">
-        <div className="mb-7 flex items-end justify-between gap-5 border-b border-[#E5E4DE] pb-5">
+      {/* 2. Who we are */}
+      <section className="border-t border-[#ecebd8] bg-[#fffdf0]">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-2 lg:px-10 lg:py-20">
           <div>
-            <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#E66D0B]">
-              Upcoming
-            </div>
-
-            <h2 className="mt-1 text-2xl font-semibold tracking-[-0.025em] text-[#004130] sm:text-3xl">
-              Experiences to explore
+            <h2 className="text-3xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-4xl">
+              We're SerenArt.
             </h2>
+            <p className="mt-5 max-w-xl text-base leading-7 text-[#4a4a45]">
+              We believe life should be about more than routines. It's about
+              trying something new, meeting people, expressing yourself and
+              creating moments worth remembering.
+            </p>
+            <p className="mt-4 max-w-xl text-base leading-7 text-[#4a4a45]">
+              From creative workshops and social events to personalised
+              celebrations and corporate experiences, we create spaces where
+              people can connect, unwind and have a genuinely good time.
+            </p>
+            <Link
+              href="/experiences"
+              className="mt-7 inline-flex items-center rounded-full bg-[#003118] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#024a26]"
+            >
+              Explore Experiences
+            </Link>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            <PhotoTile label="THE TEAM" className="aspect-[4/5]" />
+            <PhotoTile
+              label="GUESTS LAUGHING"
+              className="aspect-[4/5] translate-y-6"
+            />
+          </div>
+        </div>
+      </section>
 
-          <div className="hidden text-sm text-[#85857D] sm:block">
-            {initial.items.length > 0
-              ? `${initial.items.length} experiences`
-              : "No experiences found"}
+      {/* 3. Upcoming events */}
+      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
+        <div className="mb-8 flex items-end justify-between gap-5">
+          <h2 className="text-3xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-4xl">
+            Upcoming Events
+          </h2>
+          <Link
+            href="/events"
+            className="shrink-0 text-sm font-semibold text-[#003118] underline underline-offset-4 hover:text-[#f27a00]"
+          >
+            See all events
+          </Link>
+        </div>
+        {upcoming.items.length > 0 ? (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {upcoming.items.map((e) => (
+              <EventCard key={e.id} event={e} />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-3xl bg-white p-10 text-center">
+            <h3 className="font-semibold text-[#003118]">
+              Nothing booked yet — new events are on the way.
+            </h3>
+            <Link
+              href="/events"
+              className="mt-4 inline-flex items-center rounded-full bg-[#f27a00] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#d56c00]"
+            >
+              See all events
+            </Link>
+          </div>
+        )}
+      </section>
+
+      {/* 4. Explore experiences */}
+      <section className="border-t border-[#ecebd8] bg-[#fffdf0]">
+        <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
+          <h2 className="text-3xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-4xl">
+            What are you in the mood for?
+          </h2>
+          <div className="mt-8 grid gap-5 sm:grid-cols-3">
+            {moods.map((m) => (
+              <div
+                key={m.title}
+                className="rounded-3xl bg-white p-7 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                <h3 className="text-lg font-semibold text-[#003118]">
+                  {m.title}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-[#575750]">{m.body}</p>
+              </div>
+            ))}
+          </div>
+          <Link
+            href="/experiences"
+            className="mt-8 inline-flex items-center rounded-full border border-[#003118]/25 bg-white px-6 py-3 text-sm font-semibold text-[#003118] transition hover:border-[#003118]/50"
+          >
+            See everything we do
+          </Link>
+        </div>
+      </section>
+
+      {/* 5. How it works */}
+      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
+        <h2 className="text-3xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-4xl">
+          Easy, we promise
+        </h2>
+        <div className="mt-8 grid gap-5 sm:grid-cols-3">
+          {steps.map((s) => (
+            <div key={s.n} className="rounded-3xl bg-white p-7 shadow-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#f27a00] text-base font-bold text-white">
+                {s.n}
+              </div>
+              <h3 className="mt-4 text-lg font-semibold text-[#003118]">
+                {s.title}
+              </h3>
+              <p className="mt-1.5 text-sm leading-6 text-[#575750]">{s.body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 6. Private bookings + business */}
+      <section className="bg-[#003118]">
+        <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
+          <h2 className="max-w-2xl text-3xl font-semibold tracking-[-0.03em] text-white sm:text-4xl">
+            Got something to celebrate? Make It a Whole Vibe.
+          </h2>
+          <div className="mt-8 grid gap-5 md:grid-cols-2">
+            <div className="rounded-3xl bg-white p-8">
+              <h3 className="text-xl font-semibold text-[#003118]">
+                Private Bookings.
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-[#575750]">
+                Birthday, bridal shower, Friendship hangout. Tell us the plan
+                and we'll make it happen.
+              </p>
+              <Link
+                href="/private-bookings"
+                className="mt-6 inline-flex items-center rounded-full bg-[#f27a00] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#d56c00]"
+              >
+                Plan my party
+              </Link>
+            </div>
+            <div className="rounded-3xl bg-white p-8">
+              <h3 className="text-xl font-semibold text-[#003118]">
+                SerenArt Business.
+              </h3>
+              <p className="mt-3 text-sm leading-6 text-[#575750]">
+                Team bonding people actually want to show up for. From creative
+                team sessions and staff celebrations to retreats and brand
+                experiences, we help companies bring people together in ways
+                they'll actually enjoy.
+              </p>
+              <Link
+                href="/business"
+                className="mt-6 inline-flex items-center rounded-full bg-[#003118] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#024a26]"
+              >
+                Talk to SerenArt Business
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Proof */}
+      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
+        <div className="flex items-end justify-between gap-5">
+          <h2 className="text-3xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-4xl">
+            See the fun we've had
+          </h2>
+          <Link
+            href="/gallery"
+            className="shrink-0 text-sm font-semibold text-[#003118] underline underline-offset-4 hover:text-[#f27a00]"
+          >
+            See the gallery
+          </Link>
+        </div>
+        <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+          {galleryStrip.map((g) => (
+            <PhotoTile
+              key={g.label}
+              kind={g.kind}
+              label={g.label}
+              className="aspect-square"
+            />
+          ))}
+        </div>
+
+        <div className="mt-14">
+          <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#8a8a7d]">
+            Brands we've worked with
+          </div>
+          <div className="mt-5 grid grid-cols-3 gap-4 sm:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex h-16 items-center justify-center rounded-2xl bg-white text-xs font-semibold text-[#8a8a7d] shadow-sm"
+              >
+                Client logo
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* FiltersShell should render the actual event cards/grid */}
-        <Suspense
-          fallback={
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3, 4, 5, 6].map((item) => (
-                <div
-                  key={item}
-                  className="overflow-hidden rounded-[1.5rem] bg-white"
-                >
-                  <div className="aspect-[4/3] animate-pulse bg-[#E9E8E2]" />
+        <div className="mt-14">
+          <h3 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118]">
+            Don't take our word for it
+          </h3>
+          <div className="mt-6 grid gap-5 sm:grid-cols-3">
+            {[
+              "[A real review from a guest goes here, in their own words.]",
+              "[A real review from a guest goes here, in their own words.]",
+              "[A real review from a client goes here, in their own words.]",
+            ].map((quote, i) => (
+              <figure key={i} className="rounded-3xl bg-white p-7 shadow-sm">
+                <blockquote className="text-sm leading-6 text-[#575750]">
+                  “{quote}”
+                </blockquote>
+                <figcaption className="mt-4 text-xs font-semibold uppercase tracking-wider text-[#8a8a7d]">
+                  {i === 2 ? "[Name, company]" : "[First name] · [Event]"}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
 
-                  <div className="space-y-3 p-5">
-                    <div className="h-5 w-3/4 animate-pulse rounded bg-[#E9E8E2]" />
-                    <div className="h-4 w-1/2 animate-pulse rounded bg-[#E9E8E2]" />
-                    <div className="h-4 w-2/3 animate-pulse rounded bg-[#E9E8E2]" />
-                  </div>
-                </div>
-              ))}
+      {/* 8. Last push */}
+      <section className="mx-auto max-w-7xl px-5 pb-20 sm:px-8 lg:px-10">
+        <div className="relative overflow-hidden rounded-[2rem] bg-[#f27a00] px-6 py-14 text-center sm:px-10 sm:py-16">
+          <div className="pointer-events-none absolute -left-16 -top-20 h-52 w-52 rounded-full border-[35px] border-white/10" />
+          <div className="pointer-events-none absolute -bottom-24 -right-12 h-60 w-60 rotate-12 rounded-[40%] border-[30px] border-white/10" />
+          <div className="relative">
+            <h2 className="text-3xl font-semibold tracking-[-0.02em] text-white sm:text-4xl">
+              Ready? Let's make a night of it.
+            </h2>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Link
+                href="/events"
+                className="inline-flex items-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#003118] transition hover:bg-[#fffdf0]"
+              >
+                See upcoming events
+              </Link>
+              <Link
+                href="/private-bookings"
+                className="inline-flex items-center rounded-full border border-white/60 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Plan something with us
+              </Link>
             </div>
-          }
-        >
-          <FiltersShell initialEvents={initial.items} />
-        </Suspense>
+          </div>
+        </div>
       </section>
     </main>
   );

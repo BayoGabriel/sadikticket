@@ -4,7 +4,9 @@ export type PublicEventDetail = {
   id: string;
   name: string;
   slug: string;
+  shortDescription?: string;
   description?: string;
+  includes?: string[];
   venueName?: string;
   venueAddress?: string;
   city?: string;
@@ -93,6 +95,7 @@ export async function createOrder(input: {
   eventId: string;
   items: { ticketTypeId: string; quantity: number }[];
   customer: { name: string; email: string; phone?: string };
+  couponCode?: string;
 }): Promise<{
   id: string;
   total: number;

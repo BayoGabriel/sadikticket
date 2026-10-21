@@ -7,7 +7,9 @@ import { Types } from "mongoose";
 export type CreateEventInput = {
   createdById: string;
   name: string;
+  shortDescription?: string;
   description?: string;
+  includes?: string[];
   venueName: string;
   venueAddress: string;
   city: string;
@@ -48,7 +50,9 @@ export const eventService = {
       createdBy: new Types.ObjectId(input.createdById),
       name: input.name,
       slug,
+      shortDescription: input.shortDescription,
       description: input.description,
+      includes: input.includes ?? [],
       venueName: input.venueName,
       venueAddress: input.venueAddress,
       city: input.city,
@@ -106,7 +110,9 @@ export const eventService = {
     eventId: string,
     patch: Partial<{
       name: string;
+      shortDescription?: string;
       description?: string;
+      includes?: string[];
       venueName: string;
       venueAddress: string;
       city: string;

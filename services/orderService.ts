@@ -11,6 +11,7 @@ export const orderService = {
     eventId: string;
     items: { ticketTypeId: string; quantity: number }[];
     customer: { name: string; email: string; phone?: string };
+    couponCode?: string;
   }) {
     await connectDb();
 
@@ -66,6 +67,7 @@ export const orderService = {
       customerName: input.customer.name,
       customerEmail: input.customer.email,
       customerPhone: input.customer.phone,
+      couponCode: input.couponCode,
       status: "PENDING",
       subtotal,
       fees,

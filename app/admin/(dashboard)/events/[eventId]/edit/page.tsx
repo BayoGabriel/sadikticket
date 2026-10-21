@@ -39,6 +39,10 @@ export default function EditEventPage({
       name: fd.get("name") || undefined,
       shortDescription: fd.get("shortDescription") || undefined,
       description: fd.get("description") || undefined,
+      includes: String(fd.get("includes") || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
       startsAt: fd.get("startsAt") || undefined,
       endsAt: fd.get("endsAt") || undefined,
       timezone: fd.get("timezone") || undefined,
@@ -120,6 +124,17 @@ export default function EditEventPage({
               name="description"
               defaultValue={ev.description}
               rows={4}
+              className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium">
+              What's included (comma-separated)
+            </label>
+            <input
+              name="includes"
+              defaultValue={(ev.includes || []).join(", ")}
+              placeholder="Canvas, paint and brushes, apron, drink, snack"
               className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2"
             />
           </div>

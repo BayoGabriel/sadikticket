@@ -1,6 +1,6 @@
 import React from "react";
 
-export function DecorativePattern({ className = "", stroke = "#E66D0B", opacity = 0.15 }: { className?: string; stroke?: string; opacity?: number }) {
+export function DecorativePattern({ className = "", stroke = "#f27a00", opacity = 0.15 }: { className?: string; stroke?: string; opacity?: number }) {
   return (
     <svg
       className={className}

@@ -27,6 +27,7 @@ const OrderSchema = new Schema(
     customerName: { type: String, required: true },
     customerEmail: { type: String, required: true, index: true },
     customerPhone: { type: String },
+    couponCode: { type: String },
     status: {
       type: String,
       enum: ['PENDING', 'PAYMENT_PROCESSING', 'PAID', 'FAILED', 'CANCELLED', 'REFUNDED', 'EXPIRED'],

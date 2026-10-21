@@ -1,24 +1,40 @@
 import { connectDb } from "@/lib/db";
 import { EventModel } from "@/models/event";
+import { TicketTypeModel } from "@/models/ticketType";
+import { Types } from "mongoose";
+
+export type EventStatusTag =
+  | "on-sale"
+  | "few-left"
+  | "sold-out"
+  | "coming-soon";
 
 export type PublicEventsQuery = {
   search?: string;
   page?: number;
   limit?: number;
   range?: "today" | "week" | "month";
+  city?: string;
+  month?: string; // YYYY-MM
+};
+
+export type PublicEventItem = {
+  id: string;
+  name: string;
+  slug: string;
+  coverImage: string | null;
+  shortDescription?: string;
+  city?: string;
+  country?: string;
+  venueName?: string;
+  startsAt: string;
+  fromPrice?: number;
+  currency?: string;
+  statusTag: EventStatusTag;
 };
 
 export type PublicEventsResult = {
-  items: {
-    id: string;
-    name: string;
-    slug: string;
-    coverImage: string | null;
-    city?: string;
-    country?: string;
-    venueName?: string;
-    startsAt: string;
-  }[];
+  items: PublicEventItem[];
   page: number;
   limit: number;
   total: number;
@@ -27,6 +43,106 @@ export type PublicEventsResult = {
 
 function emptyResult(page: number, limit: number): PublicEventsResult {
   return { items: [], page, limit, total: 0, totalPages: 0 };
+}
+
+// Show "Few tickets left" when remaining inventory is low.
+const FEW_LEFT_THRESHOLD = 10;
+
+async function attachTicketInfo(
+  items: PublicEventItem[],
+): Promise<PublicEventItem[]> {
+  if (items.length === 0) return items;
+
+  const now = new Date();
+  const ids = items.map((i) => new Types.ObjectId(i.id));
+
+  const rows = await TicketTypeModel.aggregate<{
+    _id: Types.ObjectId;
+    minPrice: number | null;
+    futureMinPrice: number | null;
+    currency: string | null;
+    onSaleQty: number;
+    onSaleSold: number;
+    onSaleCount: number;
+    futureCount: number;
+  }>([
+    { $match: { eventId: { $in: ids } } },
+    {
+      $project: {
+        eventId: 1,
+        price: 1,
+        currency: 1,
+        quantity: 1,
+        quantitySold: 1,
+        onSale: {
+          $and: [
+            { $eq: ["$status", "ACTIVE"] },
+            {
+              $or: [
+                { $eq: ["$salesStart", null] },
+                { $lte: ["$salesStart", now] },
+              ],
+            },
+            {
+              $or: [
+                { $eq: ["$salesEnd", null] },
+                { $gte: ["$salesEnd", now] },
+              ],
+            },
+          ],
+        },
+        future: {
+          $and: [
+            { $eq: ["$status", "ACTIVE"] },
+            { $gt: ["$salesStart", now] },
+          ],
+        },
+      },
+    },
+    {
+      $group: {
+        _id: "$eventId",
+        minPrice: {
+          $min: { $cond: ["$onSale", "$price", null] },
+        },
+        futureMinPrice: {
+          $min: { $cond: ["$future", "$price", null] },
+        },
+        currency: { $first: "$currency" },
+        onSaleQty: { $sum: { $cond: ["$onSale", "$quantity", 0] } },
+        onSaleSold: { $sum: { $cond: ["$onSale", "$quantitySold", 0] } },
+        onSaleCount: { $sum: { $cond: ["$onSale", 1, 0] } },
+        futureCount: { $sum: { $cond: ["$future", 1, 0] } },
+      },
+    },
+  ]);
+
+  const byEvent = new Map(rows.map((r) => [String(r._id), r]));
+
+  return items.map((item) => {
+    const r = byEvent.get(item.id);
+    if (!r || r.onSaleCount === 0) {
+      return {
+        ...item,
+        statusTag: "coming-soon" as const,
+        fromPrice: r?.futureMinPrice ?? undefined,
+        currency: r?.currency ?? undefined,
+      };
+    }
+    const remaining = r.onSaleQty - r.onSaleSold;
+    const statusTag: EventStatusTag =
+      remaining <= 0
+        ? "sold-out"
+        : remaining <= FEW_LEFT_THRESHOLD
+          ? "few-left"
+          : "on-sale";
+    return {
+      ...item,
+      statusTag,
+      fromPrice: r.minPrice ?? undefined,
+      currency: r.currency ?? undefined,
+    };
+  });
 }
 
 export async function listPublicEvents(
@@ -58,6 +174,21 @@ export async function listPublicEvents(
   if (params.search) query.name = { $regex: params.search, $options: "i" };
   if (params.range) query.startsAt = { $gte: start, $lte: end };
 
+  if (params.city) {
+    query.city = {
+      $regex: `^${params.city.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+      $options: "i",
+    };
+  }
+
+  if (params.month && /^\d{4}-\d{2}$/.test(params.month)) {
+    const [y, m] = params.month.split("-").map(Number);
+    query.startsAt = {
+      $gte: new Date(y, m - 1, 1),
+      $lt: new Date(y, m, 1),
+    };
+  }
+
   try {
     const [items, total] = await Promise.all([
       EventModel.find(query)
@@ -68,17 +199,21 @@ export async function listPublicEvents(
       EventModel.countDocuments(query),
     ]);
 
+    const mapped: PublicEventItem[] = items.map((e) => ({
+      id: String(e._id),
+      name: e.name,
+      slug: e.slug,
+      coverImage: e.coverImage || null,
+      shortDescription: e.shortDescription,
+      city: e.city,
+      country: e.country,
+      venueName: e.venueName,
+      startsAt: e.startsAt.toISOString(),
+      statusTag: "coming-soon",
+    }));
+
     return {
-      items: items.map((e) => ({
-        id: String(e._id),
-        name: e.name,
-        slug: e.slug,
-        coverImage: e.coverImage || null,
-        city: e.city,
-        country: e.country,
-        venueName: e.venueName,
-        startsAt: e.startsAt.toISOString(),
-      })),
+      items: await attachTicketInfo(mapped),
       page,
       limit,
       total,

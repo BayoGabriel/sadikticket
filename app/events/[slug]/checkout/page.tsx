@@ -1,12 +1,35 @@
 "use client";
-import { use, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   createOrder,
   getEventBySlug,
   initializePaystack,
   listTicketTypesBySlug,
 } from "@/features/checkout/api";
+
+function parseItems(
+  sp: URLSearchParams,
+): { ticketTypeId: string; quantity: number }[] {
+  const items = sp.get("items");
+  if (items) {
+    return items
+      .split(",")
+      .map((pair) => {
+        const [ticketTypeId, q] = pair.split(":");
+        return { ticketTypeId, quantity: Math.max(1, Number(q) || 1) };
+      })
+      .filter((i) => i.ticketTypeId);
+  }
+  const ticketTypeId = sp.get("ticketTypeId");
+  if (ticketTypeId) {
+    return [
+      { ticketTypeId, quantity: Math.max(1, Number(sp.get("quantity")) || 1) },
+    ];
+  }
+  return [];
+}
 
 export default function CheckoutPage({
   params,
@@ -16,8 +39,7 @@ export default function CheckoutPage({
   const router = useRouter();
   const { slug } = use(params);
   const sp = useSearchParams();
-  const preTicketTypeId = sp.get("ticketTypeId") || "";
-  const preQty = Number(sp.get("quantity") || "1");
+  const coupon = sp.get("coupon") || "";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,18 +47,14 @@ export default function CheckoutPage({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [tickets, setTickets] = useState<
-    { ticketTypeId: string; quantity: number }[]
-  >(
-    preTicketTypeId
-      ? [{ ticketTypeId: preTicketTypeId, quantity: preQty }]
-      : [],
+  const [tickets] = useState<{ ticketTypeId: string; quantity: number }[]>(
+    () => parseItems(sp),
   );
 
   const [eventDetail, setEventDetail] = useState<any | null>(null);
   const [types, setTypes] = useState<any[]>([]);
 
-  useMemo(() => {
+  useEffect(() => {
     (async () => {
       const [ev, tts] = await Promise.all([
         getEventBySlug(slug),
@@ -44,9 +62,6 @@ export default function CheckoutPage({
       ]);
       setEventDetail(ev);
       setTypes(tts);
-      if (!preTicketTypeId && tts[0]) {
-        setTickets([{ ticketTypeId: tts[0].id, quantity: 1 }]);
-      }
     })();
   }, [slug]);
 
@@ -92,6 +107,7 @@ export default function CheckoutPage({
         eventId: eventDetail.id,
         items: tickets,
         customer: { name, email, phone: phone || undefined },
+        couponCode: coupon || undefined,
       });
       const init = await initializePaystack(order.id);
       window.location.href = init.authorizationUrl;
@@ -104,12 +120,19 @@ export default function CheckoutPage({
 
   return (
     <main className="flex-1 bg-(--surface-muted)">
-      <section className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-12 grid gap-8 lg:grid-cols-3">
+      <section className="mx-auto grid max-w-5xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-3 lg:px-8">
         <form
           onSubmit={onSubmit}
-          className="lg:col-span-2 rounded-2xl bg-white border border-(--border) p-6 space-y-4 shadow-sm"
+          className="space-y-4 rounded-2xl border border-(--border) bg-white p-6 shadow-sm lg:col-span-2"
         >
-          <h1 className="text-2xl font-semibold">Checkout</h1>
+          <h1 className="text-2xl font-semibold text-[#003118]">
+            Almost there
+          </h1>
+          <p className="text-sm text-[#6b6b6b]">
+            {eventDetail
+              ? `${eventDetail.name} — where should we send your ticket?`
+              : "Loading event…"}
+          </p>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="block text-sm font-medium">Full name</label>
@@ -142,16 +165,27 @@ export default function CheckoutPage({
             </div>
           </div>
           {error && <div className="text-sm text-red-600">{error}</div>}
-          <button
-            disabled={loading}
-            className="inline-flex items-center rounded-lg bg-(--brand-primary) text-white px-4 py-2 font-medium hover:bg-(--brand-primary-hover) disabled:opacity-60"
-          >
-            {loading ? "Creating your order…" : "Continue to payment"}
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              disabled={loading}
+              className="inline-flex items-center rounded-full bg-[#f27a00] px-6 py-3 font-semibold text-white transition hover:bg-[#d56c00] disabled:opacity-60"
+            >
+              {loading ? "Creating your order…" : "Get my ticket"}
+            </button>
+            <Link
+              href={`/events/${slug}`}
+              className="text-sm font-medium text-[#003118] underline underline-offset-4 hover:text-[#f27a00]"
+            >
+              Back to event
+            </Link>
+          </div>
+          <p className="text-xs text-[#85857d]">
+            Secure checkout. Your ticket lands in your email.
+          </p>
         </form>
 
-        <aside className="lg:col-span-1 rounded-2xl bg-white border border-(--border) p-6 shadow-sm">
-          <h2 className="font-semibold">Order summary</h2>
+        <aside className="rounded-2xl border border-(--border) bg-white p-6 shadow-sm lg:col-span-1">
+          <h2 className="font-semibold text-[#003118]">Order summary</h2>
           <div className="mt-4 space-y-3">
             {summary.lines.map((l, i) => (
               <div
@@ -161,22 +195,40 @@ export default function CheckoutPage({
                 <div>
                   <div className="font-medium">{l.name}</div>
                   <div className="text-(--text-muted)">
-                    {l.quantity} × {l.currency} {l.unitPrice.toLocaleString()}
+                    {l.quantity} × {l.currency === "NGN" ? "₦" : l.currency}{" "}
+                    {(l.unitPrice / 100).toLocaleString()}
                   </div>
                 </div>
                 <div className="font-medium">
-                  {l.currency} {(l.unitPrice * l.quantity).toLocaleString()}
+                  {l.currency === "NGN" ? "₦" : l.currency}{" "}
+                  {((l.unitPrice * l.quantity) / 100).toLocaleString()}
                 </div>
               </div>
             ))}
             {summary.lines.length === 0 && (
-              <div className="text-(--text-muted)">No tickets selected</div>
+              <div className="text-(--text-muted)">
+                No tickets selected —{" "}
+                <Link
+                  href={`/events/${slug}`}
+                  className="font-medium text-[#003118] underline"
+                >
+                  pick your tickets
+                </Link>
+                .
+              </div>
             )}
           </div>
-          <div className="mt-4 border-t border-(--border) pt-4 flex items-center justify-between">
+          {coupon && (
+            <div className="mt-4 flex items-center justify-between border-t border-(--border) pt-4 text-sm">
+              <span className="text-(--text-muted)">Code</span>
+              <span className="font-medium text-[#003118]">{coupon}</span>
+            </div>
+          )}
+          <div className="mt-4 flex items-center justify-between border-t border-(--border) pt-4">
             <div className="text-sm text-(--text-muted)">Total</div>
-            <div className="text-lg font-semibold">
-              {summary.currency} {summary.total.toLocaleString()}
+            <div className="text-lg font-semibold text-[#003118]">
+              {summary.currency === "NGN" ? "₦" : summary.currency}{" "}
+              {(summary.total / 100).toLocaleString()}
             </div>
           </div>
         </aside>

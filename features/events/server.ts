@@ -11,6 +11,8 @@ export async function getEvents(params: {
   page?: number;
   limit?: number;
   range?: "today" | "week" | "month";
+  city?: string;
+  month?: string;
 }): Promise<{
   items: EventSummary[];
   page: number;
