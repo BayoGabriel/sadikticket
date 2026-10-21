@@ -1,4 +1,4 @@
-import { site, whatsappUrl } from "@/lib/site";
+import { whatsappUrl } from "@/lib/site";
 
 export function WhatsAppButton({
   label = "Chat on WhatsApp",

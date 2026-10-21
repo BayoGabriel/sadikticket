@@ -74,10 +74,10 @@ export function TicketPicker({
     return (
       <div className="px-3 py-8 text-center">
         <h3 className="font-semibold text-[#003118]">
-          Tickets aren't available yet
+          Tickets aren’t available yet
         </h3>
         <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-[#77776F]">
-          Leave your email and we'll tell you the moment tickets go live.
+          Leave your email and we’ll tell you the moment tickets go live.
         </p>
         <NotifyForm
           kind="waitlist"
@@ -96,7 +96,7 @@ export function TicketPicker({
       <div className="px-3 py-8 text-center">
         <h3 className="font-semibold text-[#003118]">Sold out</h3>
         <p className="mx-auto mt-2 max-w-xs text-sm leading-6 text-[#77776F]">
-          This one went fast. Join the waitlist and you'll hear from us first if
+          This one went fast. Join the waitlist and you’ll hear from us first if
           a ticket frees up.
         </p>
         <NotifyForm

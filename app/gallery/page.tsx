@@ -42,7 +42,7 @@ export default function GalleryPage() {
         </div>
         <div className="mt-14 rounded-[2rem] bg-[#003118] px-6 py-12 text-center sm:px-10">
           <h2 className="text-2xl font-semibold tracking-[-0.02em] text-white sm:text-3xl">
-            Ready? Let's make a night of it.
+            Ready? Let’s make a night of it.
           </h2>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             <Link

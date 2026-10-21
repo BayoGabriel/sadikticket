@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { site, whatsappUrl } from "@/lib/site";
+import { whatsappUrl } from "@/lib/site";
 
 const inputCls =
   "mt-1 w-full rounded-xl border border-[#e0dfcf] bg-white px-3.5 py-2.5 text-sm text-[#003118] outline-none transition focus:border-[#003118]/40 focus:ring-2 focus:ring-[#003118]/10";
@@ -75,8 +75,8 @@ export function EnquiryForm({ kind }: { kind: "private-booking" | "business" }) 
       if (!res.ok || !data.success)
         throw new Error(data?.error?.message || "Something went wrong");
       setState("done");
-    } catch (err: any) {
-      setError(err?.message || "Something went wrong");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
       setState("error");
     }
   };

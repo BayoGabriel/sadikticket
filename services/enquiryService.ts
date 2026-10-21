@@ -49,7 +49,6 @@ export const enquiryService = {
     }
 
     if (!saved && !emailed) {
-      // eslint-disable-next-line no-console
       console.error("[ENQUIRY] could not store or deliver enquiry", dbError);
       throw new ApiError(
         "ENQUIRY_FAILED",

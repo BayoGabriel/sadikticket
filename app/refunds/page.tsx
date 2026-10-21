@@ -22,11 +22,11 @@ export default function RefundsPage() {
         <div className="mt-10 space-y-6 text-sm leading-7 text-[#4a4a45]">
           <section className="rounded-2xl bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-[#003118]">
-              If you can't make it
+              If you can’t make it
             </h2>
             <p className="mt-2">
               Tell us as early as you can — the earlier we know, the more we can
-              do. Message us on WhatsApp or reply to your ticket email and we'll
+              do. Message us on WhatsApp or reply to your ticket email and we’ll
               take it from there.
             </p>
           </section>
@@ -36,7 +36,7 @@ export default function RefundsPage() {
               If we cancel or move an event
             </h2>
             <p className="mt-2">
-              If we cancel or reschedule an event, we'll email every ticket
+              If we cancel or reschedule an event, we’ll email every ticket
               holder with the options — a refund or a swap to the new date.
             </p>
           </section>

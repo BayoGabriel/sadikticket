@@ -14,10 +14,10 @@ export default function AboutPage() {
       <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-2 lg:px-10">
         <div>
           <h1 className="text-4xl font-semibold tracking-[-0.04em] text-[#003118] sm:text-5xl">
-            We're SerenArt.
+            We’re SerenArt.
           </h1>
           <p className="mt-6 max-w-xl text-base leading-7 text-[#4a4a45] sm:text-lg">
-            We believe life should be about more than routines. It's about
+            We believe life should be about more than routines. It’s about
             trying something new, meeting people, expressing yourself and
             creating moments worth remembering.
           </p>

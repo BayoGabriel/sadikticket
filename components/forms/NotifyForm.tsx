@@ -43,8 +43,8 @@ export function NotifyForm({
       if (!res.ok || !data.success)
         throw new Error(data?.error?.message || "Something went wrong");
       setState("done");
-    } catch (err: any) {
-      setError(err?.message || "Something went wrong");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
       setState("error");
     }
   };

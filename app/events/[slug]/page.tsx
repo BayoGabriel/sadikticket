@@ -169,7 +169,7 @@ export default async function PublicEventPage({
             {ev.includes && ev.includes.length > 0 && (
               <div>
                 <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-                  What's included
+                  What’s included
                 </h2>
                 <div className="mt-5 flex flex-wrap gap-2.5">
                   {ev.includes.map((item) => (

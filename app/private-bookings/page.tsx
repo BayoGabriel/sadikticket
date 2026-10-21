@@ -58,7 +58,7 @@ export default function PrivateBookingsPage() {
           </h1>
           <p className="mt-5 max-w-xl text-base leading-7 text-[#4a4a45] sm:text-lg">
             Birthdays, bridal showers, date nights, hangouts with the girls (or
-            the boys). Tell us the plan and we'll help you pull it off.
+            the boys). Tell us the plan and we’ll help you pull it off.
           </p>
           <a
             href="#enquiry"
@@ -120,7 +120,7 @@ export default function PrivateBookingsPage() {
       >
         <div className="mx-auto max-w-3xl px-5 py-14 sm:px-8 lg:px-10">
           <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-            Let's plan it!
+            Let’s plan it!
           </h2>
           <div className="mt-7 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
             <EnquiryForm kind="private-booking" />

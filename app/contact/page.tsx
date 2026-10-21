@@ -17,7 +17,7 @@ export default function ContactPage() {
           Say hi
         </h1>
         <p className="mt-3 max-w-xl text-base leading-7 text-[#4a4a45]">
-          Questions about an event, a private booking or working with us? We're
+          Questions about an event, a private booking or working with us? We’re
           easiest to reach on WhatsApp.
         </p>
 

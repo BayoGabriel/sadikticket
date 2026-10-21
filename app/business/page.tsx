@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
 import { PhotoTile } from "@/components/ui/PhotoTile";
-import { site, whatsappUrl } from "@/lib/site";
+import { whatsappUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "SerenArt Business | Team experiences and brand events",
@@ -167,7 +167,7 @@ export default function BusinessPage() {
       <section id="our-work" className="scroll-mt-24">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10">
           <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-            Companies we've worked with
+            Companies we’ve worked with
           </h2>
           <div className="mt-6 grid grid-cols-3 gap-4 sm:grid-cols-5">
             {Array.from({ length: 5 }).map((_, i) => (

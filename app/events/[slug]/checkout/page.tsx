@@ -1,12 +1,14 @@
 "use client";
 import { use, useEffect, useMemo, useState } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   createOrder,
   getEventBySlug,
   initializePaystack,
   listTicketTypesBySlug,
+  type PublicEventDetail,
+  type PublicTicketType,
 } from "@/features/checkout/api";
 
 function parseItems(
@@ -36,7 +38,6 @@ export default function CheckoutPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const router = useRouter();
   const { slug } = use(params);
   const sp = useSearchParams();
   const coupon = sp.get("coupon") || "";
@@ -51,8 +52,10 @@ export default function CheckoutPage({
     () => parseItems(sp),
   );
 
-  const [eventDetail, setEventDetail] = useState<any | null>(null);
-  const [types, setTypes] = useState<any[]>([]);
+  const [eventDetail, setEventDetail] = useState<PublicEventDetail | null>(
+    null,
+  );
+  const [types, setTypes] = useState<PublicTicketType[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -78,7 +81,7 @@ export default function CheckoutPage({
             }
           : null;
       })
-      .filter(Boolean) as any[];
+      .filter((l): l is NonNullable<typeof l> => l !== null);
     const total = lines.reduce((acc, l) => acc + l.unitPrice * l.quantity, 0);
     const currency = lines[0]?.currency || "NGN";
     return { lines, total, currency };
@@ -111,8 +114,8 @@ export default function CheckoutPage({
       });
       const init = await initializePaystack(order.id);
       window.location.href = init.authorizationUrl;
-    } catch (e: any) {
-      setError(e?.message || "Could not create order");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not create order");
     } finally {
       setLoading(false);
     }

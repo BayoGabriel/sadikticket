@@ -121,7 +121,7 @@ export default async function EventsPage({
                 Nothing booked here yet.
               </h2>
               <p className="mt-2 text-sm leading-6 text-[#575750]">
-                Leave your email and we'll tell you first.
+                Leave your email and we’ll tell you first.
               </p>
               <NotifyForm
                 kind="updates"

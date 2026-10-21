@@ -74,7 +74,7 @@ export default async function HomePage() {
         <div className="grid items-center gap-10 lg:grid-cols-2">
           <div>
             <h1 className="text-5xl font-semibold leading-[0.98] tracking-[-0.045em] text-[#003118] sm:text-6xl lg:text-7xl">
-              Life's Too Short for Boring Plans.
+              Life’s Too Short for Boring Plans.
             </h1>
             <p className="mt-6 max-w-xl text-base leading-7 text-[#4a4a45] sm:text-lg">
               Create art, vibe to your favourite playlists, meet your people and
@@ -120,10 +120,10 @@ export default async function HomePage() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-2 lg:px-10 lg:py-20">
           <div>
             <h2 className="text-3xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-4xl">
-              We're SerenArt.
+              We’re SerenArt.
             </h2>
             <p className="mt-5 max-w-xl text-base leading-7 text-[#4a4a45]">
-              We believe life should be about more than routines. It's about
+              We believe life should be about more than routines. It’s about
               trying something new, meeting people, expressing yourself and
               creating moments worth remembering.
             </p>
@@ -244,7 +244,7 @@ export default async function HomePage() {
               </h3>
               <p className="mt-3 text-sm leading-6 text-[#575750]">
                 Birthday, bridal shower, Friendship hangout. Tell us the plan
-                and we'll make it happen.
+                and we’ll make it happen.
               </p>
               <Link
                 href="/private-bookings"
@@ -261,7 +261,7 @@ export default async function HomePage() {
                 Team bonding people actually want to show up for. From creative
                 team sessions and staff celebrations to retreats and brand
                 experiences, we help companies bring people together in ways
-                they'll actually enjoy.
+                they’ll actually enjoy.
               </p>
               <Link
                 href="/business"
@@ -278,7 +278,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
         <div className="flex items-end justify-between gap-5">
           <h2 className="text-3xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-4xl">
-            See the fun we've had
+            See the fun we’ve had
           </h2>
           <Link
             href="/gallery"
@@ -300,7 +300,7 @@ export default async function HomePage() {
 
         <div className="mt-14">
           <div className="text-xs font-bold uppercase tracking-[0.18em] text-[#8a8a7d]">
-            Brands we've worked with
+            Brands we’ve worked with
           </div>
           <div className="mt-5 grid grid-cols-3 gap-4 sm:grid-cols-6">
             {Array.from({ length: 6 }).map((_, i) => (
@@ -316,7 +316,7 @@ export default async function HomePage() {
 
         <div className="mt-14">
           <h3 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118]">
-            Don't take our word for it
+            Don’t take our word for it
           </h3>
           <div className="mt-6 grid gap-5 sm:grid-cols-3">
             {[
@@ -344,7 +344,7 @@ export default async function HomePage() {
           <div className="pointer-events-none absolute -bottom-24 -right-12 h-60 w-60 rotate-12 rounded-[40%] border-[30px] border-white/10" />
           <div className="relative">
             <h2 className="text-3xl font-semibold tracking-[-0.02em] text-white sm:text-4xl">
-              Ready? Let's make a night of it.
+              Ready? Let’s make a night of it.
             </h2>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Link
