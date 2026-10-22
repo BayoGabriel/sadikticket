@@ -7,6 +7,7 @@ import { Types } from "mongoose";
 export type CreateEventInput = {
   createdById: string;
   name: string;
+  slug?: string;
   shortDescription?: string;
   description?: string;
   includes?: string[];
@@ -55,7 +56,9 @@ function assertStatusTransition(prev: EventStatus, next: EventStatus) {
 export const eventService = {
   async create(input: CreateEventInput) {
     await connectDb();
-    const baseSlug = slugify(input.name, { lower: true, strict: true });
+    const baseSlug = input.slug
+      ? slugify(input.slug, { lower: true, strict: true })
+      : slugify(input.name, { lower: true, strict: true });
     let slug = baseSlug;
     let n = 1;
     while (await EventModel.exists({ slug })) {

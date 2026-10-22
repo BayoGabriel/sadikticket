@@ -1,66 +1,77 @@
 import { NextRequest } from "next/server";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { ok, fail } from "@/lib/response";
-import {
-  createEventSchema,
-  paginationQuerySchema,
-  updateEventSchema,
-} from "@/schemas/event";
+import { eventEditorSchema } from "@/schemas/event";
 import { eventService } from "@/services/eventService";
+import { adminEventService } from "@/services/adminEventService";
+import { auditService } from "@/services/auditService";
+import { ticketTypeAdminService } from "@/services/ticketTypeAdminService";
+import { revalidatePublicSite } from "@/lib/revalidate";
 
-// POST /api/v1/admin/events  (create)
+// POST /api/v1/admin/events — create event + ticket types in one payload.
 export async function POST(req: NextRequest) {
   try {
-    const user = await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    const user = await requirePermission("events");
     const json = await req.json();
-    const input = createEventSchema.parse(json);
+    const input = eventEditorSchema.parse(json);
+    const { ticketTypes, slug, ...eventInput } = input;
+
     const created = await eventService.create({
-      ...input,
+      ...eventInput,
+      slug,
       createdById: user.id,
     });
-    return ok({
-      id: created._id.toString(),
-      name: created.name,
-      slug: created.slug,
-      status: created.status,
-      createdAt: created.createdAt,
+
+    if (ticketTypes?.length) {
+      for (const tt of ticketTypes) {
+        if (tt.remove) continue;
+        await ticketTypeAdminService.create(String(created._id), {
+          name: tt.name,
+          description: tt.description,
+          price: Math.round(tt.priceNaira * 100),
+          currency: "NGN",
+          quantity: tt.quantity,
+          maxPerOrder: tt.maxPerOrder ?? undefined,
+          salesStart: tt.salesStart ? new Date(tt.salesStart) : undefined,
+          salesEnd: tt.salesEnd ? new Date(tt.salesEnd) : undefined,
+          status: tt.status,
+        });
+      }
+    }
+
+    await auditService.record({
+      actor: user,
+      action: "event.created",
+      entityType: "event",
+      entityId: String(created._id),
+      entityLabel: created.name,
     });
+    revalidatePublicSite(created.slug);
+    return ok({ id: created._id.toString(), slug: created.slug }, { status: 201 });
   } catch (e: unknown) {
     return fail(e as Error);
   }
 }
 
-// GET /api/v1/admin/events  (list with pagination & filters)
+// GET /api/v1/admin/events — rich list with sold/capacity/revenue/status.
 export async function GET(req: NextRequest) {
   try {
-    await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
-    const { searchParams } = new URL(req.url);
-    const parsed = paginationQuerySchema.parse({
-      page: searchParams.get("page"),
-      limit: searchParams.get("limit"),
-      search: searchParams.get("search") ?? undefined,
-      status: (searchParams.get("status") as any) ?? undefined,
-      sort: (searchParams.get("sort") as any) ?? undefined,
-      order: (searchParams.get("order") as any) ?? undefined,
+    await requirePermission("events");
+    const sp = req.nextUrl.searchParams;
+    const result = await adminEventService.list({
+      tab: (sp.get("tab") as "upcoming" | "past" | "drafts" | "all") || "upcoming",
+      city: sp.get("city") || undefined,
+      eventType: sp.get("type") || undefined,
+      tag: sp.get("tag") || undefined,
+      month: sp.get("month") || undefined,
+      status: sp.get("status") || undefined,
+      search: sp.get("search") || undefined,
+      sort: sp.get("sort") || undefined,
+      order: (sp.get("order") as "asc" | "desc") || undefined,
+      page: Math.max(1, Number(sp.get("page") || 1)),
+      limit: Math.min(100, Number(sp.get("limit") || 20)),
     });
-
-    const { items, total } = await eventService.list(parsed);
-    return ok({
-      items: items.map((e) => ({
-        id: String((e as any)._id),
-        name: e.name,
-        slug: e.slug,
-        coverImage: (e as any).coverImage || null,
-        startsAt: e.startsAt,
-        endsAt: e.endsAt,
-        status: e.status,
-        createdAt: e.createdAt,
-      })),
-      page: parsed.page,
-      limit: parsed.limit,
-      total,
-      totalPages: Math.ceil(total / parsed.limit),
-    });
+    return ok(result);
   } catch (e: unknown) {
     return fail(e as Error);
   }

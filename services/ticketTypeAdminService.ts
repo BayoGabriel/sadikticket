@@ -3,16 +3,16 @@ import { ApiError } from "@/lib/errors";
 import { EventModel, type Event } from "@/models/event";
 import { TicketTypeModel, type TicketType } from "@/models/ticketType";
 import { Types } from "mongoose";
+import { can } from "@/lib/auth";
 
 export const ticketTypeAdminService = {
   async assertEventAccess(eventId: string, user: { id: string; role: string }) {
     await connectDb();
     const event = await EventModel.findById(eventId).lean<Event | null>();
     if (!event) throw new ApiError("EVENT_NOT_FOUND", "Event not found", 404);
-    if (user.role === "SUPER_ADMIN") return event;
-    if (user.role === "EVENT_ADMIN" && String(event.createdBy) === user.id)
-      return event;
-    throw new ApiError("FORBIDDEN", "Insufficient permissions", 403);
+    if (!can(user.role, "events"))
+      throw new ApiError("FORBIDDEN", "Insufficient permissions", 403);
+    return event;
   },
 
   async create(eventId: string, input: any) {
@@ -25,6 +25,7 @@ export const ticketTypeAdminService = {
       currency: input.currency,
       quantity: input.quantity,
       quantitySold: 0,
+      maxPerOrder: input.maxPerOrder ?? undefined,
       salesStart: input.salesStart ?? null,
       salesEnd: input.salesEnd ?? null,
       status: input.status ?? "ACTIVE",
