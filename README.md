@@ -26,7 +26,7 @@ All values are documented in `.env.example`. The important ones:
 | `ENQUIRY_NOTIFY_EMAIL` | Where private/business/contact enquiries are emailed |
 | `SMTP_*` / `EMAIL_FROM` | Outgoing mail (tickets, reminders, waitlist, enquiries) |
 | `CLOUDINARY_*` | Admin event-image uploads |
-| `NEXT_PUBLIC_WHATSAPP_NUMBER` / `NEXT_PUBLIC_CONTACT_EMAIL` / `NEXT_PUBLIC_BUSINESS_EMAIL` / `NEXT_PUBLIC_INSTAGRAM_HANDLE` | Contact details shown on the site. Keep the `NEXT_PUBLIC_` prefix — client components read these |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER` / `NEXT_PUBLIC_CONTACT_EMAIL` / `NEXT_PUBLIC_BUSINESS_EMAIL` / `NEXT_PUBLIC_INSTAGRAM_HANDLE` | Contact details shown on the site. The `NEXT_*` spellings (without `PUBLIC`) work too — `next.config.ts` maps them to `NEXT_PUBLIC_*` at build time |
 | `CRON_SECRET` | Bearer secret for `GET /api/cron/reminders` (event reminder emails) |
 | `PAYMENT_PROVIDER` | `paystack` (default). The provider layer lives in `services/payments/` so Flutterwave can be added |
 

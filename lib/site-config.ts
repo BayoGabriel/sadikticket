@@ -8,23 +8,47 @@ export const siteConfig = {
   tagline: "Fun things to do with people, in Lagos and Benin City.",
   cities: ["Lagos", "Benin City"] as const,
 
-  // Contact details (public)
-  whatsapp: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "",
-  whatsappDisplay: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "[number]",
-  email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
-  emailDisplay: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "[email address]",
+  // Contact details (public). Either NEXT_PUBLIC_* or NEXT_* env names work —
+  // next.config.ts maps NEXT_* → NEXT_PUBLIC_* at build time for the browser,
+  // and the fallback reads cover the server side directly.
+  whatsapp:
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ||
+    process.env.NEXT_WHATSAPP_NUMBER ||
+    "",
+  whatsappDisplay:
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ||
+    process.env.NEXT_WHATSAPP_NUMBER ||
+    "[number]",
+  email:
+    process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
+    process.env.NEXT_CONTACT_EMAIL ||
+    "",
+  emailDisplay:
+    process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
+    process.env.NEXT_CONTACT_EMAIL ||
+    "[email address]",
   businessEmail:
     process.env.NEXT_PUBLIC_BUSINESS_EMAIL ||
+    process.env.NEXT_BUSINESS_EMAIL ||
     process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
+    process.env.NEXT_CONTACT_EMAIL ||
     "",
   businessEmailDisplay:
     process.env.NEXT_PUBLIC_BUSINESS_EMAIL ||
+    process.env.NEXT_BUSINESS_EMAIL ||
     process.env.NEXT_PUBLIC_CONTACT_EMAIL ||
+    process.env.NEXT_CONTACT_EMAIL ||
     "[business email]",
-  instagram: process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE || "",
-  instagramDisplay: process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE
-    ? `@${process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE.replace(/^@/, "")}`
-    : "@[handle]",
+  instagram:
+    process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE ||
+    process.env.NEXT_INSTAGRAM_HANDLE ||
+    "",
+  instagramDisplay: (() => {
+    const h =
+      process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE ||
+      process.env.NEXT_INSTAGRAM_HANDLE;
+    return h ? `@${h.replace(/^@/, "")}` : "@[handle]";
+  })(),
 
   // How fast the team replies to enquiries — used in form confirmations.
   responseTime: "[response time]",
