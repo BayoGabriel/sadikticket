@@ -25,5 +25,6 @@ matching key in `lib/images.ts` (e.g. `src: "/images/hero-canvas.jpg"`).
 **Event covers** come from the admin image upload (Cloudinary) — `eventFallback`
 is only used when an event has none.
 
-**Gallery videos:** on any `gallery.gN` slot, set `video: "/images/clip.mp4"`
-(and optionally `poster`) — it renders muted, looped, lazy-loaded.
+**Gallery videos:** in `lib/gallery.ts`, set `video: "/videos/clip.mp4"` on an
+item's slot (and optionally `poster`) — it renders muted, looped, lazy-loaded.
+Each item also has a `type` which drives the filter chips on `/gallery`.

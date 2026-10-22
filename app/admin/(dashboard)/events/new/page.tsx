@@ -21,10 +21,18 @@ export default function NewEventPage() {
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean),
+      tags: String(fd.get('tags') || '')
+        .split(',')
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean),
+      eventType: fd.get('eventType') || undefined,
+      directions: fd.get('directions') || '',
+      mapLink: fd.get('mapLink') || '',
+      statusOverride: fd.get('statusOverride') || null,
       venueName: fd.get('venueName') || '',
       venueAddress: fd.get('venueAddress') || '',
       city: fd.get('city') || '',
-      state: fd.get('state') || '',
+      state: fd.get('state') || undefined,
       country: fd.get('country') || '',
       startsAt: fd.get('startsAt'),
       endsAt: fd.get('endsAt'),
@@ -55,8 +63,8 @@ export default function NewEventPage() {
             <input name="name" required className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
           </div>
           <div>
-            <label className="block text-sm font-medium">Short description</label>
-            <input name="shortDescription" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
+            <label className="block text-sm font-medium">One-line hook (shown on cards)</label>
+            <input name="shortDescription" placeholder="Paint, sip and take your canvas home." className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
           </div>
           <div>
             <label className="block text-sm font-medium">Description</label>
@@ -65,6 +73,37 @@ export default function NewEventPage() {
           <div>
             <label className="block text-sm font-medium">What&apos;s included (comma-separated)</label>
             <input name="includes" placeholder="Canvas, paint and brushes, apron, drink, snack" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium">Event type</label>
+              <select name="eventType" defaultValue="" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2">
+                <option value="">Pick one</option>
+                <option value="painting">Painting</option>
+                <option value="pottery">Pottery</option>
+                <option value="karaoke">Karaoke</option>
+                <option value="picnic">Picnic</option>
+                <option value="trivia">Trivia</option>
+                <option value="rnb">RnB night</option>
+                <option value="beach">Beach day</option>
+                <option value="mixer">Mixer</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Tags (comma-separated)</label>
+              <input name="tags" placeholder="evening, outdoor, beginner-friendly, good-for-groups" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Status override</label>
+              <select name="statusOverride" defaultValue="" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2">
+                <option value="">Auto (from ticket sales)</option>
+                <option value="on-sale">Tickets on sale</option>
+                <option value="few-left">Few tickets left</option>
+                <option value="sold-out">Sold out</option>
+                <option value="coming-soon">Coming soon</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -90,15 +129,19 @@ export default function NewEventPage() {
         <div className="rounded-2xl bg-white border border-[#E8E8E5] p-6 grid gap-4 sm:grid-cols-2">
           <div>
             <label className="block text-sm font-medium">Venue</label>
-            <input name="venueName" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
+            <input name="venueName" required className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
           </div>
           <div>
             <label className="block text-sm font-medium">Address</label>
-            <input name="venueAddress" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
+            <input name="venueAddress" required className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
           </div>
           <div>
             <label className="block text-sm font-medium">City</label>
-            <input name="city" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
+            <select name="city" defaultValue="" required className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2">
+              <option value="" disabled>Pick one</option>
+              <option value="Lagos">Lagos</option>
+              <option value="Benin City">Benin City</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium">State</label>
@@ -106,7 +149,15 @@ export default function NewEventPage() {
           </div>
           <div>
             <label className="block text-sm font-medium">Country</label>
-            <input name="country" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
+            <input name="country" defaultValue="Nigeria" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium">Directions / parking / landmark</label>
+            <textarea name="directions" rows={2} placeholder="How to get there, where to park, the landmark to look for." className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium">Map link (optional — auto-built from address if blank)</label>
+            <input name="mapLink" type="url" placeholder="https://maps.google.com/…" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
           </div>
         </div>
 

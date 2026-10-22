@@ -43,6 +43,14 @@ export default function EditEventPage({
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean),
+      tags: String(fd.get("tags") || "")
+        .split(",")
+        .map((s) => s.trim().toLowerCase())
+        .filter(Boolean),
+      eventType: fd.get("eventType") || undefined,
+      directions: fd.get("directions") || undefined,
+      mapLink: fd.get("mapLink") || undefined,
+      statusOverride: fd.get("statusOverride") || null,
       startsAt: fd.get("startsAt") || undefined,
       endsAt: fd.get("endsAt") || undefined,
       timezone: fd.get("timezone") || undefined,
@@ -110,7 +118,7 @@ export default function EditEventPage({
           </div>
           <div>
             <label className="block text-sm font-medium">
-              Short description
+              One-line hook (shown on cards)
             </label>
             <input
               name="shortDescription"
@@ -137,6 +145,52 @@ export default function EditEventPage({
               placeholder="Canvas, paint and brushes, apron, drink, snack"
               className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2"
             />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="block text-sm font-medium">Event type</label>
+              <select
+                name="eventType"
+                defaultValue={ev.eventType || ""}
+                className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2"
+              >
+                <option value="">Pick one</option>
+                <option value="painting">Painting</option>
+                <option value="pottery">Pottery</option>
+                <option value="karaoke">Karaoke</option>
+                <option value="picnic">Picnic</option>
+                <option value="trivia">Trivia</option>
+                <option value="rnb">RnB night</option>
+                <option value="beach">Beach day</option>
+                <option value="mixer">Mixer</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium">
+                Tags (comma-separated)
+              </label>
+              <input
+                name="tags"
+                defaultValue={(ev.tags || []).join(", ")}
+                placeholder="evening, outdoor, beginner-friendly, good-for-groups"
+                className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium">Status override</label>
+              <select
+                name="statusOverride"
+                defaultValue={ev.statusOverride || ""}
+                className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2"
+              >
+                <option value="">Auto (from ticket sales)</option>
+                <option value="on-sale">Tickets on sale</option>
+                <option value="few-left">Few tickets left</option>
+                <option value="sold-out">Sold out</option>
+                <option value="coming-soon">Coming soon</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -223,6 +277,30 @@ export default function EditEventPage({
             <input
               name="country"
               defaultValue={ev.country}
+              className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium">
+              Directions / parking / landmark
+            </label>
+            <textarea
+              name="directions"
+              defaultValue={ev.directions}
+              rows={2}
+              placeholder="How to get there, where to park, the landmark to look for."
+              className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="block text-sm font-medium">
+              Map link (optional — auto-built from address if blank)
+            </label>
+            <input
+              name="mapLink"
+              type="url"
+              defaultValue={ev.mapLink}
+              placeholder="https://maps.google.com/…"
               className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2"
             />
           </div>

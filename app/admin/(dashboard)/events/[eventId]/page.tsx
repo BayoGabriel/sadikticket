@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getEvent } from "@/features/admin/events/api";
 import { EventHeader } from "@/features/admin/events/components/EventHeader";
 import { EventActions } from "@/features/admin/events/components/EventActions";
+import { NotifyWaitlistButton } from "@/features/admin/events/components/NotifyWaitlistButton";
 
 export default async function EventOverviewPage({
   params,
@@ -66,6 +67,7 @@ export default async function EventOverviewPage({
               View public page
             </a>
           )}
+          <NotifyWaitlistButton eventId={ev.id} />
         </div>
         {ev.status !== "PUBLISHED" && (
           <div className="mt-4 rounded-xl border border-dashed border-[#E8E8E5] p-4 text-sm text-[#6B6B6B]">

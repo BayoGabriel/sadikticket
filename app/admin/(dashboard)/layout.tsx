@@ -41,6 +41,26 @@ export default async function AdminLayout({
       label: "Events",
       roles: ["SUPER_ADMIN", "EVENT_ADMIN"],
     },
+    {
+      href: "/admin/orders",
+      label: "Orders",
+      roles: ["SUPER_ADMIN", "EVENT_ADMIN"],
+    },
+    {
+      href: "/admin/enquiries",
+      label: "Enquiries",
+      roles: ["SUPER_ADMIN", "EVENT_ADMIN"],
+    },
+    {
+      href: "/admin/coupons",
+      label: "Coupons",
+      roles: ["SUPER_ADMIN", "EVENT_ADMIN"],
+    },
+    {
+      href: "/admin/reviews",
+      label: "Reviews",
+      roles: ["SUPER_ADMIN", "EVENT_ADMIN"],
+    },
   ];
 
   return (
