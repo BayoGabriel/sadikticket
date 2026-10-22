@@ -1,4 +1,3 @@
-import { Types } from 'mongoose';
 import { connectDb } from '@/lib/db';
 import { ApiError } from '@/lib/errors';
 import { OrderModel } from '@/models/order';

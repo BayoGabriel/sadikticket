@@ -10,9 +10,9 @@ export async function GET(
   try {
     const { slug } = await ctx.params;
     const now = new Date();
-    const { types } = await ticketTypeService.listPublicByEventSlug(slug, now);
+    const { types } = await ticketTypeService.listPublicByEventSlug(slug);
     return ok({
-      items: types.map((t: any) => ({
+      items: types.map((t) => ({
         id: t._id.toString(),
         name: t.name,
         description: t.description,
@@ -29,7 +29,7 @@ export async function GET(
           (!t.salesEnd || new Date(t.salesEnd) >= now),
       })),
     });
-  } catch (e: any) {
-    return fail(e);
+  } catch (e: unknown) {
+    return fail(e as Error);
   }
 }

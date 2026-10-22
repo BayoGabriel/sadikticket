@@ -56,7 +56,7 @@ function LoginForm() {
           </h1>
           <p className="mt-4 max-w-sm text-base" style={{ color: "rgba(255,254,221,0.7)" }}>
             Events, tickets, door check-in, enquiries and content — everything a
-            busy events team needs, nothing it doesn't.
+            busy events team needs, nothing it doesn&apos;t.
           </p>
         </div>
         <p className="text-sm" style={{ color: "rgba(255,254,221,0.5)" }}>

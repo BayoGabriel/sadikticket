@@ -51,7 +51,7 @@ export function SalesAreaChart({
       </svg>
       {series.every((s) => s.revenue === 0) && (
         <p className="text-center text-sm" style={{ color: "var(--admin-ink-soft)" }}>
-          No sales in this window yet — they'll show up here.
+          No sales in this window yet — they&apos;ll show up here.
         </p>
       )}
     </div>

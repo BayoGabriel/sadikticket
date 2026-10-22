@@ -6,6 +6,7 @@ export const createTicketTypeSchema = z.object({
   price: z.number().int().min(0), // kobo/lowest unit
   currency: z.string().min(1),
   quantity: z.number().int().min(0),
+  maxPerOrder: z.number().int().min(1).optional().nullable(),
   salesStart: z.coerce.date().optional().nullable(),
   salesEnd: z.coerce.date().optional().nullable(),
   status: z.enum(['ACTIVE', 'INACTIVE']).default('ACTIVE'),

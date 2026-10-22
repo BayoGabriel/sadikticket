@@ -91,19 +91,6 @@ export function FaqsClient({ initial }: { initial: FaqRow[] }) {
     }
   };
 
-  const toggle = async (item: FaqRow, field: "published" | "showOnEventPages") => {
-    setItems(items.map((i) => (i === item ? { ...i, [field]: !i[field] } : i)));
-    const res = await fetch(`/api/v1/admin/content/faqs/${item.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ [field]: !item[field] }),
-    });
-    if (!res.ok) {
-      setItems(items);
-      toast("Not saved — try again.", { error: true });
-    }
-  };
-
   const remove = async () => {
     if (!deleting) return;
     const res = await fetch(`/api/v1/admin/content/faqs/${deleting.id}`, { method: "DELETE" });

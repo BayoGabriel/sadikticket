@@ -2,7 +2,6 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { requirePermission } from "@/lib/auth";
 import { ok, fail } from "@/lib/response";
-import { ApiError } from "@/lib/errors";
 import { contentService } from "@/services/contentService";
 import { auditService } from "@/services/auditService";
 import { revalidatePublicSite } from "@/lib/revalidate";

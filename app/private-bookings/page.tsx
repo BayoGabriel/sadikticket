@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
 import { Img } from "@/components/ui/Img";
 import { images } from "@/lib/images";
+import { settingsService } from "@/services/settingsService";
 
 export const metadata: Metadata = {
   title: "Private Bookings | SerenArt",
@@ -52,7 +53,10 @@ const steps = [
   },
 ];
 
-export default function PrivateBookingsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function PrivateBookingsPage() {
+  const responseTime = (await settingsService.getPublic().catch(() => null))?.responseTime;
   return (
     <main className="min-h-screen bg-[#fffedd] text-[#1a1a1a]">
       {/* Hero — peach */}
@@ -132,7 +136,7 @@ export default function PrivateBookingsPage() {
             Let’s plan it!
           </h2>
           <div className="mt-7 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
-            <EnquiryForm kind="private-booking" />
+            <EnquiryForm kind="private-booking" responseTime={responseTime} />
           </div>
         </div>
       </section>

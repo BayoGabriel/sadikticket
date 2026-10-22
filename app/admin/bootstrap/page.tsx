@@ -24,8 +24,8 @@ export default function AdminBootstrapPage() {
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || 'Failed to bootstrap');
       router.push('/admin');
-    } catch (e: any) {
-      setError(e.message || 'Something went wrong');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Something went wrong');
     } finally {
       setLoading(false);
     }

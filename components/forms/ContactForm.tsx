@@ -5,7 +5,7 @@ import { siteConfig, whatsappUrl } from "@/lib/site-config";
 const inputCls =
   "mt-1 w-full rounded-xl border border-[#e0dfcf] bg-white px-3.5 py-2.5 text-sm text-[#003118] outline-none transition focus:border-[#003118]/40 focus:ring-2 focus:ring-[#003118]/10";
 
-export function ContactForm() {
+export function ContactForm({ responseTime }: { responseTime?: string }) {
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">(
     "idle",
   );
@@ -43,7 +43,7 @@ export function ContactForm() {
       <div className="rounded-2xl border border-[#003118]/15 bg-[#e6eeeb] p-6 text-center">
         <p className="font-semibold text-[#003118]">Got it, thank you!</p>
         <p className="mt-2 text-sm leading-6 text-[#4a4a45]">
-          We'll reach out within {siteConfig.responseTime}. Want to chat now?{" "}
+          We&apos;ll reach out within {responseTime || siteConfig.responseTime}. Want to chat now?{" "}
           {wa ? (
             <a
               href={wa}
@@ -88,7 +88,7 @@ export function ContactForm() {
       </div>
       <div>
         <label className="block text-sm font-medium text-[#003118]">
-          What's on your mind?
+          What&apos;s on your mind?
         </label>
         <textarea name="message" rows={5} required className={inputCls} />
       </div>

@@ -13,7 +13,6 @@ import { ImageField } from "@/components/admin/forms/ImageField";
 import { Icon } from "@/components/admin/ui/icons";
 import { useToast } from "@/components/admin/ui/Toast";
 import { ConfirmDialog } from "@/components/admin/ui/Modal";
-import { formatNaira } from "@/lib/format";
 
 // ── Form shape (split date/time + price in naira for humans) ────────────────
 const ticketTypeSchema = z.object({
@@ -73,7 +72,7 @@ const SECTIONS = [
   { id: "where", label: "Where" },
   { id: "photos", label: "Photos" },
   { id: "about", label: "About" },
-  { id: "included", label: "What's included" },
+  { id: "included", label: "What&apos;s included" },
   { id: "tickets", label: "Tickets" },
   { id: "goodtoknow", label: "Good to know" },
   { id: "faqs", label: "FAQs" },
@@ -115,7 +114,6 @@ export function EventForm({
     handleSubmit,
     watch,
     setValue,
-    getValues,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -474,7 +472,7 @@ export function EventForm({
             </section>
 
             <section id="included" className="a-card p-5" onFocusCapture={() => setActiveSection("included")}>
-              <h2 className="admin-title mb-4 text-base font-bold">What's included</h2>
+              <h2 className="admin-title mb-4 text-base font-bold">What&apos;s included</h2>
               <Controller
                 control={control}
                 name="includes"
@@ -483,7 +481,7 @@ export function EventForm({
                     value={field.value}
                     onChange={field.onChange}
                     placeholder="Canvas, paint, apron…"
-                    label="What's included"
+                    label="What&apos;s included"
                     suggestions={["Canvas", "Paint and brushes", "Apron", "Drink", "Snack", "Photos of the night"]}
                   />
                 )}
@@ -674,7 +672,7 @@ export function EventForm({
         <div className="space-y-4">
           <div className="a-card sticky top-16 p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="admin-title text-sm font-bold">How it'll look</h2>
+              <h2 className="admin-title text-sm font-bold">How it&apos;ll look</h2>
               <div className="a-card flex p-0.5" role="group" aria-label="Preview mode">
                 {(["card", "hero"] as const).map((m) => (
                   <button key={m} type="button" onClick={() => setPreviewMode(m)} className="rounded-full px-2.5 py-1 text-xs font-bold" style={{ background: previewMode === m ? "var(--green)" : "transparent", color: previewMode === m ? "var(--cream)" : "var(--admin-ink-soft)" }}>
@@ -765,7 +763,7 @@ export function EventForm({
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}
         title={`Delete “${values.name}”?`}
-        body={<>This removes the event and its ticket types for good. If it has paid orders you'll need to archive it instead.</>}
+        body={<>This removes the event and its ticket types for good. If it has paid orders you&apos;ll need to archive it instead.</>}
         confirmLabel="Delete"
         requireText={values.name}
         onConfirm={async () => {

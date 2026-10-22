@@ -13,7 +13,7 @@ export async function POST(
     const { eventId } = await ctx.params;
     const updated = await eventService.update(eventId, { status: "CANCELLED" });
     return ok({ id: updated._id.toString(), status: updated.status });
-  } catch (e: any) {
-    return fail(e);
+  } catch (e: unknown) {
+    return fail(e as Error);
   }
 }

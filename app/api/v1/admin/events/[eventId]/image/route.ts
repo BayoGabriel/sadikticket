@@ -20,7 +20,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ eventId: s
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    const uploaded = await uploadEventImage(buffer, (file as any).name || undefined);
+    const uploaded = await uploadEventImage(buffer, file instanceof File ? file.name : undefined);
 
     await connectDb();
     await EventModel.updateOne({ _id: eventId }, { $set: { coverImage: uploaded.url } });

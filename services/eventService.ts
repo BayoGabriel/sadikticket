@@ -110,7 +110,7 @@ export const eventService = {
     createdById?: string;
   }) {
     await connectDb();
-    const query: any = {};
+    const query: Record<string, unknown> = {};
     if (params.status) query.status = params.status;
     if (params.search) query.name = { $regex: params.search, $options: "i" };
     if (params.createdById)

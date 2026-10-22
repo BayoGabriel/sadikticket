@@ -6,6 +6,7 @@ import { WaitlistEntryModel } from "@/models/waitlistEntry";
 import { SubscriberModel } from "@/models/subscriber";
 import { EventModel } from "@/models/event";
 import { emailService } from "@/services/emailService";
+import { emailTemplateService } from "@/services/emailTemplateService";
 import { settingsService } from "@/services/settingsService";
 
 function escapeHtml(s: string) {
@@ -95,6 +96,27 @@ export const enquiryService = {
           meta: { kind: input.kind, email: input.email },
         })) as { accepted?: string[] };
         emailed = (res?.accepted?.length ?? 0) > 0;
+      }
+
+      // Optional auto-reply to the guest — off unless the team enables the
+      // "Enquiry received" template in Settings → Emails.
+      const autoReply = await emailTemplateService.get("enquiry-received").catch(() => null);
+      if (autoReply?.enabled && input.kind !== "waitlist" && input.kind !== "updates") {
+        await emailService.send({
+          to: input.email,
+          subject: autoReply.subject
+            .replace(/\[(\w+)\]/g, (_m, k: string) => String(input[k] ?? _m)),
+          text: autoReply.body.replace(/\[(\w+)\]/g, (_m, k: string) => {
+            const vars: Record<string, string> = {
+              Name: String(input.name ?? "there"),
+              Occasion: String(input.occasion ?? input.service ?? input.kind),
+              ResponseTime: settings.responseTime,
+            };
+            return vars[k] ?? String(input[k] ?? _m);
+          }),
+          template: "enquiry-received",
+          meta: { enquiryId: saved?.id },
+        }).catch(() => {});
       }
     } catch {
       emailed = false;

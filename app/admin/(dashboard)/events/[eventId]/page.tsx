@@ -5,7 +5,6 @@ import { eventService } from "@/services/eventService";
 import { adminEventService } from "@/services/adminEventService";
 import { connectDb } from "@/lib/db";
 import { OrderModel } from "@/models/order";
-import { TicketModel } from "@/models/ticket";
 import { WaitlistEntryModel } from "@/models/waitlistEntry";
 import { formatNaira } from "@/lib/format";
 import { PageHeader, Breadcrumbs } from "@/components/admin/ui/PageHeader";

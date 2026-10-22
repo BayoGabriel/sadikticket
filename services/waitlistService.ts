@@ -3,7 +3,7 @@ import { WaitlistEntryModel, type WaitlistEntry } from "@/models/waitlistEntry";
 import { EventModel, type Event } from "@/models/event";
 import { TicketTypeModel } from "@/models/ticketType";
 import { Types } from "mongoose";
-import { emailService } from "@/services/emailService";
+import { emailTemplateService } from "@/services/emailTemplateService";
 import { env } from "@/lib/env";
 
 export const waitlistService = {
@@ -35,12 +35,16 @@ export const waitlistService = {
     let sent = 0;
     for (const w of waiting) {
       try {
-        await emailService.send({
+        await emailTemplateService.sendTemplate("waitlist-notice", {
           to: w.email,
-          subject: `A spot opened for ${event.name}`,
-          template: "waitlist-notice",
           meta: { eventId: String(event._id) },
-          text: `Hi ${w.name},\n\nGood news — a spot opened up for ${event.name}. You asked us to tell you first, so grab it before it goes:\n\n${env.APP_URL}/events/${event.slug}\n\n— SerenArt`,
+          vars: {
+            Name: w.name,
+            Event: event.name,
+            Link: `${env.APP_URL}/events/${event.slug}`,
+          },
+          fallbackSubject: `A spot opened for ${event.name}`,
+          fallbackText: `Hi ${w.name},\n\nGood news — a spot opened up for ${event.name}. You asked us to tell you first, so grab it before it goes:\n\n${env.APP_URL}/events/${event.slug}\n\n— SerenArt`,
         });
         await WaitlistEntryModel.updateOne(
           { _id: w._id, status: "waiting" },

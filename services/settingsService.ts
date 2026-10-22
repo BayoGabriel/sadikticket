@@ -24,6 +24,11 @@ export const DEFAULTS = {
   announcementEnabled: false,
   announcementText: "",
   refundSummary: "[Your refund policy.]",
+  policies: {
+    ageLimit: "[Your policy.] Most experiences are 18+, family sessions are marked on the event page.",
+    whatToWear: "[Your policy.] Come comfortable — aprons are provided for messy sessions.",
+    runningLate: "[Your policy.] Doors stay open — we'll catch you up when you arrive.",
+  },
 };
 
 export const settingsService = {
@@ -67,6 +72,11 @@ export const settingsService = {
       announcementEnabled: s.announcementEnabled ?? false,
       announcementText: s.announcementText || "",
       refundSummary: s.refundSummary || DEFAULTS.refundSummary,
+      policies: {
+        ageLimit: s.policies?.ageLimit || DEFAULTS.policies.ageLimit,
+        whatToWear: s.policies?.whatToWear || DEFAULTS.policies.whatToWear,
+        runningLate: s.policies?.runningLate || DEFAULTS.policies.runningLate,
+      },
     };
   },
 };

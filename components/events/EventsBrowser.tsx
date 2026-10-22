@@ -70,6 +70,14 @@ export function EventsBrowser({ lockedCity }: { lockedCity?: string }) {
   const [loading, setLoading] = useState(true);
   const first = useRef(true);
 
+  // Flip back to "loading" the moment filters change (before the fetch fires).
+  const filterKey = `${city}|${month}|${tag}|${type}`;
+  const [prevKey, setPrevKey] = useState(filterKey);
+  if (prevKey !== filterKey) {
+    setPrevKey(filterKey);
+    setLoading(true);
+  }
+
   // Keep the URL shareable — replace, don't reload.
   const setParam = useCallback(
     (key: string, value: string) => {
@@ -83,7 +91,6 @@ export function EventsBrowser({ lockedCity }: { lockedCity?: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
     const q = new URLSearchParams();
     if (city) q.set("city", city);
     if (month) q.set("month", month);

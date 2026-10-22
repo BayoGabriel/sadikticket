@@ -1,10 +1,10 @@
-import { TicketTypeModel } from "@/models/ticketType";
+import { TicketTypeModel, type TicketType } from "@/models/ticketType";
 import { EventModel, type Event } from "@/models/event";
 import { connectDb } from "@/lib/db";
 import { ApiError } from "@/lib/errors";
 
 export const ticketTypeService = {
-  async listPublicByEventSlug(slug: string, _now = new Date()) {
+  async listPublicByEventSlug(slug: string) {
     await connectDb();
     const event = await EventModel.findOne({
       slug,
@@ -17,7 +17,7 @@ export const ticketTypeService = {
       status: "ACTIVE",
     })
       .sort({ createdAt: 1 })
-      .lean();
+      .lean<TicketType[]>();
 
     return { event, types };
   },

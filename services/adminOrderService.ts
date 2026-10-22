@@ -12,7 +12,7 @@ import { ticketService } from "@/services/ticketService";
 import { ticketEmailService } from "@/services/ticketEmailService";
 import { paymentService } from "@/services/paymentService";
 import { paystackService } from "@/services/paystackService";
-import { emailService } from "@/services/emailService";
+import { emailTemplateService } from "@/services/emailTemplateService";
 import { couponService } from "@/services/couponService";
 import { waitlistService } from "@/services/waitlistService";
 import type { AuthUser } from "@/lib/auth";
@@ -165,12 +165,16 @@ export const adminOrderService = {
     // Refund email — friendly, plain.
     try {
       const event = await EventModel.findById(order.eventId).lean<Event | null>();
-      await emailService.send({
+      await emailTemplateService.sendTemplate("refund-confirmation", {
         to: order.customerEmail,
-        subject: `Refund for ${event?.name ?? "your order"}`,
-        template: "refund",
         meta: { orderId: String(order._id), eventId: String(order.eventId) },
-        text: `Hi ${order.customerName},\n\nWe've ${full ? "refunded" : "partially refunded"} ₦${(amount / 100).toLocaleString()} for your order (${order.paymentReference}).\n\n${full ? "Your tickets are no longer valid for the event." : "Your tickets are still valid."}\n${input.reason ? `Reason: ${input.reason}\n` : ""}\nIt can take a few days to show on your statement.\n\n— SerenArt`,
+        vars: {
+          Name: order.customerName,
+          Event: event?.name ?? "your order",
+          Amount: `₦${(amount / 100).toLocaleString()}`,
+        },
+        fallbackSubject: `Refund for ${event?.name ?? "your order"}`,
+        fallbackText: `Hi ${order.customerName},\n\nWe've ${full ? "refunded" : "partially refunded"} ₦${(amount / 100).toLocaleString()} for your order (${order.paymentReference}).\n\n${full ? "Your tickets are no longer valid for the event." : "Your tickets are still valid."}\n${input.reason ? `Reason: ${input.reason}\n` : ""}\nIt can take a few days to show on your statement.\n\n— SerenArt`,
       });
     } catch {
       // email failure shouldn't block the refund

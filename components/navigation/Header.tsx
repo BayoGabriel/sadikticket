@@ -2,7 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Logo from "@/assets/images/artlogo.png";
 
 const links = [
@@ -19,7 +19,12 @@ export function Header() {
   const isBusiness = pathname?.startsWith("/business");
   const isAdmin = pathname?.startsWith("/admin");
 
-  useEffect(() => setOpen(false), [pathname]);
+  // Close the mobile menu on navigation.
+  const [prevPath, setPrevPath] = useState(pathname);
+  if (prevPath !== pathname) {
+    setPrevPath(pathname);
+    setOpen(false);
+  }
 
   if (isAdmin) return null;
 

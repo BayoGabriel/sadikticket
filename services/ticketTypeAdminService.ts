@@ -4,6 +4,11 @@ import { EventModel, type Event } from "@/models/event";
 import { TicketTypeModel, type TicketType } from "@/models/ticketType";
 import { Types } from "mongoose";
 import { can } from "@/lib/auth";
+import type { z } from "zod";
+import type { createTicketTypeSchema, updateTicketTypeSchema } from "@/schemas/ticketType";
+
+type CreateInput = z.infer<typeof createTicketTypeSchema>;
+type UpdateInput = z.infer<typeof updateTicketTypeSchema>;
 
 export const ticketTypeAdminService = {
   async assertEventAccess(eventId: string, user: { id: string; role: string }) {
@@ -15,7 +20,7 @@ export const ticketTypeAdminService = {
     return event;
   },
 
-  async create(eventId: string, input: any) {
+  async create(eventId: string, input: CreateInput) {
     await connectDb();
     const doc = await TicketTypeModel.create({
       eventId: new Types.ObjectId(eventId),
@@ -57,7 +62,7 @@ export const ticketTypeAdminService = {
     return tt;
   },
 
-  async update(eventId: string, ticketTypeId: string, patch: any) {
+  async update(eventId: string, ticketTypeId: string, patch: UpdateInput) {
     await connectDb();
     const tt = await TicketTypeModel.findOne({ _id: ticketTypeId, eventId });
     if (!tt)

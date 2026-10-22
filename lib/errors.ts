@@ -3,6 +3,7 @@ export type ApiErrorCode =
   | 'UNAUTHORIZED'
   | 'FORBIDDEN'
   | 'NOT_FOUND'
+  | 'CONFLICT'
   | 'EVENT_NOT_FOUND'
   | 'EVENT_NOT_PUBLISHED'
   | 'EVENT_SALES_CLOSED'

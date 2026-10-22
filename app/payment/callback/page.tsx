@@ -73,8 +73,8 @@ function PaymentCallbackInner() {
           <>
             <h1 className="text-xl font-semibold">Confirming your payment</h1>
             <p className="mt-2 text-(--text-muted)">
-              We're securely confirming your payment and preparing your ticket.
-              Please don't close this page.
+              We&apos;re securely confirming your payment and preparing your ticket.
+              Please don&apos;t close this page.
             </p>
           </>
         )}
@@ -84,7 +84,7 @@ function PaymentCallbackInner() {
               Payment is being confirmed
             </h1>
             <p className="mt-2 text-(--text-muted)">
-              We're waiting for confirmation from the payment provider. This can
+              We&apos;re waiting for confirmation from the payment provider. This can
               take a few moments.
             </p>
             <div className="mt-4 text-sm text-(--text-muted)">
@@ -110,7 +110,7 @@ function PaymentCallbackInner() {
               View my tickets
             </a>
             <p className="mt-2 text-xs text-(--text-muted)">
-              We've also sent ticket details to your email.
+              We&apos;ve also sent ticket details to your email.
             </p>
           </>
         )}
@@ -120,7 +120,7 @@ function PaymentCallbackInner() {
               Payment not confirmed
             </h1>
             <p className="mt-2 text-(--text-muted)">
-              We couldn't confirm this payment. No ticket has been issued.
+              We couldn&apos;t confirm this payment. No ticket has been issued.
             </p>
             <button
               onClick={() => router.push("/")}
@@ -134,7 +134,7 @@ function PaymentCallbackInner() {
           <>
             <h1 className="text-xl font-semibold">Order not found</h1>
             <p className="mt-2 text-(--text-muted)">
-              We couldn't find this order reference.
+              We couldn&apos;t find this order reference.
             </p>
             <button
               onClick={() => router.push("/")}

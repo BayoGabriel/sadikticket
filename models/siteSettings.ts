@@ -20,6 +20,12 @@ const SiteSettingsSchema = new Schema(
       type: String,
       default: "[Your refund policy.]",
     },
+    // "Good to know" lines on event pages.
+    policies: {
+      ageLimit: { type: String, default: "" },
+      whatToWear: { type: String, default: "" },
+      runningLate: { type: String, default: "" },
+    },
   },
   { timestamps: true }
 );

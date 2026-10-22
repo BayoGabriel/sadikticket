@@ -11,11 +11,12 @@ type NextEvent = { slug: string; startsAt: string };
 const EXCLUDED = ["/admin", "/payment", "/tickets", "/business"];
 
 // Mobile-only sticky "Next event · Get Tickets" bar shown site-wide.
-export function StickyTicketsBar() {
+// `enabled` comes from Site settings (stickyMobileBanner) — defaults on.
+export function StickyTicketsBar({ enabled = true }: { enabled?: boolean }) {
   const pathname = usePathname();
   const [event, setEvent] = useState<NextEvent | null>(null);
 
-  const excluded = EXCLUDED.some((p) => pathname?.startsWith(p));
+  const excluded = !enabled || EXCLUDED.some((p) => pathname?.startsWith(p));
   // On an event page the page itself owns the mobile CTA — don't double up.
   const isEventPage = /^\/events\/[^/]+$/.test(pathname ?? "");
 

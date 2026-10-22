@@ -18,7 +18,7 @@ export const env = {
 
 export function assertEnv() {
   const required = ['MONGODB_URI', 'JWT_SECRET'];
-  const missing = required.filter((k) => !(env as any)[k]);
+  const missing = required.filter((k) => !env[k as keyof typeof env]);
   if (missing.length) {
     throw new Error(`Missing required env vars: ${missing.join(', ')}`);
   }

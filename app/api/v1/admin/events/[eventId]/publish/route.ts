@@ -17,7 +17,7 @@ export async function POST(
       status: updated.status,
       publishedAt: updated.publishedAt,
     });
-  } catch (e: any) {
-    return fail(e);
+  } catch (e: unknown) {
+    return fail(e as Error);
   }
 }

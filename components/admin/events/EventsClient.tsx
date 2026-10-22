@@ -343,7 +343,7 @@ export function EventsClient({
                   onChange={() =>
                     setSelected((s) => {
                       const n = new Set(s);
-                      n.has(e.id) ? n.delete(e.id) : n.add(e.id);
+                      if (n.has(e.id)) n.delete(e.id); else n.add(e.id);
                       return n;
                     })
                   }
@@ -410,7 +410,7 @@ export function EventsClient({
         }
         body={
           confirm?.action === "delete" ? (
-            <>This removes the event and its ticket types for good. If it has paid orders you'll need to archive it instead — you'll be told if so.</>
+            <>This removes the event and its ticket types for good. If it has paid orders you&apos;ll need to archive it instead — you&apos;ll be told if so.</>
           ) : confirm?.action === "archive" ? (
             <>It disappears from the site and lists, but all orders and records stay safe. You can bring it back as a draft anytime.</>
           ) : confirm?.action === "publish" ? (

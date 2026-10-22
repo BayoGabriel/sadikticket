@@ -4,6 +4,7 @@ import { Img } from "@/components/ui/Img";
 import { images } from "@/lib/images";
 import { whatsappUrl } from "@/lib/site-config";
 import { contentService } from "@/services/contentService";
+import { settingsService } from "@/services/settingsService";
 
 export const metadata: Metadata = {
   title: "SerenArt Business | Team experiences and brand events",
@@ -74,6 +75,7 @@ export const dynamic = "force-dynamic";
 
 export default async function BusinessPage() {
   const clients = await contentService.clients();
+  const responseTime = (await settingsService.getPublic().catch(() => null))?.responseTime;
   const wa = whatsappUrl("Hi SerenArt Business! I'd like to plan a team experience.");
   return (
     <main className="min-h-screen bg-[#fffedd] text-[#1a1a1a]">
@@ -304,7 +306,7 @@ export default async function BusinessPage() {
             )}
           </div>
           <div className="mt-7 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
-            <EnquiryForm kind="business" />
+            <EnquiryForm kind="business" responseTime={responseTime} />
           </div>
         </div>
       </section>

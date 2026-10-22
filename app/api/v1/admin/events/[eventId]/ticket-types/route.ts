@@ -42,7 +42,7 @@ export async function GET(
       limit,
     );
     return ok({
-      items: items.map((t: any) => ({
+      items: items.map((t) => ({
         id: t._id.toString(),
         name: t.name,
         description: t.description,

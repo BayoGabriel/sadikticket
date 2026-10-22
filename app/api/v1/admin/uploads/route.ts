@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { requirePermission, can } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { ok, fail } from "@/lib/response";
 import { storage, validateUploadSize } from "@/services/storage";
 import { ApiError } from "@/lib/errors";

@@ -60,6 +60,30 @@ const Review =
     new Schema({}, { timestamps: true, strict: false, collection: "reviews" }),
   );
 
+const Order =
+  models.Order ||
+  model("Order", new Schema({}, { timestamps: true, strict: false, collection: "orders" }));
+
+const Ticket =
+  models.Ticket ||
+  model("Ticket", new Schema({}, { timestamps: true, strict: false, collection: "tickets" }));
+
+const WaitlistEntry =
+  models.WaitlistEntry ||
+  model("WaitlistEntry", new Schema({}, { timestamps: true, strict: false, collection: "waitlistentries" }));
+
+const Subscriber =
+  models.Subscriber ||
+  model("Subscriber", new Schema({}, { timestamps: true, strict: false, collection: "subscribers" }));
+
+const Enquiry =
+  models.Enquiry ||
+  model("Enquiry", new Schema({}, { timestamps: true, strict: false, collection: "enquiries" }));
+
+const SiteSettings =
+  models.SiteSettings ||
+  model("SiteSettings", new Schema({}, { timestamps: true, strict: false, collection: "sitesettings" }));
+
 const inDays = (d, hour = 18) => {
   const dt = new Date();
   dt.setDate(dt.getDate() + d);
@@ -153,15 +177,22 @@ async function main() {
   await mongoose.connect(process.env.MONGODB_URI);
   console.log("Connected");
 
-  let admin = await User.findOne({ role: { $in: ["SUPER_ADMIN", "EVENT_ADMIN"] } });
+  // Owner account — set ADMIN_EMAIL / ADMIN_PASSWORD / ADMIN_NAME in .env
+  // (or pass real env vars). Never commit real credentials.
+  const ownerEmail = (process.env.ADMIN_EMAIL || "owner@serenart.local").toLowerCase();
+  const ownerPassword = process.env.ADMIN_PASSWORD || "change-me";
+  let admin = await User.findOne({ email: ownerEmail });
   if (!admin) {
     admin = await User.create({
-      email: "admin@serenart.local",
-      name: "Seed Admin",
-      passwordHash: await bcrypt.hash("change-me", 10),
-      role: "SUPER_ADMIN",
+      email: ownerEmail,
+      name: process.env.ADMIN_NAME || "SerenArt Owner",
+      passwordHash: await bcrypt.hash(ownerPassword, 10),
+      role: "OWNER",
+      active: true,
     });
-    console.log("Created seed admin: admin@serenart.local / change-me");
+    console.log(`Created OWNER: ${ownerEmail}${process.env.ADMIN_PASSWORD ? "" : " / change-me"}`);
+  } else {
+    console.log(`owner exists: ${ownerEmail}`);
   }
 
   for (const ev of seedEvents) {
@@ -225,6 +256,101 @@ async function main() {
     );
   }
   console.log("seeded placeholder reviews (unapproved)");
+
+  // Site settings — single doc, edited in /admin/settings.
+  await SiteSettings.updateOne(
+    { key: "main" },
+    { $setOnInsert: { key: "main", cities: ["Lagos", "Benin City"], fewLeftThreshold: 10, stickyMobileBanner: true, responseTime: "within a day" } },
+    { upsert: true },
+  );
+  console.log("site settings ready");
+
+  // Sample orders + tickets on the first event so Orders/Attendees/Check-in
+  // screens have realistic data. Marked [SAMPLE] — easy to spot and delete.
+  const first = await Event.findOne({ name: "Sip and Paint Night" });
+  if (first) {
+    const tt = await TicketType.findOne({ eventId: first._id, name: "Single" });
+    for (const [i, who] of ["Ada Sample", "Tunde Sample"].entries()) {
+      const email = `sample-${i + 1}@example.com`;
+      const exists = await Order.findOne({ customerEmail: email });
+      if (exists) continue;
+      const code = `SAMPLE-${i + 1}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+      const order = await Order.create({
+        eventId: first._id,
+        customerName: who,
+        customerEmail: email,
+        customerPhone: "0800 000 0000",
+        items: [{ ticketTypeId: tt._id, name: tt.name, unitPrice: tt.price, quantity: 1, currency: "NGN" }],
+        subtotal: tt.price,
+        fees: 0,
+        total: tt.price,
+        currency: "NGN",
+        status: "PAID",
+        paymentMethod: "cash",
+        manual: true,
+        soldBy: "Seed",
+        paymentReference: `seed-${i + 1}-${Date.now()}`,
+        notes: [{ text: "[SAMPLE] seeded data", author: "Seed" }],
+      });
+      await Ticket.create({
+        orderId: order._id,
+        eventId: first._id,
+        ticketTypeId: tt._id,
+        holderName: who,
+        holderEmail: email,
+        ticketCode: code,
+        qrToken: `qr-${code}`,
+        status: "ISSUED",
+        emailStatus: "SENT",
+        emailedAt: new Date(),
+      });
+    }
+    console.log("sample orders + tickets seeded");
+  }
+
+  // Waitlist on the sold-out event.
+  const soldOut = await Event.findOne({ name: "Pottery Saturday" });
+  if (soldOut) {
+    for (const w of [
+      { name: "Seyi Sample", email: "waitlist-1@example.com" },
+      { name: "Funmi Sample", email: "waitlist-2@example.com" },
+    ]) {
+      await WaitlistEntry.updateOne(
+        { eventId: soldOut._id, email: w.email },
+        { $setOnInsert: { ...w, eventId: soldOut._id, status: "waiting", seeded: true } },
+        { upsert: true },
+      );
+    }
+    console.log("sample waitlist seeded");
+  }
+
+  // Sample enquiries across the pipeline kinds.
+  for (const e of [
+    { kind: "private-booking", name: "Kemi Sample", email: "kemi@example.com", phone: "0800 111 1111", occasion: "birthday", guests: "12", date: "a Saturday next month", city: "Lagos", message: "[SAMPLE] Paint party for my sister's birthday." },
+    { kind: "business", name: "Emeka Sample", email: "emeka@company.example", phone: "0800 222 2222", company: "[Company]", size: "30", service: "team bonding", frequency: "one-off", message: "[SAMPLE] End-of-quarter team day." },
+    { kind: "general", name: "Tara Sample", email: "tara@example.com", message: "[SAMPLE] Do you ever run sessions for kids?" },
+  ]) {
+    await Enquiry.updateOne(
+      { email: e.email, kind: e.kind },
+      { $setOnInsert: { ...e, stage: "new", read: false, seeded: true } },
+      { upsert: true },
+    );
+  }
+  console.log("sample enquiries seeded");
+
+  // Subscribers.
+  for (const s of [
+    { email: "sub-1@example.com", source: "footer", city: "Lagos" },
+    { email: "sub-2@example.com", source: "empty-state", city: "Benin City" },
+    { email: "sub-3@example.com", source: "waitlist", city: "Lagos" },
+  ]) {
+    await Subscriber.updateOne(
+      { email: s.email, source: s.source },
+      { $setOnInsert: { ...s, status: "subscribed", seeded: true } },
+      { upsert: true },
+    );
+  }
+  console.log("sample subscribers seeded");
 
   await mongoose.disconnect();
   console.log("Done");

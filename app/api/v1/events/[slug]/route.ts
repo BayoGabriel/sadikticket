@@ -33,7 +33,7 @@ export async function GET(
       endsAt: ev.endsAt,
       timezone: ev.timezone,
     });
-  } catch (e: any) {
-    return fail(e);
+  } catch (e: unknown) {
+    return fail(e as Error);
   }
 }

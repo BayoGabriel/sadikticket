@@ -3,13 +3,17 @@ import Link from "next/link";
 import { siteConfig, whatsappUrl } from "@/lib/site-config";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { ContactForm } from "@/components/forms/ContactForm";
+import { settingsService } from "@/services/settingsService";
 
 export const metadata: Metadata = {
   title: "Contact | SerenArt",
   description: "How to reach SerenArt — WhatsApp, email and Instagram.",
 };
 
-export default function ContactPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ContactPage() {
+  const settings = await settingsService.getPublic().catch(() => null);
   const wa = whatsappUrl();
   return (
     <main className="min-h-screen bg-[#fffedd] text-[#1a1a1a]">
@@ -87,7 +91,7 @@ export default function ContactPage() {
             Or drop us a message
           </h2>
           <div className="mt-5 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
-            <ContactForm />
+            <ContactForm responseTime={settings?.responseTime} />
           </div>
         </div>
       </section>

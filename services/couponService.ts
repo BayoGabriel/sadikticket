@@ -1,6 +1,7 @@
 import { connectDb } from "@/lib/db";
 import { CouponModel, type Coupon } from "@/models/coupon";
 import { OrderModel } from "@/models/order";
+import { evaluateCouponRules } from "@/lib/couponRules";
 import { Types } from "mongoose";
 
 export type CouponCheck =
@@ -22,61 +23,23 @@ export const couponService = {
       active: true,
     }).lean<Coupon | null>();
 
-    if (!coupon) return { valid: false, reason: "That code doesn't look right." };
-
-    const now = new Date();
-    if (coupon.startsAt && now < coupon.startsAt)
-      return { valid: false, reason: "That code isn't live yet." };
-    if (coupon.expiresAt && now > coupon.expiresAt)
-      return { valid: false, reason: "That code has expired." };
-    if (coupon.usageLimit != null && coupon.usageCount >= coupon.usageLimit)
-      return { valid: false, reason: "That code has been fully used." };
-
-    // Event scope: legacy single eventId OR the multi-event list.
-    const scopedEvents = [
-      ...(coupon.eventId ? [String(coupon.eventId)] : []),
-      ...(coupon.eventIds ?? []).map(String),
-    ];
-    if (scopedEvents.length && !scopedEvents.includes(String(eventId)))
-      return { valid: false, reason: "That code isn't valid for this event." };
-
-    // Per-customer limit — count PAID orders that redeemed this code.
-    if (coupon.perCustomerLimit && ctx?.customerEmail) {
-      const used = await OrderModel.countDocuments({
+    // Per-customer limit needs an order count — resolved here, judged by
+    // the pure rule evaluator below.
+    let priorUses = 0;
+    if (coupon?.perCustomerLimit && ctx?.customerEmail) {
+      priorUses = await OrderModel.countDocuments({
         customerEmail: ctx.customerEmail,
         couponCode: coupon.code,
         status: { $in: ["PAID", "PENDING", "PAYMENT_PROCESSING"] },
       });
-      if (used >= coupon.perCustomerLimit)
-        return { valid: false, reason: "You've already used that code." };
     }
 
-    // Ticket-type scope → at least one ordered type must qualify.
-    let base = subtotal;
-    if (coupon.ticketTypeIds?.length) {
-      const allowed = new Set(coupon.ticketTypeIds.map(String));
-      const wanted = (ctx?.ticketTypeIds ?? []).filter((id) => allowed.has(id));
-      if (!wanted.length)
-        return { valid: false, reason: "That code doesn't cover those tickets." };
-    }
-
-    if (coupon.minOrderAmount && base < coupon.minOrderAmount)
-      return {
-        valid: false,
-        reason: `That code needs a minimum order of ₦${(coupon.minOrderAmount / 100).toLocaleString("en-NG")}.`,
-      };
-
-    const discount =
-      coupon.kind === "percent"
-        ? Math.floor((base * Math.min(coupon.value, 100)) / 100)
-        : Math.min(coupon.value, base);
-
-    const label =
-      coupon.kind === "percent"
-        ? `${coupon.value}% off`
-        : `₦${(coupon.value / 100).toLocaleString("en-NG")} off`;
-
-    return { valid: true, discount, code: coupon.code, label };
+    return evaluateCouponRules(coupon, {
+      eventId,
+      subtotal,
+      ticketTypeIds: ctx?.ticketTypeIds,
+      customerPriorUses: priorUses,
+    });
   },
 
   // Record a redemption — called once payment is confirmed.

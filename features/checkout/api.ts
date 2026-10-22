@@ -1,4 +1,3 @@
-import { EventSummary } from "@/features/events/types";
 
 export type PublicEventDetail = {
   id: string;

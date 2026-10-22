@@ -11,7 +11,6 @@ export function ok<T>(data: T, init: ResponseInit = {}) {
 export function fail(error: ApiError | Error, status?: number) {
   const isApi = error instanceof ApiError;
   // Log server-side for diagnostics
-  // eslint-disable-next-line no-console
   console.error("[API ERROR]", error);
   const payload = isApi
     ? { code: error.code, message: error.message }

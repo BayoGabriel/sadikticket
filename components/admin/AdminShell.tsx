@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { NAV_GROUPS, MOBILE_TABS, type NavItem } from "@/lib/admin-nav";
-import { can } from "@/lib/auth";
+import { can } from "@/lib/permissions";
 import type { UserRole } from "@/models/user";
 import { Icon } from "./ui/icons";
 import { ToastProvider, useToast } from "./ui/Toast";
@@ -90,25 +90,37 @@ function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void 
   const inputRef = useRef<HTMLInputElement>(null);
   const debRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-  useEffect(() => {
+  // Reset the palette each time it opens.
+  const [wasOpen, setWasOpen] = useState(open);
+  if (wasOpen !== open) {
+    setWasOpen(open);
     if (open) {
       setQ("");
       setHits([]);
       setSel(0);
-      setTimeout(() => inputRef.current?.focus(), 30);
     }
-  }, [open]);
+  }
 
   useEffect(() => {
-    if (!q.trim()) {
+    if (open) setTimeout(() => inputRef.current?.focus(), 30);
+    return () => {
+      if (debRef.current) clearTimeout(debRef.current);
+    };
+  }, [open]);
+
+  // Debounced search — scheduled from the input handler, not an effect.
+  const onQuery = (value: string) => {
+    setQ(value);
+    if (debRef.current) clearTimeout(debRef.current);
+    if (!value.trim()) {
       setHits([]);
+      setLoading(false);
       return;
     }
     setLoading(true);
-    if (debRef.current) clearTimeout(debRef.current);
     debRef.current = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/v1/admin/search?q=${encodeURIComponent(q)}`);
+        const res = await fetch(`/api/v1/admin/search?q=${encodeURIComponent(value)}`);
         const data = await res.json();
         setHits(data.results ?? []);
         setSel(0);
@@ -116,7 +128,7 @@ function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void 
         setLoading(false);
       }
     }, 220);
-  }, [q]);
+  };
 
   const actions: SearchHit[] = useMemo(
     () => [
@@ -153,7 +165,7 @@ function CommandPalette({ open, onClose }: { open: boolean; onClose: () => void 
             className="w-full bg-transparent py-3.5 text-base outline-none"
             placeholder="Search events, orders, people…"
             value={q}
-            onChange={(e) => setQ(e.target.value)}
+            onChange={(e) => onQuery(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "ArrowDown") { e.preventDefault(); setSel((s) => Math.min(s + 1, list.length - 1)); }
               if (e.key === "ArrowUp") { e.preventDefault(); setSel((s) => Math.max(s - 1, 0)); }

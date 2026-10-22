@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import axios from 'axios';
 import { env } from '@/lib/env';
+import type { VerifyResult } from '@/services/payments/types';
 
 const PAYSTACK_API = 'https://api.paystack.co';
 
@@ -11,7 +12,7 @@ export type PaystackInitResponse = {
 };
 
 export const paystackService = {
-  async initializePayment(params: { email: string; amountKobo: number; reference: string; currency: string; callback_url?: string; metadata?: Record<string, any>; }) {
+  async initializePayment(params: { email: string; amountKobo: number; reference: string; currency: string; callback_url?: string; metadata?: Record<string, unknown>; }) {
     const res = await axios.post(
       `${PAYSTACK_API}/transaction/initialize`,
       {
@@ -31,7 +32,7 @@ export const paystackService = {
     const res = await axios.get(`${PAYSTACK_API}/transaction/verify/${reference}`, {
       headers: { Authorization: `Bearer ${env.PAYSTACK_SECRET_KEY}` },
     });
-    return res.data.data as any;
+    return res.data.data as VerifyResult;
   },
 
   // Creates a refund on Paystack for a paid transaction. Returns the refund

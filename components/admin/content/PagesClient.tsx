@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Icon } from "@/components/admin/ui/icons";
 import { Modal } from "@/components/admin/ui/Modal";
 import { useToast } from "@/components/admin/ui/Toast";
 
@@ -48,7 +47,6 @@ export function PagesClient({ initial }: { initial: PageRow[] }) {
   const insertLink = () => {
     const el = areaRef.current;
     if (!el) return;
-    const sel = draft.slice(el.selectionStart, el.selectionEnd) || "click here";
     const url = window.prompt("Link to (https://… or /page)", "https://");
     if (!url) return;
     const [next, s, e] = wrap(draft, el.selectionStart, el.selectionEnd, `a href="${url}"`, false);

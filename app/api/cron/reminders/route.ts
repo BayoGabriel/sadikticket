@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { connectDb } from "@/lib/db";
 import { OrderModel } from "@/models/order";
 import { EventModel, type Event } from "@/models/event";
-import { emailService } from "@/services/emailService";
+import { emailTemplateService } from "@/services/emailTemplateService";
 import { capacityService } from "@/services/capacityService";
 import { env } from "@/lib/env";
 
@@ -19,12 +19,17 @@ export async function GET(req: NextRequest) {
     await connectDb();
 
     const now = new Date();
-    const in24h = new Date(now.getTime() + 24 * 3600 * 1000);
-    const in72h = new Date(now.getTime() + 72 * 3600 * 1000);
+    // Reminder window comes from the editable template (default 2 days out).
+    const tpl = await emailTemplateService.get("event-reminder").catch(() => null);
+    const timingDays = tpl?.timingDays ?? 2;
+    const windowEnd = new Date(now.getTime() + timingDays * 24 * 3600 * 1000);
+    if (tpl && !tpl.enabled) {
+      return Response.json({ ok: true, sent: 0, skipped: "template disabled" });
+    }
 
     const events = await EventModel.find({
       status: "PUBLISHED",
-      startsAt: { $gte: in24h, $lte: in72h },
+      startsAt: { $gte: now, $lte: windowEnd },
     }).lean<Event[]>();
 
     let sent = 0;
@@ -46,10 +51,19 @@ export async function GET(req: NextRequest) {
           minute: "2-digit",
         });
         try {
-          await emailService.sendTicketEmail({
+          await emailTemplateService.sendTemplate("event-reminder", {
             to: order.customerEmail,
-            subject: `See you soon! ${event.name}`,
-            html: `<div style="font-family:Arial,sans-serif;max-width:640px;color:#111">
+            meta: { orderId: String(order._id), eventId: String(event._id) },
+            vars: {
+              Name: order.customerName,
+              Event: event.name,
+              Day: day,
+              Time: time,
+              Venue: event.venueName ? `, ${event.venueName}` : "",
+              Link: `${env.APP_URL}/tickets/${order._id}`,
+            },
+            fallbackSubject: `See you soon! ${event.name}`,
+            fallbackHtml: `<div style="font-family:Arial,sans-serif;max-width:640px;color:#111">
               <h2>See you soon!</h2>
               <p>${event.name} is on ${day} at ${time}${event.venueName ? `, ${event.venueName}` : ""}.</p>
               <p>Bring your ticket and a good mood.</p>

@@ -74,9 +74,11 @@ export function ConfirmDialog({
   loading?: boolean;
 }) {
   const [typed, setTyped] = useState("");
-  useEffect(() => {
-    if (open) setTyped("");
-  }, [open]);
+  const [prevOpen, setPrevOpen] = useState(open);
+  if (prevOpen !== open) {
+    setPrevOpen(open);
+    setTyped("");
+  }
   const ok = !requireText || typed.trim() === requireText;
 
   return (

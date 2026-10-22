@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server';
 import { ok, fail } from '@/lib/response';
 import { orderCreateSchema } from '@/schemas/order';
 import { orderService } from '@/services/orderService';
+import type { Order } from '@/models/order';
 
 // POST /api/v1/orders (public) - creates pending order with calculated totals
 export async function POST(req: NextRequest) {
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
       id: order._id.toString(),
       eventId: order.eventId.toString(),
       customer: { name: order.customerName, email: order.customerEmail },
-      items: order.items.map((i: any) => ({
+      items: order.items.map((i: Order["items"][number]) => ({
         ticketTypeId: i.ticketTypeId.toString(),
         name: i.name,
         unitPrice: i.unitPrice,

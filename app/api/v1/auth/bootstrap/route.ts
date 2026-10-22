@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     // Ensure critical env vars exist (avoids jwt/db runtime throws)
     assertEnv();
 
-    let payload: any = null;
+    let payload: { email?: string; password?: string; name?: string } | null = null;
     try {
       payload = await req.json();
     } catch {

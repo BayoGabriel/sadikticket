@@ -27,8 +27,8 @@ export function ImageUploader({ eventId, initialUrl }: { eventId: string; initia
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data?.error?.message || "Upload failed");
       setUrl(data.data.url);
-    } catch (e: any) {
-      setError(e?.message || "Upload failed");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Upload failed");
     } finally {
       setLoading(false);
     }
@@ -42,8 +42,8 @@ export function ImageUploader({ eventId, initialUrl }: { eventId: string; initia
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data?.error?.message || "Remove failed");
       setUrl(null);
-    } catch (e: any) {
-      setError(e?.message || "Remove failed");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Remove failed");
     } finally {
       setLoading(false);
     }

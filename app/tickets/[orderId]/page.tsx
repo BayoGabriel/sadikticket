@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import { cookies } from "next/headers";
 import { connectDb } from "@/lib/db";
 import { OrderModel, type Order } from "@/models/order";
 import { TicketModel, type Ticket } from "@/models/ticket";
 import { EventModel, type Event } from "@/models/event";
 import { TicketTypeModel } from "@/models/ticketType";
+import type { Types } from "mongoose";
 import { TicketQRCode } from "@/features/tickets/components/TicketQRCode";
 
 async function getTickets(orderId: string) {
@@ -18,16 +18,16 @@ async function getTickets(orderId: string) {
   // Fetch ticket type names for display
   const typeIds = Array.from(
     new Set(
-      tickets.map((t: any) => t.ticketTypeId?.toString()).filter(Boolean),
+      tickets.map((t) => t.ticketTypeId?.toString()).filter(Boolean),
     ),
   );
   let typeNameById: Record<string, string> = {};
   if (typeIds.length) {
     const types = await TicketTypeModel.find({ _id: { $in: typeIds } })
       .select("name")
-      .lean();
+      .lean<{ _id: Types.ObjectId; name: string }[]>();
     typeNameById = Object.fromEntries(
-      types.map((tt: any) => [tt._id.toString(), tt.name]),
+      types.map((tt) => [tt._id.toString(), (tt as { name?: string }).name ?? ""]),
     );
   }
   return { order, event, tickets, typeNameById } as const;
@@ -59,7 +59,7 @@ export default async function TicketsPage({
           </div>
         )}
         <div className="mt-6 space-y-4">
-          {tickets.map((t: any) => (
+          {tickets.map((t) => (
             <div
               key={t._id.toString()}
               className="rounded-3xl bg-white border border-(--border) p-0 overflow-hidden shadow-sm"

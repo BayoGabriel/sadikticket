@@ -237,11 +237,14 @@ export const adminEventService = {
     const types = await TicketTypeModel.find({ eventId: src._id }).lean();
     if (types.length) {
       await TicketTypeModel.insertMany(
-        types.map(({ _id, createdAt, updatedAt, quantitySold, ...t }) => ({
-          ...t,
-          eventId: copy._id,
-          quantitySold: 0,
-        })),
+        types.map((raw) => {
+          const t = { ...raw };
+          delete t._id;
+          delete t.createdAt;
+          delete t.updatedAt;
+          delete t.quantitySold;
+          return { ...t, eventId: copy._id, quantitySold: 0 };
+        }),
       );
     }
     return copy;

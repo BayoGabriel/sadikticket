@@ -68,7 +68,7 @@ function waMessage(kind: "private-booking" | "business", fd: FormData) {
   return parts.join("\n");
 }
 
-export function EnquiryForm({ kind }: { kind: "private-booking" | "business" }) {
+export function EnquiryForm({ kind, responseTime }: { kind: "private-booking" | "business"; responseTime?: string }) {
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">(
     "idle",
   );
@@ -126,7 +126,7 @@ export function EnquiryForm({ kind }: { kind: "private-booking" | "business" }) 
         </p>
         <p className="mt-2 text-sm leading-6 text-[#4a4a45]">
           {isPrivate
-            ? `We'll reach out within ${siteConfig.responseTime} to talk it through. Want to chat now? `
+            ? `We'll reach out within ${responseTime || siteConfig.responseTime} to talk it through. Want to chat now? `
             : "We've received your enquiry and will be in touch to help you plan an experience your team will love. Prefer to chat? "}
           {waHref ? (
             <a

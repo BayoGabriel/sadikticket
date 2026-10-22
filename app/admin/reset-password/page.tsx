@@ -39,7 +39,7 @@ function ResetForm() {
           <>
             <h1 className="admin-title text-2xl font-extrabold">All set.</h1>
             <p className="mt-2 text-sm" style={{ color: "var(--admin-ink-soft)" }}>
-              Your password's been updated.
+              Your password&apos;s been updated.
             </p>
             <Link href="/admin/login" className="a-btn a-btn-orange mt-5 w-full">
               Sign in

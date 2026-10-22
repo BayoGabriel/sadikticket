@@ -7,10 +7,35 @@ import { NotifyForm } from "@/components/forms/NotifyForm";
 const cityHref = (city: string) =>
   `/${city.toLowerCase().replace(/\s+/g, "-")}`;
 
-export function Footer() {
+// DB-backed settings passed down from the (server) root layout. Anything
+// unset falls back to the env-driven siteConfig, so nothing changes until
+// the team edits Site settings in admin.
+export type FooterSettings = {
+  whatsappNumber?: string;
+  contactEmail?: string;
+  businessEmail?: string;
+  instagramHandle?: string;
+  cities?: string[];
+};
+
+export function Footer({ settings }: { settings?: FooterSettings }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith("/admin");
   const isBusiness = pathname?.startsWith("/business");
+
+  const whatsapp = settings?.whatsappNumber || siteConfig.whatsapp;
+  const whatsappDisplay = whatsapp || siteConfig.whatsappDisplay;
+  const email = settings?.contactEmail || siteConfig.email;
+  const emailDisplay = email || siteConfig.emailDisplay;
+  const businessEmail = settings?.businessEmail || siteConfig.businessEmail;
+  const businessEmailDisplay = businessEmail || siteConfig.businessEmailDisplay;
+  const instagramDisplay = settings?.instagramHandle
+    ? `@${settings.instagramHandle.replace(/^@/, "")}`
+    : siteConfig.instagramDisplay;
+  const cities = settings?.cities?.length ? settings.cities : siteConfig.cities;
+  const wa = whatsapp
+    ? `https://wa.me/${whatsapp.replace(/\D/g, "")}`
+    : whatsappUrl();
 
   if (isAdmin) return null;
 
@@ -24,15 +49,15 @@ export function Footer() {
               SerenArt Business
             </span>
             <p className="mt-1 text-sm text-(--text-muted)">
-              {siteConfig.businessEmail ? (
+              {businessEmail ? (
                 <a
-                  href={`mailto:${siteConfig.businessEmail}`}
+                  href={`mailto:${businessEmail}`}
                   className="hover:text-[#003118]"
                 >
-                  {siteConfig.businessEmailDisplay}
+                  {businessEmailDisplay}
                 </a>
               ) : (
-                siteConfig.businessEmailDisplay
+                businessEmailDisplay
               )}
             </p>
           </div>
@@ -49,7 +74,6 @@ export function Footer() {
     );
   }
 
-  const wa = whatsappUrl();
   return (
     <footer className="border-t border-[#e8e8e5] bg-[#003118] text-white">
       <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10">
@@ -99,7 +123,7 @@ export function Footer() {
               Cities
             </div>
             <ul className="mt-4 space-y-2.5 text-sm">
-              {siteConfig.cities.map((c) => (
+              {cities.map((c) => (
                 <li key={c}>
                   <Link
                     href={cityHref(c)}
@@ -125,25 +149,25 @@ export function Footer() {
                     rel="noopener noreferrer"
                     className="hover:text-white"
                   >
-                    WhatsApp: {siteConfig.whatsappDisplay}
+                    WhatsApp: {whatsappDisplay}
                   </a>
                 ) : (
-                  <>WhatsApp: {siteConfig.whatsappDisplay}</>
+                  <>WhatsApp: {whatsappDisplay}</>
                 )}
               </li>
               <li>
-                {siteConfig.email ? (
+                {email ? (
                   <a
-                    href={`mailto:${siteConfig.email}`}
+                    href={`mailto:${email}`}
                     className="hover:text-white"
                   >
-                    {siteConfig.emailDisplay}
+                    {emailDisplay}
                   </a>
                 ) : (
-                  siteConfig.emailDisplay
+                  emailDisplay
                 )}
               </li>
-              <li>Instagram: {siteConfig.instagramDisplay}</li>
+              <li>Instagram: {instagramDisplay}</li>
             </ul>
           </div>
         </div>

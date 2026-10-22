@@ -8,9 +8,11 @@ import { TicketPicker } from "@/components/events/TicketPicker";
 import { Accordion } from "@/components/ui/Accordion";
 import { Img } from "@/components/ui/Img";
 import { contentService } from "@/services/contentService";
+import { settingsService } from "@/services/settingsService";
 import { siteConfig, whatsappUrl } from "@/lib/site-config";
 import { images } from "@/lib/images";
 import { formatEventDate, formatEventTime } from "@/lib/format";
+import { eventStatusLabel } from "@/lib/eventStatus";
 
 function mapsUrl(parts: (string | undefined)[]) {
   const q = parts.filter(Boolean).join(", ");
@@ -56,49 +58,31 @@ export default async function PublicEventPage({
   if (!ev) return notFound();
 
   const ticketTypes = await listTicketTypesBySlug(slug);
+  let siteSettings = null;
+  try {
+    siteSettings = await settingsService.getPublic();
+  } catch { /* env defaults */ }
+  const fewLeft = siteSettings?.fewLeftThreshold ?? 10;
 
-  const now = new Date();
-  const onSaleTypes = ticketTypes.filter(
-    (t) =>
-      t.isOnSale !== false &&
-      (!t.salesStart || new Date(t.salesStart) <= now) &&
-      (!t.salesEnd || new Date(t.salesEnd) >= now),
-  );
-  const remaining = onSaleTypes.reduce(
-    (acc, t) => acc + (t.quantityAvailable ?? 0),
-    0,
-  );
-  const statusLabel =
-    ev.statusOverride === "coming-soon" ||
-    ev.statusOverride === "sold-out" ||
-    ev.statusOverride === "few-left"
-      ? {
-          "coming-soon": "Coming soon",
-          "sold-out": "Sold out",
-          "few-left": "Few tickets left",
-        }[ev.statusOverride]
-      : ev.statusOverride === "on-sale"
-        ? "Tickets on sale"
-        : ticketTypes.length === 0 || onSaleTypes.length === 0
-          ? "Coming soon"
-          : remaining <= 0
-            ? "Sold out"
-            : remaining <= 10
-              ? "Few tickets left"
-              : "Tickets on sale";
+  const statusLabel = eventStatusLabel({
+    statusOverride: ev.statusOverride,
+    ticketTypes,
+    fewLeftThreshold: fewLeft,
+  });
 
   const eventFaqs = await contentService.faqsForEvent([...(ev.tags ?? []), ev.eventType ?? ""]);
   const wa = whatsappUrl(`Hi SerenArt! I have a question about ${ev.name}.`);
+  const policies = siteSettings?.policies ?? siteConfig.policies;
 
   const goodToKnow = [
-    { title: "Age limit", body: siteConfig.policies.ageLimit },
-    { title: "What to wear", body: siteConfig.policies.whatToWear },
-    { title: "Running late", body: siteConfig.policies.runningLate },
+    { title: "Age limit", body: policies.ageLimit || siteConfig.policies.ageLimit },
+    { title: "What to wear", body: policies.whatToWear || siteConfig.policies.whatToWear },
+    { title: "Running late", body: policies.runningLate || siteConfig.policies.runningLate },
     {
       title: "Refunds",
       body: (
         <>
-          {siteConfig.policies.refunds}{" "}
+          {siteSettings?.refundSummary || siteConfig.policies.refunds}{" "}
           <Link
             href="/refunds"
             className="font-semibold text-[#003118] underline decoration-[#f27a00] underline-offset-4 hover:text-[#f27a00]"

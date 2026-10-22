@@ -77,7 +77,7 @@ export default async function AdminDashboardPage({
           <SalesAreaChart series={data.series} />
         </div>
         <div className="a-card p-5">
-          <h2 className="admin-title mb-3 text-base font-bold">Where the money's coming from</h2>
+          <h2 className="admin-title mb-3 text-base font-bold">Where the money&apos;s coming from</h2>
           <CitySplit cities={data.cities} />
           <h2 className="admin-title mb-3 mt-6 text-base font-bold">Tickets by event</h2>
           <TicketsBarChart data={data.ticketsByEvent} />
@@ -97,7 +97,7 @@ export default async function AdminDashboardPage({
             <p className="py-6 text-center text-sm" style={{ color: "var(--admin-ink-soft)" }}>
               Nothing on the calendar yet.{" "}
               <Link href="/admin/events/new" className="font-bold underline" style={{ color: "var(--orange)" }}>
-                Let's put something fun on it.
+                Let&apos;s put something fun on it.
               </Link>
             </p>
           ) : (
@@ -150,7 +150,7 @@ export default async function AdminDashboardPage({
             <h2 className="admin-title mb-3 text-base font-bold">Needs attention</h2>
             {data.attention.length === 0 ? (
               <p className="text-sm" style={{ color: "var(--admin-ink-soft)" }}>
-                All clear — nothing's waiting on you.
+                All clear — nothing&apos;s waiting on you.
               </p>
             ) : (
               <ul className="space-y-2">
