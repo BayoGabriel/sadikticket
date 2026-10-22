@@ -7,6 +7,12 @@ export type PublicEventDetail = {
   shortDescription?: string;
   description?: string;
   includes?: string[];
+  tags?: string[];
+  eventType?: string;
+  directions?: string;
+  mapLink?: string;
+  gallery?: string[];
+  statusOverride?: string | null;
   venueName?: string;
   venueAddress?: string;
   city?: string;
@@ -96,6 +102,7 @@ export async function createOrder(input: {
   items: { ticketTypeId: string; quantity: number }[];
   customer: { name: string; email: string; phone?: string };
   couponCode?: string;
+  checkoutAnswer?: string;
 }): Promise<{
   id: string;
   total: number;

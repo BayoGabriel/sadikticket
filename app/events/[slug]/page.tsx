@@ -1,29 +1,48 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 
 import { getEventBySlug, listTicketTypesBySlug } from "@/features/checkout/api";
 import { TicketPicker } from "@/components/events/TicketPicker";
-
-function formatDate(date: string) {
-  return new Intl.DateTimeFormat("en-NG", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(date));
-}
-
-function formatTime(date: string) {
-  return new Intl.DateTimeFormat("en-NG", {
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(date));
-}
+import { Accordion } from "@/components/ui/Accordion";
+import { Img } from "@/components/ui/Img";
+import { faqsForEvent } from "@/lib/faqs";
+import { siteConfig, whatsappUrl } from "@/lib/site-config";
+import { images } from "@/lib/images";
+import { formatEventDate, formatEventTime } from "@/lib/format";
 
 function mapsUrl(parts: (string | undefined)[]) {
   const q = parts.filter(Boolean).join(", ");
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+}
+
+// Last word of the event name in orange, per the mockup.
+function EventTitle({ name }: { name: string }) {
+  const words = name.split(" ");
+  const last = words.pop();
+  return (
+    <>
+      {words.join(" ")} <span className="text-[#f27a00]">{last}</span>
+    </>
+  );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const ev = await getEventBySlug(slug);
+  if (!ev) return { title: "Event" };
+  return {
+    title: ev.name,
+    description:
+      ev.shortDescription ||
+      `${ev.name} — SerenArt event in ${ev.city ?? "Nigeria"}.`,
+    openGraph: ev.coverImage ? { images: [{ url: ev.coverImage }] } : undefined,
+  };
 }
 
 export default async function PublicEventPage({
@@ -50,37 +69,74 @@ export default async function PublicEventPage({
     0,
   );
   const statusLabel =
-    ticketTypes.length === 0 || onSaleTypes.length === 0
-      ? "Coming soon"
-      : remaining <= 0
-        ? "Sold out"
-        : remaining <= 10
-          ? "Few tickets left"
-          : "Tickets on sale";
+    ev.statusOverride === "coming-soon" ||
+    ev.statusOverride === "sold-out" ||
+    ev.statusOverride === "few-left"
+      ? {
+          "coming-soon": "Coming soon",
+          "sold-out": "Sold out",
+          "few-left": "Few tickets left",
+        }[ev.statusOverride]
+      : ev.statusOverride === "on-sale"
+        ? "Tickets on sale"
+        : ticketTypes.length === 0 || onSaleTypes.length === 0
+          ? "Coming soon"
+          : remaining <= 0
+            ? "Sold out"
+            : remaining <= 10
+              ? "Few tickets left"
+              : "Tickets on sale";
+
+  const eventFaqs = faqsForEvent([...(ev.tags ?? []), ev.eventType ?? ""]);
+  const wa = whatsappUrl(`Hi SerenArt! I have a question about ${ev.name}.`);
 
   const goodToKnow = [
-    {
-      title: "Age limit",
-      body: "Check the event description — or ask us and we'll confirm.",
-    },
-    {
-      title: "What to wear",
-      body: "Come comfortable. Where things get messy, we've got you covered.",
-    },
-    {
-      title: "Running late",
-      body: "Life happens. Message us on WhatsApp and we'll do our best.",
-    },
+    { title: "Age limit", body: siteConfig.policies.ageLimit },
+    { title: "What to wear", body: siteConfig.policies.whatToWear },
+    { title: "Running late", body: siteConfig.policies.runningLate },
     {
       title: "Refunds",
-      body: "Plans change — refunds and cancellations are handled per our policy.",
-      link: { href: "/refunds", label: "Read the full policy" },
+      body: (
+        <>
+          {siteConfig.policies.refunds}{" "}
+          <Link
+            href="/refunds"
+            className="font-semibold text-[#003118] underline decoration-[#f27a00] underline-offset-4 hover:text-[#f27a00]"
+          >
+            Read the full policy
+          </Link>
+        </>
+      ),
     },
   ];
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: ev.name,
+    description: ev.shortDescription || ev.description,
+    startDate: ev.startsAt,
+    endDate: ev.endsAt,
+    eventStatus: "https://schema.org/EventScheduled",
+    location: {
+      "@type": "Place",
+      name: ev.venueName,
+      address: [ev.venueAddress, ev.city, ev.country]
+        .filter(Boolean)
+        .join(", "),
+    },
+    image: ev.coverImage ? [ev.coverImage] : undefined,
+    organizer: { "@type": "Organization", name: "SerenArt" },
+  };
+
   return (
     <main className="min-h-screen bg-[#fffedd] pb-24 text-[#1a1a1a] lg:pb-0">
-      {/* Breadcrumb */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      {/* Back link */}
       <div className="mx-auto max-w-7xl px-5 pt-6 sm:px-8 lg:px-10">
         <Link
           href="/events"
@@ -95,9 +151,9 @@ export default async function PublicEventPage({
 
       {/* Hero */}
       <section className="mx-auto max-w-7xl px-5 pt-5 sm:px-8 lg:px-10 lg:pt-8">
-        <div className="relative overflow-hidden rounded-[2rem] bg-[#003118] shadow-[0_24px_70px_rgba(0,49,24,0.16)]">
+        <div className="relative overflow-hidden rounded-[2rem] bg-[#003118]">
           <div className="relative aspect-[16/8] min-h-[430px] w-full sm:min-h-[500px]">
-            {ev.coverImage && (
+            {ev.coverImage ? (
               <Image
                 src={ev.coverImage}
                 alt={ev.name}
@@ -106,38 +162,52 @@ export default async function PublicEventPage({
                 sizes="(max-width: 768px) 100vw, 1200px"
                 className="object-cover"
               />
+            ) : (
+              <Img
+                image={{
+                  ...images.eventFallback,
+                  aspect: "16/9",
+                  tint: "green",
+                  label: `PHOTO · ${ev.name.toUpperCase()}`,
+                }}
+                rounded="rounded-none"
+                className="absolute inset-0 !aspect-auto"
+              />
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/5" />
-            <div className="absolute right-8 top-8 hidden h-20 w-20 rotate-12 rounded-full border-[10px] border-[#f27a00]/80 sm:block" />
 
             <div className="absolute left-5 top-5 sm:left-8 sm:top-8">
-              <span className="inline-flex items-center rounded-full bg-[#f27a00] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-white">
+              <span className="inline-flex items-center rounded-full bg-[#f27a00] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#003118]">
                 {statusLabel}
               </span>
             </div>
 
             <div className="absolute inset-x-0 bottom-0 p-6 sm:p-10 lg:p-14">
-              <div className="max-w-3xl">
-                <h1 className="text-4xl font-semibold leading-[1.05] tracking-[-0.03em] text-white sm:text-5xl lg:text-6xl">
-                  {ev.name}
-                </h1>
-                <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/90 sm:text-base">
+              <h1 className="max-w-3xl font-display text-4xl font-semibold leading-[1.05] tracking-[-0.03em] text-white sm:text-5xl lg:text-6xl">
+                <EventTitle name={ev.name} />
+              </h1>
+              <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm font-medium text-white/90 sm:text-base">
+                <span className="flex items-center gap-2">
+                  <span className="text-[#f27a00]">●</span>
+                  {formatEventDate(ev.startsAt)}
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="text-[#f27a00]">●</span>
+                  {formatEventTime(ev.startsAt)}
+                </span>
+                {(ev.venueName || ev.city) && (
                   <span className="flex items-center gap-2">
                     <span className="text-[#f27a00]">●</span>
-                    {formatDate(ev.startsAt)}
+                    {[ev.venueName, ev.city].filter(Boolean).join(", ")}
                   </span>
-                  <span className="flex items-center gap-2">
-                    <span className="text-[#f27a00]">●</span>
-                    {formatTime(ev.startsAt)}
-                  </span>
-                  {(ev.venueName || ev.city) && (
-                    <span className="flex items-center gap-2">
-                      <span className="text-[#f27a00]">●</span>
-                      {[ev.venueName, ev.city].filter(Boolean).join(", ")}
-                    </span>
-                  )}
-                </div>
+                )}
               </div>
+              <a
+                href="#tickets"
+                className="btn btn-orange mt-6 sm:hidden"
+              >
+                Get Tickets
+              </a>
             </div>
           </div>
         </div>
@@ -149,7 +219,7 @@ export default async function PublicEventPage({
           <article className="min-w-0 space-y-12">
             {/* About */}
             <div>
-              <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
+              <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
                 About Event
               </h2>
               <div className="mt-5 max-w-3xl text-[17px] leading-8 text-[#575750]">
@@ -158,17 +228,30 @@ export default async function PublicEventPage({
                 ) : (
                   <p>
                     Pick a canvas, pick a colour, and follow along while our
-                    host walks you through it. Never done this before? Perfect.
+                    host walks you through a painting. Never held a brush?
+                    Perfect.
                   </p>
                 )}
               </div>
+              {ev.tags && ev.tags.length > 0 && (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {ev.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="rounded-full bg-[#e7efe9] px-3 py-1 text-xs font-semibold text-[#003118]"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* What's included */}
             {ev.includes && ev.includes.length > 0 && (
               <div>
-                <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-                  What’s included
+                <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
+                  What&rsquo;s included
                 </h2>
                 <div className="mt-5 flex flex-wrap gap-2.5">
                   {ev.includes.map((item) => (
@@ -185,15 +268,19 @@ export default async function PublicEventPage({
 
             {/* Where */}
             <div>
-              <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
+              <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
                 Where
               </h2>
               <div className="mt-5 overflow-hidden rounded-3xl bg-white shadow-sm">
-                <div className="flex h-36 items-end bg-gradient-to-br from-[#003118] via-[#0a4a2c] to-[#f27a00]/50 p-5">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-white/85">
-                    Map · {ev.venueName || ev.city || "Venue"}
-                  </span>
-                </div>
+                <Img
+                  image={{
+                    ...images.eventFallback,
+                    aspect: "21/9",
+                    tint: "green",
+                    label: `MAP · ${(ev.venueName || ev.city || "VENUE").toUpperCase()}`,
+                  }}
+                  rounded="rounded-none"
+                />
                 <div className="p-6">
                   <div className="font-semibold text-[#003118]">
                     {ev.venueName || "Venue to be announced"}
@@ -203,11 +290,19 @@ export default async function PublicEventPage({
                       {[ev.venueAddress, ev.city].filter(Boolean).join(", ")}
                     </div>
                   )}
+                  {ev.directions && (
+                    <p className="mt-3 text-sm leading-6 text-[#575750]">
+                      {ev.directions}
+                    </p>
+                  )}
                   <a
-                    href={mapsUrl([ev.venueName, ev.venueAddress, ev.city])}
+                    href={
+                      ev.mapLink ||
+                      mapsUrl([ev.venueName, ev.venueAddress, ev.city])
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mt-4 inline-flex items-center rounded-full border border-[#003118]/25 px-4 py-2 text-sm font-semibold text-[#003118] transition hover:bg-[#e6eeeb]"
+                    className="btn btn-outline mt-4 !min-h-0 px-4 py-2 text-sm"
                   >
                     Open in Maps
                   </a>
@@ -215,50 +310,56 @@ export default async function PublicEventPage({
               </div>
             </div>
 
-            {/* Good to know */}
+            {/* Good to know — accordion */}
             <div>
-              <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
+              <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
                 Good to know
               </h2>
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                {goodToKnow.map((g) => (
-                  <div
-                    key={g.title}
-                    className="rounded-2xl bg-white p-5 shadow-sm"
-                  >
-                    <div className="text-xs font-bold uppercase tracking-[0.15em] text-[#85857d]">
-                      {g.title}
-                    </div>
-                    <p className="mt-2 text-sm leading-6 text-[#575750]">
-                      {g.body}
-                    </p>
-                    {g.link && (
-                      <Link
-                        href={g.link.href}
-                        className="mt-2 inline-block text-sm font-semibold text-[#003118] underline underline-offset-4 hover:text-[#f27a00]"
-                      >
-                        {g.link.label}
-                      </Link>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <Accordion className="mt-5" items={goodToKnow} />
             </div>
+
+            {/* FAQs */}
+            {eventFaqs.length > 0 && (
+              <div>
+                <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
+                  FAQs
+                </h2>
+                <Accordion
+                  className="mt-5"
+                  items={eventFaqs.map((f) => ({ title: f.q, body: f.a }))}
+                />
+              </div>
+            )}
+
+            {/* Questions? */}
+            {wa && (
+              <div className="rounded-3xl bg-[#e7efe9] p-7">
+                <h2 className="font-display text-xl font-semibold text-[#003118]">
+                  Questions?
+                </h2>
+                <a
+                  href={wa}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-green mt-4"
+                >
+                  Chat on WhatsApp
+                </a>
+              </div>
+            )}
           </article>
 
-          {/* Tickets */}
+          {/* Tickets — sticky card */}
           <aside id="tickets" className="scroll-mt-24 lg:sticky lg:top-24">
             <div className="overflow-hidden rounded-[1.75rem] bg-white shadow-[0_18px_60px_rgba(0,0,0,0.08)]">
               <div className="bg-[#003118] px-6 py-7 text-white sm:px-7">
-                <div className="text-xs font-bold uppercase tracking-[0.16em] text-white/60">
-                  Tickets
-                </div>
-                <h2 className="mt-2 text-2xl font-semibold tracking-tight">
+                <h2 className="font-display text-2xl font-semibold tracking-tight">
                   Get your ticket
                 </h2>
               </div>
               <TicketPicker
                 slug={slug}
+                eventId={ev.id}
                 eventName={ev.name}
                 ticketTypes={ticketTypes}
               />
@@ -271,7 +372,7 @@ export default async function PublicEventPage({
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e0dfcf] bg-white/95 p-3 backdrop-blur lg:hidden">
         <a
           href="#tickets"
-          className="flex w-full items-center justify-center rounded-full bg-[#f27a00] py-3.5 text-sm font-semibold text-white"
+          className="flex w-full items-center justify-center rounded-full bg-[#f27a00] py-3.5 text-sm font-bold text-[#003118]"
         >
           Get Tickets
         </a>

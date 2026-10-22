@@ -13,11 +13,14 @@ export async function getEvents(params: {
   range?: "today" | "week" | "month";
   city?: string;
   month?: string;
+  tag?: string;
+  type?: string;
 }): Promise<{
   items: EventSummary[];
   page: number;
   total: number;
   totalPages: number;
+  months: string[];
 }> {
   const result = await listPublicEvents(params);
   return {
@@ -25,5 +28,6 @@ export async function getEvents(params: {
     page: result.page,
     total: result.total,
     totalPages: result.totalPages,
+    months: result.months,
   };
 }

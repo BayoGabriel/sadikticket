@@ -95,12 +95,14 @@ function PaymentCallbackInner() {
         {status === "success" && payload && (
           <>
             <h1 className="text-xl font-semibold text-(--brand-primary)">
-              Payment confirmed
+              You&rsquo;re in!
             </h1>
             {payload.event && (
               <p className="mt-2 text-(--text-primary)">{payload.event.name}</p>
             )}
-            <p className="mt-1 text-(--text-muted)">Your tickets are ready.</p>
+            <p className="mt-1 text-(--text-muted)">
+              Your ticket is on its way to your email. See you there.
+            </p>
             <a
               href={ticketsUrlForOrder(payload.id!)}
               className="mt-4 inline-flex items-center rounded-lg bg-(--brand-primary) text-white px-4 py-2 font-medium hover:bg-(--brand-primary-hover)"

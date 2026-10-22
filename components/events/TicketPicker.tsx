@@ -18,10 +18,12 @@ function Price({ amount, currency }: { amount: number; currency: string }) {
 
 export function TicketPicker({
   slug,
+  eventId,
   eventName,
   ticketTypes,
 }: {
   slug: string;
+  eventId: string;
   eventName: string;
   ticketTypes: PublicTicketType[];
 }) {
@@ -29,7 +31,13 @@ export function TicketPicker({
   const [qty, setQty] = useState<Record<string, number>>({});
   const [couponOpen, setCouponOpen] = useState(false);
   const [coupon, setCoupon] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState("");
+  const [couponState, setCouponState] = useState<
+    | { status: "idle" }
+    | { status: "checking" }
+    | { status: "applied"; code: string; discount: number; label: string }
+    | { status: "invalid"; reason: string }
+  >({ status: "idle" });
+  const [answer, setAnswer] = useState("");
 
   const now = new Date();
   const rows = ticketTypes.map((t) => {
@@ -46,7 +54,7 @@ export function TicketPicker({
   const allSoldOut =
     rows.length > 0 && rows.every((r) => r.soldOut || !r.onSale);
 
-  const total = useMemo(
+  const subtotal = useMemo(
     () =>
       rows.reduce(
         (acc, r) => acc + (qty[r.t.id] || 0) * r.t.price,
@@ -54,10 +62,46 @@ export function TicketPicker({
       ),
     [rows, qty],
   );
+  const discount =
+    couponState.status === "applied" ? couponState.discount : 0;
+  const total = Math.max(0, subtotal - discount);
   const currency = rows[0]?.t.currency || "NGN";
 
   const set = (id: string, v: number, max: number) =>
     setQty((q) => ({ ...q, [id]: Math.max(0, Math.min(max, v)) }));
+
+  const applyCoupon = async () => {
+    const code = coupon.trim();
+    if (!code) return;
+    setCouponState({ status: "checking" });
+    try {
+      const res = await fetch("/api/v1/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, eventId, subtotal }),
+      });
+      const data = await res.json();
+      const r = data?.data;
+      if (r?.valid) {
+        setCouponState({
+          status: "applied",
+          code: r.code,
+          discount: r.discount,
+          label: r.label,
+        });
+      } else {
+        setCouponState({
+          status: "invalid",
+          reason: r?.reason || "That code doesn't look right.",
+        });
+      }
+    } catch {
+      setCouponState({
+        status: "invalid",
+        reason: "Couldn't check that code right now.",
+      });
+    }
+  };
 
   const checkout = () => {
     const items = Object.entries(qty)
@@ -66,7 +110,9 @@ export function TicketPicker({
       .join(",");
     if (!items) return;
     const params = new URLSearchParams({ items });
-    if (appliedCoupon) params.set("coupon", appliedCoupon);
+    if (couponState.status === "applied")
+      params.set("coupon", couponState.code);
+    if (answer.trim()) params.set("answer", answer.trim());
     router.push(`/events/${slug}/checkout?${params.toString()}`);
   };
 
@@ -195,36 +241,76 @@ export function TicketPicker({
           >
             Got a code? Pop it in here
           </button>
-        ) : (
+        ) : null}
+
+        {couponOpen && (
           <div className="flex gap-2">
             <input
               value={coupon}
-              onChange={(e) => setCoupon(e.target.value)}
+              onChange={(e) => {
+                setCoupon(e.target.value);
+                setCouponState({ status: "idle" });
+              }}
               placeholder="Your code"
-              className="min-w-0 flex-1 rounded-xl border border-[#DCDCD5] bg-white px-3 py-2 text-sm text-[#003118] outline-none focus:border-[#003118]/40"
+              aria-label="Coupon code"
+              className="min-w-0 flex-1 rounded-xl border border-[#DCDCD5] bg-white px-3 py-2 text-sm uppercase text-[#003118] outline-none focus:border-[#003118]/40"
             />
             <button
               type="button"
-              onClick={() => setAppliedCoupon(coupon.trim())}
-              className="rounded-xl border border-[#003118]/25 px-4 py-2 text-sm font-semibold text-[#003118] transition hover:bg-[#e6eeeb]"
+              onClick={applyCoupon}
+              disabled={couponState.status === "checking" || !coupon.trim()}
+              className="rounded-xl border border-[#003118]/25 px-4 py-2 text-sm font-semibold text-[#003118] transition hover:bg-[#e6eeeb] disabled:opacity-50"
             >
-              Apply
+              {couponState.status === "checking" ? "…" : "Apply"}
             </button>
           </div>
         )}
-        {appliedCoupon && (
-          <p className="mt-2 text-xs text-[#6b6b6b]">
-            Code “{appliedCoupon}” will be checked at checkout.
+
+        {couponState.status === "applied" && (
+          <p className="mt-2 text-xs font-semibold text-[#003118]">
+            {couponState.code} applied — {couponState.label}
+          </p>
+        )}
+        {couponState.status === "invalid" && (
+          <p className="mt-2 text-xs font-medium text-red-600">
+            {couponState.reason}
           </p>
         )}
       </div>
 
+      {/* Checkout question */}
+      <div className="mt-4">
+        <label
+          htmlFor="checkout-answer"
+          className="text-xs font-semibold uppercase tracking-wider text-[#85857D]"
+        >
+          What&rsquo;s your preferred experience?
+        </label>
+        <input
+          id="checkout-answer"
+          value={answer}
+          onChange={(e) => setAnswer(e.target.value)}
+          placeholder="Painting, karaoke, picnic, not sure yet…"
+          className="mt-1.5 w-full rounded-xl border border-[#DCDCD5] bg-white px-3 py-2 text-sm text-[#003118] outline-none focus:border-[#003118]/40"
+        />
+      </div>
+
       {/* Total + CTA */}
-      <div className="mt-5 flex items-center justify-between border-t border-[#EEEDE8] pt-4">
-        <span className="text-sm text-[#6b6b6b]">Total</span>
-        <span className="text-lg font-semibold text-[#003118]">
-          <Price amount={total} currency={currency} />
-        </span>
+      <div className="mt-5 space-y-1.5 border-t border-[#EEEDE8] pt-4">
+        {discount > 0 && (
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-[#6b6b6b]">Discount</span>
+            <span className="font-semibold text-[#0c4a2b]">
+              −<Price amount={discount} currency={currency} />
+            </span>
+          </div>
+        )}
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-[#6b6b6b]">Total</span>
+          <span className="text-lg font-semibold text-[#003118]">
+            <Price amount={total} currency={currency} />
+          </span>
+        </div>
       </div>
       <button
         type="button"

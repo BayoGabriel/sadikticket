@@ -16,6 +16,9 @@ export type PublicEventsQuery = {
   range?: "today" | "week" | "month";
   city?: string;
   month?: string; // YYYY-MM
+  tag?: string;
+  type?: string; // eventType
+  upcomingOnly?: boolean; // default true — hide past events
 };
 
 export type PublicEventItem = {
@@ -42,10 +45,11 @@ export type PublicEventsResult = {
   limit: number;
   total: number;
   totalPages: number;
+  months: string[]; // YYYY-MM months that have events — for filter pills
 };
 
 function emptyResult(page: number, limit: number): PublicEventsResult {
-  return { items: [], page, limit, total: 0, totalPages: 0 };
+  return { items: [], page, limit, total: 0, totalPages: 0, months: [] };
 }
 
 // Show "Few tickets left" when remaining inventory is low.
@@ -179,6 +183,12 @@ export async function listPublicEvents(
   const query: Record<string, unknown> = { status: "PUBLISHED" };
   if (params.search) query.name = { $regex: params.search, $options: "i" };
   if (params.range) query.startsAt = { $gte: start, $lte: end };
+  if (params.tag) query.tags = params.tag;
+  if (params.type) query.eventType = params.type;
+  // Upcoming events only by default
+  if (params.upcomingOnly !== false && !params.range && !params.month) {
+    query.startsAt = { $gte: now };
+  }
 
   if (params.city) {
     query.city = {
@@ -196,14 +206,24 @@ export async function listPublicEvents(
   }
 
   try {
-    const [items, total] = await Promise.all([
+    const [items, total, monthRows] = await Promise.all([
       EventModel.find(query)
         .sort({ startsAt: 1 })
         .skip((page - 1) * limit)
         .limit(limit)
         .lean(),
       EventModel.countDocuments(query),
+      EventModel.find({ status: "PUBLISHED", startsAt: { $gte: now } })
+        .select("startsAt")
+        .limit(200)
+        .lean(),
     ]);
+
+    const months = [
+      ...new Set(
+        monthRows.map((e) => e.startsAt.toISOString().slice(0, 7)),
+      ),
+    ].sort();
 
     const mapped: PublicEventItem[] = items.map((e) => ({
       id: String(e._id),
@@ -228,6 +248,7 @@ export async function listPublicEvents(
       limit,
       total,
       totalPages: Math.ceil(total / limit),
+      months,
     };
   } catch {
     return emptyResult(page, limit);

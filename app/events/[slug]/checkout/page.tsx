@@ -41,6 +41,12 @@ export default function CheckoutPage({
   const { slug } = use(params);
   const sp = useSearchParams();
   const coupon = sp.get("coupon") || "";
+  const answer = sp.get("answer") || "";
+
+  const [discount, setDiscount] = useState<{
+    amount: number;
+    label: string;
+  } | null>(null);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -87,6 +93,32 @@ export default function CheckoutPage({
     return { lines, total, currency };
   }, [tickets, types]);
 
+  // Re-validate the coupon against the live subtotal so the summary is honest.
+  const subtotal = summary.total;
+  useEffect(() => {
+    if (!coupon || !eventDetail || subtotal <= 0) return;
+    let cancelled = false;
+    fetch("/api/v1/coupons/validate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: coupon,
+        eventId: eventDetail.id,
+        subtotal,
+      }),
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled && d?.data?.valid) {
+          setDiscount({ amount: d.data.discount, label: d.data.label });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [coupon, eventDetail, subtotal]);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -111,6 +143,7 @@ export default function CheckoutPage({
         items: tickets,
         customer: { name, email, phone: phone || undefined },
         couponCode: coupon || undefined,
+        checkoutAnswer: answer || undefined,
       });
       const init = await initializePaystack(order.id);
       window.location.href = init.authorizationUrl;
@@ -224,14 +257,28 @@ export default function CheckoutPage({
           {coupon && (
             <div className="mt-4 flex items-center justify-between border-t border-(--border) pt-4 text-sm">
               <span className="text-(--text-muted)">Code</span>
-              <span className="font-medium text-[#003118]">{coupon}</span>
+              <span className="font-medium text-[#003118]">
+                {coupon}
+                {discount ? ` — ${discount.label}` : ""}
+              </span>
+            </div>
+          )}
+          {discount && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-(--text-muted)">Discount</span>
+              <span className="font-semibold text-[#0c4a2b]">
+                −₦{(discount.amount / 100).toLocaleString()}
+              </span>
             </div>
           )}
           <div className="mt-4 flex items-center justify-between border-t border-(--border) pt-4">
             <div className="text-sm text-(--text-muted)">Total</div>
             <div className="text-lg font-semibold text-[#003118]">
               {summary.currency === "NGN" ? "₦" : summary.currency}{" "}
-              {(summary.total / 100).toLocaleString()}
+              {(
+                (summary.total - (discount?.amount ?? 0)) /
+                100
+              ).toLocaleString()}
             </div>
           </div>
         </aside>
