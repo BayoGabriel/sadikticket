@@ -63,7 +63,7 @@ export default function NewEventPage() {
             <textarea name="description" rows={4} className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
           </div>
           <div>
-            <label className="block text-sm font-medium">What's included (comma-separated)</label>
+            <label className="block text-sm font-medium">What&apos;s included (comma-separated)</label>
             <input name="includes" placeholder="Canvas, paint and brushes, apron, drink, snack" className="mt-1 w-full rounded-lg border border-[#E8E8E5] bg-white px-3 py-2" />
           </div>
         </div>

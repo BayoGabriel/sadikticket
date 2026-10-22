@@ -4,7 +4,6 @@ import Link from "next/link";
 
 import { getEventBySlug, listTicketTypesBySlug } from "@/features/checkout/api";
 import { TicketPicker } from "@/components/events/TicketPicker";
-import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 
 function formatDate(date: string) {
   return new Intl.DateTimeFormat("en-NG", {

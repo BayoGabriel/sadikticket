@@ -129,7 +129,7 @@ export default function EditEventPage({
           </div>
           <div>
             <label className="block text-sm font-medium">
-              What's included (comma-separated)
+              What&apos;s included (comma-separated)
             </label>
             <input
               name="includes"

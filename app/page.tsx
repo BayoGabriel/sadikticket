@@ -95,10 +95,12 @@ export default async function HomePage() {
               </Link>
             </div>
             <div className="mt-8 flex flex-wrap gap-x-4 gap-y-2 text-sm font-medium text-[#6b6b6b]">
-              {vibeTags.map((t) => (
+              {vibeTags.map((t, i) => (
                 <span key={t} className="flex items-center gap-4">
                   {t}
-                  <span className="text-[#f27a00] last:hidden">·</span>
+                  {i < vibeTags.length - 1 && (
+                    <span className="text-[#f27a00]">·</span>
+                  )}
                 </span>
               ))}
             </div>
