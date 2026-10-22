@@ -1,24 +1,24 @@
 import { NextRequest } from "next/server";
+import { format } from "date-fns";
 import { requirePermission } from "@/lib/auth";
 import { ok, fail } from "@/lib/response";
 import { toCsv, csvResponse } from "@/lib/csv";
-import { connectDb } from "@/lib/db";
-import { EnquiryModel, type Enquiry } from "@/models/enquiry";
+import { enquiryPipelineService } from "@/services/enquiryPipelineService";
 
-// GET /api/v1/admin/enquiries?kind=private-booking|business|waitlist|updates&format=csv
+// GET /api/v1/admin/enquiries?tab=&stage=&city=&owner=&q=&from=&to=&format=csv
 export async function GET(req: NextRequest) {
   try {
     await requirePermission("enquiries");
-    await connectDb();
-    const sp = new URL(req.url).searchParams;
-
-    const query: Record<string, unknown> = {};
-    if (sp.get("kind")) query.kind = sp.get("kind");
-
-    const items = await EnquiryModel.find(query)
-      .sort({ createdAt: -1 })
-      .limit(1000)
-      .lean<Enquiry[]>();
+    const sp = req.nextUrl.searchParams;
+    const items = await enquiryPipelineService.list({
+      tab: sp.get("tab") || undefined,
+      stage: sp.get("stage") || undefined,
+      city: sp.get("city") || undefined,
+      owner: sp.get("owner") || undefined,
+      q: sp.get("q") || undefined,
+      from: sp.get("from") || undefined,
+      to: sp.get("to") || undefined,
+    });
 
     const rows = items.map((e) => ({
       id: String(e._id),
@@ -28,25 +28,55 @@ export async function GET(req: NextRequest) {
       phone: e.phone ?? "",
       company: e.company ?? "",
       occasion: e.occasion ?? "",
+      experience: e.experience ?? "",
+      service: e.service ?? "",
+      date: e.date ?? "",
+      guests: e.guests ?? e.size ?? "",
+      location: e.location ?? e.city ?? "",
+      frequency: e.frequency ?? "",
+      message: e.message ?? e.extra ?? e.goals ?? "",
       eventName: e.eventName ?? "",
-      city: e.city ?? "",
-      createdAt: e.createdAt?.toISOString?.() ?? "",
+      stage: e.stage,
+      read: e.read,
+      ownerId: e.ownerId ? String(e.ownerId) : "",
+      ownerName: e.ownerName ?? "",
+      followUpAt: e.followUpAt ?? null,
+      quoteAmount: e.quoteAmount ?? null,
+      booking: e.booking ?? null,
+      notes: (e.notes ?? []).map((n) => ({ text: n.text, author: n.author, createdAt: n.createdAt })),
+      createdAt: e.createdAt,
+      ageHours: e.ageHours,
     }));
 
     if (sp.get("format") === "csv") {
       return csvResponse(
-        toCsv(rows, [
-          { key: "kind", label: "Kind" },
-          { key: "name", label: "Name" },
-          { key: "email", label: "Email" },
-          { key: "phone", label: "Phone" },
-          { key: "company", label: "Company" },
-          { key: "occasion", label: "Occasion" },
-          { key: "eventName", label: "Event" },
-          { key: "city", label: "City" },
-          { key: "createdAt", label: "Created" },
-        ]),
-        `enquiries-${sp.get("kind") ?? "all"}.csv`,
+        toCsv(
+          rows.map((r) => ({
+            ...r,
+            quoteAmount: r.quoteAmount ? r.quoteAmount / 100 : "",
+            createdAt: format(new Date(r.createdAt), "yyyy-MM-dd HH:mm"),
+            followUpAt: r.followUpAt ? format(new Date(r.followUpAt), "yyyy-MM-dd") : "",
+          })),
+          [
+            { key: "kind", label: "Kind" },
+            { key: "stage", label: "Stage" },
+            { key: "name", label: "Name" },
+            { key: "company", label: "Company" },
+            { key: "email", label: "Email" },
+            { key: "phone", label: "Phone" },
+            { key: "occasion", label: "Occasion" },
+            { key: "service", label: "Service" },
+            { key: "date", label: "Date" },
+            { key: "guests", label: "Guests" },
+            { key: "location", label: "Location" },
+            { key: "quoteAmount", label: "Quote ₦" },
+            { key: "ownerName", label: "Owner" },
+            { key: "followUpAt", label: "Follow up" },
+            { key: "message", label: "Message" },
+            { key: "createdAt", label: "Received" },
+          ],
+        ),
+        `enquiries-${sp.get("tab") ?? "all"}.csv`,
       );
     }
 
