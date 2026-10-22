@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
-import { PhotoTile } from "@/components/ui/PhotoTile";
+import { Img } from "@/components/ui/Img";
+import { images } from "@/lib/images";
 import { whatsappUrl } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -28,6 +29,8 @@ const whatWeDo = [
   },
 ];
 
+// TODO before launch: back each of these points with a real photo or client
+// story — generic claims won't sell the page on their own.
 const whyUs = [
   "We start with what you want out of the day, then build around it.",
   "Activities that get everyone involved, not just the loud ones.",
@@ -87,7 +90,7 @@ export default function BusinessPage() {
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a
-                href="#enquiry"
+                href="#enquire"
                 className="inline-flex items-center rounded-full bg-[#f27a00] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#d56c00]"
               >
                 Plan a team experience
@@ -100,7 +103,7 @@ export default function BusinessPage() {
               </a>
             </div>
           </div>
-          <PhotoTile label="TEAM SESSION" className="aspect-[4/3]" />
+          <Img image={images.business.hero} />
         </div>
       </section>
 
@@ -185,7 +188,12 @@ export default function BusinessPage() {
                 key={i}
                 className="overflow-hidden rounded-3xl bg-white shadow-sm"
               >
-                <PhotoTile label="[PROJECT]" className="aspect-[16/9] rounded-none" />
+                <Img
+                  image={
+                    [images.business.work1, images.business.work2, images.business.work3][i]
+                  }
+                  rounded="rounded-none"
+                />
                 <div className="p-5">
                   <div className="font-semibold text-[#003118]">
                     [Client name]
@@ -227,8 +235,8 @@ export default function BusinessPage() {
         </div>
       </section>
 
-      {/* Enquiry */}
-      <section id="enquiry" className="scroll-mt-24">
+      {/* Enquiry — id must match the header's /business#enquire CTA */}
+      <section id="enquire" className="scroll-mt-24">
         <div className="mx-auto max-w-3xl px-5 py-14 sm:px-8 lg:px-10">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">

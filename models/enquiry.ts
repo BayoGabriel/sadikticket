@@ -1,12 +1,12 @@
 import mongoose, { Schema, InferSchemaType, model, models } from 'mongoose';
 
-export type EnquiryKind = 'private-booking' | 'business' | 'waitlist' | 'updates';
+export type EnquiryKind = 'private-booking' | 'business' | 'waitlist' | 'updates' | 'general';
 
 const EnquirySchema = new Schema(
   {
     kind: {
       type: String,
-      enum: ['private-booking', 'business', 'waitlist', 'updates'],
+      enum: ['private-booking', 'business', 'waitlist', 'updates', 'general'],
       required: true,
       index: true,
     },
@@ -26,6 +26,8 @@ const EnquirySchema = new Schema(
     size: { type: String },
     frequency: { type: String },
     goals: { type: String },
+    // general contact form
+    message: { type: String },
     // waitlist / updates
     eventSlug: { type: String },
     eventName: { type: String },

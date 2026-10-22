@@ -41,4 +41,10 @@ export const enquirySchema = z.discriminatedUnion('kind', [
     ...base,
     city: z.string().max(120).optional(),
   }),
+  z.object({
+    kind: z.literal('general'),
+    ...base,
+    name: z.string().min(1).max(120),
+    message: z.string().min(1).max(2000),
+  }),
 ]);

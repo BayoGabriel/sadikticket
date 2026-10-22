@@ -35,7 +35,7 @@ export const siteConfig = {
     ageLimit: "[Your policy.] Most experiences are 18+, family sessions are marked on the event page.",
     whatToWear: "[Your policy.] Come comfortable — aprons are provided for messy sessions.",
     runningLate: "[Your policy.] Doors stay open — we'll catch you up when you arrive.",
-    refunds: "[Your policy.] Read the full policy",
+    refunds: "[Your policy.] Two lines on when refunds apply and how to ask.",
   },
 };
 

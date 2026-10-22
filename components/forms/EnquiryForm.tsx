@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { whatsappUrl } from "@/lib/site-config";
+import { useRef, useState } from "react";
+import { siteConfig, whatsappUrl } from "@/lib/site-config";
 
 const inputCls =
   "mt-1 w-full rounded-xl border border-[#e0dfcf] bg-white px-3.5 py-2.5 text-sm text-[#003118] outline-none transition focus:border-[#003118]/40 focus:ring-2 focus:ring-[#003118]/10";
@@ -43,17 +43,52 @@ const SERVICES = [
   "Not sure",
 ];
 
+const PLACES = ["Lagos", "Benin City", "Somewhere else"];
+
+// Turn the current form values into a readable WhatsApp opener.
+function waMessage(kind: "private-booking" | "business", fd: FormData) {
+  const parts: string[] = [
+    kind === "private-booking"
+      ? "Hi SerenArt! I'm planning something."
+      : "Hi SerenArt Business! I'd like to plan a team experience.",
+  ];
+  const push = (label: string, v: FormDataEntryValue | null) => {
+    const s = String(v ?? "").trim();
+    if (s) parts.push(`${label}: ${s}`);
+  };
+  push("Name", fd.get("name"));
+  push("Company", fd.get("company"));
+  push("Celebrating", fd.get("occasion"));
+  push("Looking for", fd.get("service"));
+  push("Want to do", fd.get("experience"));
+  push("When", fd.get("date"));
+  push("People", fd.get("guests") || fd.get("size"));
+  push("Where", fd.get("location"));
+  push("Details", fd.get("extra") || fd.get("goals"));
+  return parts.join("\n");
+}
+
 export function EnquiryForm({ kind }: { kind: "private-booking" | "business" }) {
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">(
     "idle",
   );
   const [error, setError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const isPrivate = kind === "private-booking";
-  const wa = whatsappUrl(
-    isPrivate
-      ? "Hi SerenArt! I just sent a private booking enquiry."
-      : "Hi SerenArt Business! I just sent an enquiry.",
+
+  // WhatsApp link is rebuilt from whatever the guest has typed so far.
+  const [waHref, setWaHref] = useState(() =>
+    whatsappUrl(
+      isPrivate
+        ? "Hi SerenArt! I'd like to plan a private event."
+        : "Hi SerenArt Business! I'd like to plan a team experience.",
+    ),
   );
+  const refreshWa = () => {
+    if (!formRef.current) return;
+    const url = whatsappUrl(waMessage(kind, new FormData(formRef.current)));
+    if (url) setWaHref(url);
+  };
 
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -85,16 +120,17 @@ export function EnquiryForm({ kind }: { kind: "private-booking" | "business" }) 
     return (
       <div className="rounded-2xl border border-[#003118]/15 bg-[#e6eeeb] p-6 text-center">
         <p className="font-semibold text-[#003118]">
-          {isPrivate ? "Got it, thank you!" : "Thanks for your interest in SerenArt Business!"}
+          {isPrivate
+            ? "Got it, thank you!"
+            : "Thanks for your interest in SerenArt Business!"}
         </p>
         <p className="mt-2 text-sm leading-6 text-[#4a4a45]">
           {isPrivate
-            ? "We'll reach out soon to talk it through."
-            : "We've received your enquiry and will be in touch to help you plan an experience your team will love."}{" "}
-          Want to chat now?{" "}
-          {wa ? (
+            ? `We'll reach out within ${siteConfig.responseTime} to talk it through. Want to chat now? `
+            : "We've received your enquiry and will be in touch to help you plan an experience your team will love. Prefer to chat? "}
+          {waHref ? (
             <a
-              href={wa}
+              href={waHref}
               target="_blank"
               rel="noopener noreferrer"
               className="font-semibold text-[#003118] underline underline-offset-2"
@@ -110,7 +146,16 @@ export function EnquiryForm({ kind }: { kind: "private-booking" | "business" }) 
   }
 
   return (
-    <form onSubmit={submit} className="space-y-4">
+    <form ref={formRef} onSubmit={submit} onChange={refreshWa} className="space-y-4">
+      {/* honeypot — hidden from humans, bots fill it */}
+      <input
+        type="text"
+        name="website"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute -left-[9999px] h-0 w-0 opacity-0"
+      />
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Your name">
           <input name="name" required className={inputCls} />
@@ -170,8 +215,17 @@ export function EnquiryForm({ kind }: { kind: "private-booking" | "business" }) 
             <Field label="How many people?">
               <input name="guests" className={inputCls} />
             </Field>
-            <Field label="Where?" helper="Lagos, Benin City, somewhere else.">
-              <input name="location" className={inputCls} />
+            <Field label="Where?">
+              <select name="location" className={inputCls} defaultValue="">
+                <option value="" disabled>
+                  Pick one
+                </option>
+                {PLACES.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
             </Field>
           </>
         ) : (
@@ -230,7 +284,7 @@ export function EnquiryForm({ kind }: { kind: "private-booking" | "business" }) 
         <button
           type="submit"
           disabled={state === "loading"}
-          className="inline-flex items-center rounded-full bg-[#f27a00] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#d56c00] disabled:opacity-60"
+          className="btn btn-orange"
         >
           {state === "loading"
             ? "Sending…"
@@ -238,14 +292,14 @@ export function EnquiryForm({ kind }: { kind: "private-booking" | "business" }) 
               ? "Send my enquiry"
               : "Enquire About a Team Experience"}
         </button>
-        {wa && (
+        {waHref && (
           <a
-            href={wa}
+            href={waHref}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm font-semibold text-[#003118] underline underline-offset-4 hover:text-[#f27a00]"
           >
-            Or chat on WhatsApp
+            {isPrivate ? "Or chat on WhatsApp" : "Prefer WhatsApp? Chat with us"}
           </a>
         )}
       </div>
