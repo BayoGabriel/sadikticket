@@ -179,9 +179,29 @@ async function main() {
 
   // Owner account — set ADMIN_EMAIL / ADMIN_PASSWORD / ADMIN_NAME in .env
   // (or pass real env vars). Never commit real credentials.
+  // If ADMIN_* is provided and a seeded/default owner already exists, the
+  // existing account is updated in place (no duplicate owners).
+  const custom = Boolean(process.env.ADMIN_EMAIL || process.env.ADMIN_PASSWORD);
   const ownerEmail = (process.env.ADMIN_EMAIL || "owner@serenart.local").toLowerCase();
   const ownerPassword = process.env.ADMIN_PASSWORD || "change-me";
   let admin = await User.findOne({ email: ownerEmail });
+  if (!admin && custom) {
+    // reseed run with real credentials: hijack the default/seeded owner
+    admin =
+      (await User.findOne({ email: "owner@serenart.local" })) ||
+      (await User.findOne({ email: "admin@serenart.local" })) ||
+      (await User.findOne({ role: "OWNER" }));
+    if (admin) {
+      admin.email = ownerEmail;
+      if (process.env.ADMIN_NAME) admin.name = process.env.ADMIN_NAME;
+      if (process.env.ADMIN_PASSWORD)
+        admin.passwordHash = await bcrypt.hash(ownerPassword, 10);
+      admin.role = "OWNER";
+      admin.active = true;
+      await admin.save();
+      console.log(`OWNER updated in place: ${ownerEmail}`);
+    }
+  }
   if (!admin) {
     admin = await User.create({
       email: ownerEmail,
@@ -191,6 +211,12 @@ async function main() {
       active: true,
     });
     console.log(`Created OWNER: ${ownerEmail}${process.env.ADMIN_PASSWORD ? "" : " / change-me"}`);
+  } else if (admin.email === ownerEmail && process.env.ADMIN_PASSWORD) {
+    // same account, new password
+    admin.passwordHash = await bcrypt.hash(ownerPassword, 10);
+    if (process.env.ADMIN_NAME) admin.name = process.env.ADMIN_NAME;
+    await admin.save();
+    console.log(`OWNER password/name updated: ${ownerEmail}`);
   } else {
     console.log(`owner exists: ${ownerEmail}`);
   }
