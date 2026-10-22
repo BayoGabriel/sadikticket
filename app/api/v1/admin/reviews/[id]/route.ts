@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { ok, fail } from "@/lib/response";
 import { connectDb } from "@/lib/db";
 import { ReviewModel } from "@/models/review";
@@ -18,7 +18,7 @@ export async function PATCH(
   ctx: { params: Promise<{ id: string }> },
 ) {
   try {
-    await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    await requirePermission("reviews");
     const { id } = await ctx.params;
     const input = patchSchema.parse(await req.json());
     await connectDb();
@@ -36,7 +36,7 @@ export async function DELETE(
   ctx: { params: Promise<{ id: string }> },
 ) {
   try {
-    await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    await requirePermission("reviews");
     const { id } = await ctx.params;
     await connectDb();
     await ReviewModel.findByIdAndDelete(id);

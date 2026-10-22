@@ -31,11 +31,11 @@ function ticketEmailHtml(params: {
 }
 
 export const ticketEmailService = {
-  async sendAllForOrder(orderId: string) {
+  async sendAllForOrder(orderId: string, opts?: { force?: boolean }) {
     await connectDb();
     const tickets = await TicketModel.find({
       orderId,
-      emailStatus: { $ne: "SENT" },
+      ...(opts?.force ? {} : { emailStatus: { $ne: "SENT" } }),
     }).lean();
     if (tickets.length === 0) return { sent: 0 };
 

@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { ok, fail } from "@/lib/response";
 import { toCsv, csvResponse } from "@/lib/csv";
 import { couponCreateSchema } from "@/schemas/coupon";
@@ -8,7 +8,7 @@ import { couponService } from "@/services/couponService";
 // GET /api/v1/admin/coupons?format=csv
 export async function GET(req: NextRequest) {
   try {
-    await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    await requirePermission("coupons");
     const items = await couponService.list();
     const rows = items.map((c) => ({
       id: String(c._id),
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
 // POST /api/v1/admin/coupons
 export async function POST(req: NextRequest) {
   try {
-    await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    await requirePermission("coupons");
     const input = couponCreateSchema.parse(await req.json());
     const doc = await couponService.create(input);
     return ok({ id: String(doc._id), code: doc.code }, { status: 201 });

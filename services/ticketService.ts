@@ -30,14 +30,8 @@ export const ticketService = {
         for (const item of order.items) {
           const type = await TicketTypeModel.findById(item.ticketTypeId).session(session);
           if (!type) throw new ApiError('TICKET_TYPE_NOT_FOUND', 'Ticket type missing', 400);
-
-          // Inventory check
-          const available = (type.quantity ?? 0) - (type.quantitySold ?? 0);
-          if (available < item.quantity) throw new ApiError('TICKET_SOLD_OUT', 'Insufficient inventory', 400);
-
-          // Reserve inventory
-          type.quantitySold = (type.quantitySold ?? 0) + item.quantity;
-          await type.save({ session });
+          // Inventory was already reserved atomically at order creation
+          // (capacityService.reserve) — here we only mint the tickets.
 
           // Create tickets
           const tickets = Array.from({ length: item.quantity }, () => ({

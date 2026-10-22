@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { ok, fail } from "@/lib/response";
 import { connectDb } from "@/lib/db";
 import { ReviewModel } from "@/models/review";
@@ -16,7 +16,7 @@ const createSchema = z.object({
 // GET /api/v1/admin/reviews
 export async function GET() {
   try {
-    await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    await requirePermission("reviews");
     await connectDb();
     const items = await ReviewModel.find().sort({ createdAt: -1 }).lean();
     return ok({
@@ -37,7 +37,7 @@ export async function GET() {
 // POST /api/v1/admin/reviews — add a real review manually
 export async function POST(req: NextRequest) {
   try {
-    await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    await requirePermission("reviews");
     const input = createSchema.parse(await req.json());
     const doc = await ReviewModel.create(input);
     return ok({ id: String(doc._id) }, { status: 201 });

@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { ok, fail } from "@/lib/response";
 import { createTicketTypeSchema } from "@/schemas/ticketType";
 import { ticketTypeAdminService } from "@/services/ticketTypeAdminService";
@@ -11,7 +11,7 @@ export async function POST(
   ctx: { params: Promise<{ eventId: string }> },
 ) {
   try {
-    const user = await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    const user = await requirePermission("events");
     const { eventId } = await ctx.params;
     await ticketTypeAdminService.assertEventAccess(eventId, user);
     const input = createTicketTypeSchema.parse(await req.json());
@@ -27,7 +27,7 @@ export async function GET(
   ctx: { params: Promise<{ eventId: string }> },
 ) {
   try {
-    const user = await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    const user = await requirePermission("events");
     const { eventId } = await ctx.params;
     await ticketTypeAdminService.assertEventAccess(eventId, user);
     const url = new URL(req.url);

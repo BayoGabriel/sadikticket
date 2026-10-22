@@ -3,6 +3,7 @@ import { connectDb } from "@/lib/db";
 import { OrderModel } from "@/models/order";
 import { EventModel, type Event } from "@/models/event";
 import { emailService } from "@/services/emailService";
+import { capacityService } from "@/services/capacityService";
 import { env } from "@/lib/env";
 
 // GET /api/cron/reminders — Vercel Cron (see vercel.json).
@@ -64,7 +65,10 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    return Response.json({ ok: true, events: events.length, sent });
+    // Same run: free seats held by abandoned checkouts (idempotent).
+    const expired = await capacityService.releaseStalePending().catch(() => 0);
+
+    return Response.json({ ok: true, events: events.length, sent, expired });
   } catch (e) {
     return Response.json(
       { ok: false, error: e instanceof Error ? e.message : "unknown" },

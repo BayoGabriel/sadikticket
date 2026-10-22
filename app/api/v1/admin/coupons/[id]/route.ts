@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { ok, fail } from "@/lib/response";
 import { couponUpdateSchema } from "@/schemas/coupon";
 import { couponService } from "@/services/couponService";
@@ -10,7 +10,7 @@ export async function PATCH(
   ctx: { params: Promise<{ id: string }> },
 ) {
   try {
-    await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    await requirePermission("coupons");
     const { id } = await ctx.params;
     const input = couponUpdateSchema.parse(await req.json());
     const doc = await couponService.update(id, input);

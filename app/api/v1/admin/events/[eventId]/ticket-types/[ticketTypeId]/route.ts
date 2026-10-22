@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { ok, fail } from "@/lib/response";
 import { updateTicketTypeSchema } from "@/schemas/ticketType";
 import { ticketTypeAdminService } from "@/services/ticketTypeAdminService";
@@ -12,7 +12,7 @@ export async function GET(
   ctx: { params: Promise<{ eventId: string; ticketTypeId: string }> },
 ) {
   try {
-    const user = await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    const user = await requirePermission("events");
     const { eventId, ticketTypeId } = await ctx.params;
     await ticketTypeAdminService.assertEventAccess(eventId, user);
     const tt = await ticketTypeAdminService.get(eventId, ticketTypeId);
@@ -38,7 +38,7 @@ export async function PATCH(
   ctx: { params: Promise<{ eventId: string; ticketTypeId: string }> },
 ) {
   try {
-    const user = await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    const user = await requirePermission("events");
     const { eventId, ticketTypeId } = await ctx.params;
     await ticketTypeAdminService.assertEventAccess(eventId, user);
     const patch = updateTicketTypeSchema.parse(await req.json());
@@ -58,7 +58,7 @@ export async function DELETE(
   ctx: { params: Promise<{ eventId: string; ticketTypeId: string }> },
 ) {
   try {
-    const user = await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    const user = await requirePermission("events");
     const { eventId, ticketTypeId } = await ctx.params;
     await ticketTypeAdminService.assertEventAccess(eventId, user);
     await ticketTypeAdminService.remove(eventId, ticketTypeId);

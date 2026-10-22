@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { ok, fail } from "@/lib/response";
 import { toCsv, csvResponse } from "@/lib/csv";
 import { connectDb } from "@/lib/db";
@@ -8,7 +8,7 @@ import { EnquiryModel, type Enquiry } from "@/models/enquiry";
 // GET /api/v1/admin/enquiries?kind=private-booking|business|waitlist|updates&format=csv
 export async function GET(req: NextRequest) {
   try {
-    await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    await requirePermission("enquiries");
     await connectDb();
     const sp = new URL(req.url).searchParams;
 

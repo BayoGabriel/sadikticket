@@ -6,6 +6,7 @@ import { TicketTypeModel, type TicketType } from "@/models/ticketType";
 import { nanoid } from "nanoid";
 import { Types } from "mongoose";
 import { couponService } from "@/services/couponService";
+import { capacityService } from "@/services/capacityService";
 
 export const orderService = {
   async create(input: {
@@ -37,7 +38,8 @@ export const orderService = {
     let subtotal = 0;
     const orderItems = input.items.map((it) => {
       const type = types.find((t) => String(t._id) === it.ticketTypeId)!;
-      // Validate availability and sales window
+      // Validate sales window + per-order cap (availability itself is enforced
+      // atomically by the reservation below).
       const now = new Date();
       if (type.status !== "ACTIVE")
         throw new ApiError("TICKET_SOLD_OUT", "Ticket inactive", 400);
@@ -45,6 +47,12 @@ export const orderService = {
         throw new ApiError("EVENT_SALES_CLOSED", "Sales not started", 400);
       if (type.salesEnd && now > type.salesEnd)
         throw new ApiError("EVENT_SALES_CLOSED", "Sales ended", 400);
+      if (type.maxPerOrder && it.quantity > type.maxPerOrder)
+        throw new ApiError(
+          "VALIDATION_ERROR",
+          `“${type.name}” is limited to ${type.maxPerOrder} per order.`,
+          400,
+        );
       if ((type.quantitySold ?? 0) + it.quantity > (type.quantity ?? 0))
         throw new ApiError("TICKET_SOLD_OUT", "Not enough inventory", 400);
 
@@ -67,6 +75,10 @@ export const orderService = {
         input.couponCode,
         input.eventId,
         subtotal,
+        {
+          ticketTypeIds: input.items.map((i) => i.ticketTypeId),
+          customerEmail: input.customer.email,
+        },
       );
       if (!check.valid) {
         throw new ApiError("COUPON_INVALID", check.reason, 400);
@@ -75,28 +87,40 @@ export const orderService = {
       couponCode = check.code;
     }
 
-    const fees = 0; // placeholder for future fee model
-    const total = Math.max(0, subtotal - discountAmount + fees);
+    // Reserve seats atomically — this is the real oversell guard. Released
+    // if the order can't be created, expires, is cancelled or refunded.
+    await capacityService.reserve(input.items);
 
+    const fees = 0;
+    const total = Math.max(0, subtotal - discountAmount + fees);
     const paymentReference = `EVT-${new Date().getFullYear()}-${nanoid(10).toUpperCase()}`;
 
-    const order = await OrderModel.create({
-      eventId: event._id,
-      items: orderItems,
-      customerName: input.customer.name,
-      customerEmail: input.customer.email,
-      customerPhone: input.customer.phone,
-      couponCode,
-      discountAmount,
-      checkoutAnswer: input.checkoutAnswer,
-      status: "PENDING",
-      subtotal,
-      fees,
-      total,
-      currency: orderItems[0].currency,
-      paymentReference,
-    });
-
-    return order.toObject();
+    try {
+      const order = await OrderModel.create({
+        eventId: event._id,
+        items: orderItems,
+        customerName: input.customer.name,
+        customerEmail: input.customer.email,
+        customerPhone: input.customer.phone,
+        couponCode,
+        discountAmount,
+        checkoutAnswer: input.checkoutAnswer,
+        status: "PENDING",
+        subtotal,
+        fees,
+        total,
+        currency: orderItems[0].currency,
+        paymentReference,
+      });
+      return order.toObject();
+    } catch (e) {
+      await capacityService.release(
+        input.items.map((i) => ({
+          ticketTypeId: new Types.ObjectId(i.ticketTypeId),
+          quantity: i.quantity,
+        })),
+      );
+      throw e;
+    }
   },
 };

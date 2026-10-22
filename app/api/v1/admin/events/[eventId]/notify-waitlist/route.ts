@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { ok, fail } from "@/lib/response";
 import { connectDb } from "@/lib/db";
 import { EventModel, type Event } from "@/models/event";
@@ -14,7 +14,7 @@ export async function POST(
   ctx: { params: Promise<{ eventId: string }> },
 ) {
   try {
-    await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    await requirePermission("events");
     const { eventId } = await ctx.params;
     await connectDb();
 

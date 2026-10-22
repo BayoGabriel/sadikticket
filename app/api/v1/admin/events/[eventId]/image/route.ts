@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/response";
-import { requireRole } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { connectDb } from "@/lib/db";
 import { EventModel } from "@/models/event";
 import { ticketTypeAdminService } from "@/services/ticketTypeAdminService";
@@ -10,7 +10,7 @@ import { uploadEventImage } from "@/lib/cloudinary";
 // Accepts multipart/form-data with field "image"; uploads to Cloudinary and sets event.coverImage
 export async function POST(req: NextRequest, ctx: { params: Promise<{ eventId: string }> }) {
   try {
-    const user = await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    const user = await requirePermission("events");
     const { eventId } = await ctx.params;
     await ticketTypeAdminService.assertEventAccess(eventId, user);
 
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ eventId: s
 // Unsets event.coverImage (does not delete the cloud asset)
 export async function DELETE(_req: NextRequest, ctx: { params: Promise<{ eventId: string }> }) {
   try {
-    const user = await requireRole(["SUPER_ADMIN", "EVENT_ADMIN"]);
+    const user = await requirePermission("events");
     const { eventId } = await ctx.params;
     await ticketTypeAdminService.assertEventAccess(eventId, user);
     await connectDb();

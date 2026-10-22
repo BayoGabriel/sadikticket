@@ -34,6 +34,22 @@ export const paystackService = {
     return res.data.data as any;
   },
 
+  // Creates a refund on Paystack for a paid transaction. Returns the refund
+  // record on success; throws when the API call fails so callers can record
+  // a manual refund instead.
+  async refund(params: { reference: string; amountKobo?: number; note?: string }) {
+    const res = await axios.post(
+      `${PAYSTACK_API}/refund`,
+      {
+        transaction: params.reference,
+        ...(params.amountKobo ? { amount: params.amountKobo } : {}),
+        ...(params.note ? { merchant_note: params.note } : {}),
+      },
+      { headers: { Authorization: `Bearer ${env.PAYSTACK_SECRET_KEY}` } },
+    );
+    return res.data.data as { id: number; status: string };
+  },
+
   isValidSignature(rawBody: string, signature: string | null | undefined) {
     if (!signature) return false;
     const hash = crypto.createHmac('sha512', env.PAYSTACK_SECRET_KEY).update(rawBody).digest('hex');
