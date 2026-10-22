@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { RateLimiterMemory } from 'rate-limiter-flexible';
 import { fail } from '@/lib/response';
+import { ApiError } from '@/lib/errors';
 import { UserModel } from '@/models/user';
 import { connectDb } from '@/lib/db';
 import { env } from '@/lib/env';
@@ -21,10 +22,11 @@ export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
   try {
     const { email, password } = await req.json();
-    if (!email || !password) throw new Error('email and password required');
+    if (!email || !password)
+      throw new ApiError('VALIDATION_ERROR', 'Email and password are required', 400);
 
     await limiter.consume(`${ip}:${String(email).toLowerCase()}`).catch(() => {
-      throw new Error('Too many attempts. Wait a few minutes and try again.');
+      throw new ApiError('RATE_LIMITED', 'Too many attempts. Wait a few minutes and try again.', 429);
     });
 
     await connectDb();
@@ -44,10 +46,11 @@ export async function POST(req: NextRequest) {
     const user = await UserModel.findOne({
       email: { $regex: `^${String(email).trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" },
     });
-    if (!user) throw new Error('Invalid email or password');
-    if (user.active === false) throw new Error('This account has been deactivated.');
+    if (!user) throw new ApiError('UNAUTHORIZED', 'Invalid email or password', 401);
+    if (user.active === false)
+      throw new ApiError('FORBIDDEN', 'This account has been deactivated.', 403);
     const valid = await bcrypt.compare(password, user.passwordHash);
-    if (!valid) throw new Error('Invalid email or password');
+    if (!valid) throw new ApiError('UNAUTHORIZED', 'Invalid email or password', 401);
 
     user.lastLoginAt = new Date();
     await user.save();

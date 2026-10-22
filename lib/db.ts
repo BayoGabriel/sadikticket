@@ -15,8 +15,9 @@ export async function connectDb() {
     globalForMongoose.mongoosePromise = mongoose.connect(env.MONGODB_URI, {
       autoIndex: env.NODE_ENV !== "production",
       dbName: "sadikticket",
-      serverSelectionTimeoutMS: 1500,
-      socketTimeoutMS: 2000,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      maxPoolSize: 10,
     });
   }
   try {
