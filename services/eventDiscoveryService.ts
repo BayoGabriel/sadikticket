@@ -31,6 +31,8 @@ export type PublicEventItem = {
   fromPrice?: number;
   currency?: string;
   statusTag: EventStatusTag;
+  tags?: string[];
+  eventType?: string;
 };
 
 export type PublicEventsResult = {
@@ -209,6 +211,8 @@ export async function listPublicEvents(
       country: e.country,
       venueName: e.venueName,
       startsAt: e.startsAt.toISOString(),
+      tags: (e as { tags?: string[] }).tags ?? [],
+      eventType: (e as { eventType?: string }).eventType,
       statusTag: "coming-soon",
     }));
 

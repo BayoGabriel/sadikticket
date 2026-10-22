@@ -17,4 +17,6 @@ export type EventSummary = {
   fromPrice?: number;
   currency?: string;
   statusTag?: EventStatusTag;
+  tags?: string[];
+  eventType?: string;
 };
