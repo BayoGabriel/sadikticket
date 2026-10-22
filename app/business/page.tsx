@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
 import { PhotoTile } from "@/components/ui/PhotoTile";
-import { whatsappUrl } from "@/lib/site";
+import { whatsappUrl } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "SerenArt Business | Team experiences and brand events",

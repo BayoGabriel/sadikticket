@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { getEvents } from "@/features/events/server";
 import { EventCard } from "@/components/events/EventCard";
 import { NotifyForm } from "@/components/forms/NotifyForm";
-import { site } from "@/lib/site";
+import { site } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "Upcoming events | SerenArt",

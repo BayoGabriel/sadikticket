@@ -1,18 +1,65 @@
+"use client";
 import Link from "next/link";
-import { site } from "@/lib/site";
+import { usePathname } from "next/navigation";
+import { siteConfig, whatsappUrl } from "@/lib/site-config";
 import { NotifyForm } from "@/components/forms/NotifyForm";
-import { whatsappUrl } from "@/lib/site";
+
+const cityHref = (city: string) =>
+  `/${city.toLowerCase().replace(/\s+/g, "-")}`;
 
 export function Footer() {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
+  const isBusiness = pathname?.startsWith("/business");
+
+  if (isAdmin) return null;
+
+  // SerenArt Business gets its own, calmer footer.
+  if (isBusiness) {
+    return (
+      <footer className="border-t border-[#e8e8e5] bg-white">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-x-8 gap-y-4 px-5 py-10 sm:px-8 lg:px-10">
+          <div>
+            <span className="font-display text-lg font-semibold text-[#003118]">
+              SerenArt Business
+            </span>
+            <p className="mt-1 text-sm text-(--text-muted)">
+              {siteConfig.businessEmail ? (
+                <a
+                  href={`mailto:${siteConfig.businessEmail}`}
+                  className="hover:text-[#003118]"
+                >
+                  {siteConfig.businessEmailDisplay}
+                </a>
+              ) : (
+                siteConfig.businessEmailDisplay
+              )}
+            </p>
+          </div>
+          <div className="flex gap-6 text-sm text-(--text-muted)">
+            <Link href="/terms" className="hover:text-[#003118]">
+              Terms
+            </Link>
+            <Link href="/privacy" className="hover:text-[#003118]">
+              Privacy
+            </Link>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
   const wa = whatsappUrl();
   return (
     <footer className="border-t border-[#e8e8e5] bg-[#003118] text-white">
       <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1.2fr]">
           <div>
-            <div className="text-xl font-semibold tracking-tight">SerenArt</div>
+            <div className="font-display text-xl font-semibold tracking-tight">
+              SerenArt
+            </div>
             <p className="mt-3 max-w-xs text-sm leading-6 text-white/70">
-              {site.tagline}
+              {siteConfig.tagline}
             </p>
             <p className="mt-6 text-sm font-medium text-white/90">
               Want first dibs on tickets? Drop your email.
@@ -31,35 +78,19 @@ export function Footer() {
               Explore
             </div>
             <ul className="mt-4 space-y-2.5 text-sm">
-              <li>
-                <Link href="/events" className="text-white/80 hover:text-white">
-                  Events
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/experiences"
-                  className="text-white/80 hover:text-white"
-                >
-                  Experiences
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/private-bookings"
-                  className="text-white/80 hover:text-white"
-                >
-                  Private Bookings
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/business"
-                  className="text-white/80 hover:text-white"
-                >
-                  SerenArt Business
-                </Link>
-              </li>
+              {[
+                ["Events", "/events"],
+                ["Experiences", "/experiences"],
+                ["Private Bookings", "/private-bookings"],
+                ["SerenArt Business", "/business"],
+                ["Gallery", "/gallery"],
+              ].map(([label, href]) => (
+                <li key={href}>
+                  <Link href={href} className="text-white/80 hover:text-white">
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
@@ -68,10 +99,10 @@ export function Footer() {
               Cities
             </div>
             <ul className="mt-4 space-y-2.5 text-sm">
-              {site.cities.map((c) => (
+              {siteConfig.cities.map((c) => (
                 <li key={c}>
                   <Link
-                    href={`/events?city=${encodeURIComponent(c)}`}
+                    href={cityHref(c)}
                     className="text-white/80 hover:text-white"
                   >
                     {c}
@@ -94,22 +125,25 @@ export function Footer() {
                     rel="noopener noreferrer"
                     className="hover:text-white"
                   >
-                    WhatsApp: {site.whatsappDisplay}
+                    WhatsApp: {siteConfig.whatsappDisplay}
                   </a>
                 ) : (
-                  <>WhatsApp: {site.whatsappDisplay}</>
+                  <>WhatsApp: {siteConfig.whatsappDisplay}</>
                 )}
               </li>
               <li>
-                {site.email ? (
-                  <a href={`mailto:${site.email}`} className="hover:text-white">
-                    {site.emailDisplay}
+                {siteConfig.email ? (
+                  <a
+                    href={`mailto:${siteConfig.email}`}
+                    className="hover:text-white"
+                  >
+                    {siteConfig.emailDisplay}
                   </a>
                 ) : (
-                  site.emailDisplay
+                  siteConfig.emailDisplay
                 )}
               </li>
-              <li>Instagram: {site.instagramDisplay}</li>
+              <li>Instagram: {siteConfig.instagramDisplay}</li>
             </ul>
           </div>
         </div>

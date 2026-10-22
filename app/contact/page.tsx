@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { site, whatsappUrl } from "@/lib/site";
+import { site, whatsappUrl } from "@/lib/site-config";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 
 export const metadata: Metadata = {

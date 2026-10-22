@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { whatsappUrl } from "@/lib/site";
+import { whatsappUrl } from "@/lib/site-config";
 
 const inputCls =
   "mt-1 w-full rounded-xl border border-[#e0dfcf] bg-white px-3.5 py-2.5 text-sm text-[#003118] outline-none transition focus:border-[#003118]/40 focus:ring-2 focus:ring-[#003118]/10";

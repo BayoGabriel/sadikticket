@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PublicTicketType } from "@/features/checkout/api";
 import { NotifyForm } from "@/components/forms/NotifyForm";
-import { whatsappUrl } from "@/lib/site";
+import { whatsappUrl } from "@/lib/site-config";
 
 function Price({ amount, currency }: { amount: number; currency: string }) {
   const major = Math.round(amount) / 100;

@@ -2,52 +2,159 @@
 
 :root {
   color-scheme: light;
-  /* semantic surfaces */
-  --background: #fffedd;
+
+  /* ── SerenArt palette ─────────────────────────────── */
+  --green: #003118;        /* primary brand green */
+  --green-2: #0c4a2b;      /* lighter green — cards on dark */
+  --green-3: #024a26;      /* hover green */
+  --mint: #e7efe9;         /* pale mint — section bg */
+  --mint-2: #b9d6c4;       /* deeper mint — accents */
+  --orange: #f27a00;       /* primary accent */
+  --orange-hover: #d56c00;
+  --peach: #fdd3a2;        /* warm card bg */
+  --peach-2: #ffe6cf;      /* lighter warm bg */
+  --cream: #fffedd;        /* office white — page bg */
+
+  /* semantic tokens */
+  --background: var(--cream);
   --surface: #ffffff;
-  --surface-muted: #fffedd;
+  --surface-muted: var(--cream);
   --border: #e8e8e5;
-  /* text */
   --text-primary: #1a1a1a;
   --text-secondary: #4a4a45;
   --text-muted: #6b6b6b;
-  /* brand — SerenArt: green #003118, orange #f27a00, office white #fffedd */
-  --brand-primary: #003118;
-  --brand-primary-hover: #024a26;
-  --brand-primary-soft: #e6eeeb;
-  --brand-accent: #f27a00;
-  --brand-accent-hover: #d56c00;
+
+  /* legacy aliases (older pages still reference these) */
+  --brand-primary: var(--green);
+  --brand-primary-hover: var(--green-3);
+  --brand-primary-soft: var(--mint);
+  --brand-accent: var(--orange);
+  --brand-accent-hover: var(--orange-hover);
   --brand-accent-soft: #fff1e5;
-  /* focus */
-  --focus: #003118;
-  /* theme mapping */
+
+  --focus: var(--green);
   --foreground: var(--text-primary);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-dm-sans);
+  --font-display: var(--font-bricolage);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* enforce light visuals even in dark OS */
-    color-scheme: light;
-    --background: #fffedd;
-    --surface: #ffffff;
-    --surface-muted: #fffedd;
-    --border: #e8e8e5;
-    --text-primary: #1a1a1a;
-    --text-secondary: #4a4a45;
-    --text-muted: #6b6b6b;
-    --foreground: var(--text-primary);
-  }
 }
 
 body {
   background: var(--background);
   color: var(--text-primary);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-dm-sans), Arial, Helvetica, sans-serif;
+}
+
+/* ── Type helpers ─────────────────────────────────── */
+.font-display {
+  font-family: var(--font-bricolage), Arial, sans-serif;
+}
+
+/* ── Buttons (pill-shaped per brand) ──────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  border-radius: 9999px;
+  padding: 0.7rem 1.6rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+  transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease,
+    border-color 0.15s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-orange {
+  background: var(--orange);
+  color: var(--green);
+}
+.btn-orange:hover {
+  background: var(--orange-hover);
+  color: var(--cream);
+}
+.btn-green {
+  background: var(--green);
+  color: var(--cream);
+}
+.btn-green:hover {
+  background: var(--green-3);
+}
+.btn-outline {
+  background: transparent;
+  color: var(--green);
+  border: 2px solid var(--green);
+}
+.btn-outline:hover {
+  background: var(--green);
+  color: var(--cream);
+}
+.btn-outline-light {
+  background: transparent;
+  color: var(--cream);
+  border: 2px solid var(--cream);
+}
+.btn-outline-light:hover {
+  background: var(--cream);
+  color: var(--green);
+}
+
+/* ── Marquee ticker ───────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 28s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ── Scroll reveal ────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Accessible focus ─────────────────────────────── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--orange);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .btn:active {
+    transform: none;
+  }
 }
