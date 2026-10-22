@@ -2,11 +2,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Img } from "@/components/ui/Img";
 import {
-  experiences,
   experienceCategories,
-  experienceImage,
   type ExperienceCategory,
 } from "@/lib/experiences";
+import { contentService } from "@/services/contentService";
 
 export const metadata: Metadata = {
   title: "Our Experiences | SerenArt",
@@ -38,7 +37,11 @@ const sectionTheme: Record<
   },
 };
 
-export default function ExperiencesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function ExperiencesPage() {
+  // Admin-editable catalogue (DB-backed, static fallback inside the service).
+  const { items: experiences, images: expImages } = await contentService.experiences();
   const cats = Object.entries(experienceCategories) as [
     ExperienceCategory,
     (typeof experienceCategories)[ExperienceCategory],
@@ -95,7 +98,7 @@ export default function ExperiencesPage() {
                     }`}
                   >
                     <Img
-                      image={experienceImage(exp.slug)}
+                      image={expImages[exp.slug]}
                       rounded="rounded-none"
                       className="transition duration-300 group-hover:scale-[1.02]"
                     />

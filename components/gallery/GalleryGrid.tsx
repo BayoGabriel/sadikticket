@@ -4,16 +4,17 @@ import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 
 import { Img } from "@/components/ui/Img";
-import { galleryItems, galleryTypes, type GalleryType } from "@/lib/gallery";
+import { galleryItems, galleryTypes, type GalleryItem, type GalleryType } from "@/lib/gallery";
 
-export function GalleryGrid() {
+export function GalleryGrid({ items: allItems }: { items?: GalleryItem[] }) {
   const [filter, setFilter] = useState<GalleryType | "all">("all");
   const [lightbox, setLightbox] = useState<number | null>(null);
+  const source = allItems ?? galleryItems;
 
   const items =
     filter === "all"
-      ? galleryItems
-      : galleryItems.filter((i) => i.type === filter);
+      ? source
+      : source.filter((i) => i.type === filter);
 
   const close = useCallback(() => setLightbox(null), []);
 

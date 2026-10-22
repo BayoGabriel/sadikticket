@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
+import { contentService } from "@/services/contentService";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export const metadata: Metadata = {
   title: "Refunds and Cancellations | SerenArt",
@@ -8,7 +10,10 @@ export const metadata: Metadata = {
     "Our refunds and cancellations policy, written in plain words.",
 };
 
-export default function RefundsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function RefundsPage() {
+  const custom = await contentService.page("refunds");
   return (
     <main className="min-h-screen bg-[#fffedd] text-[#1a1a1a]">
       <section className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
@@ -19,6 +24,37 @@ export default function RefundsPage() {
           The small print, in plain words.
         </p>
 
+        {custom ? (
+          <>
+            <div
+              className="rich-page mt-10 rounded-2xl bg-white p-6 shadow-sm sm:p-8"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(custom.content) }}
+            />
+            {custom.lastUpdatedAt && (
+              <p className="mt-4 text-xs text-[#8a8a7d]">
+                Last updated {new Date(custom.lastUpdatedAt).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric" })}
+              </p>
+            )}
+            <div className="mt-8 rounded-2xl bg-white p-6 shadow-sm">
+              <h2 className="text-lg font-semibold text-[#003118]">
+                How to ask
+              </h2>
+              <p className="mt-2 text-sm leading-7 text-[#4a4a45]">
+                The fastest way is WhatsApp. You can also use the{" "}
+                <Link
+                  href="/contact"
+                  className="font-semibold text-[#003118] underline underline-offset-4 hover:text-[#f27a00]"
+                >
+                  contact page
+                </Link>
+                .
+              </p>
+              <div className="mt-4">
+                <WhatsAppButton />
+              </div>
+            </div>
+          </>
+        ) : (
         <div className="mt-10 space-y-6 text-sm leading-7 text-[#4a4a45]">
           <section className="rounded-2xl bg-white p-6 shadow-sm">
             <h2 className="text-lg font-semibold text-[#003118]">
@@ -70,6 +106,7 @@ export default function RefundsPage() {
             </div>
           </section>
         </div>
+        )}
       </section>
     </main>
   );

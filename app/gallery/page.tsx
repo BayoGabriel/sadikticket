@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { GalleryGrid } from "@/components/gallery/GalleryGrid";
+import { contentService } from "@/services/contentService";
 
 export const metadata: Metadata = {
   title: "Gallery | SerenArt",
   description: "Photos and short videos from past SerenArt events.",
 };
 
-export default function GalleryPage() {
+export const dynamic = "force-dynamic";
+
+export default async function GalleryPage() {
+  const items = await contentService.galleryItems();
   return (
     <main className="min-h-screen bg-[#fffedd] text-[#1a1a1a]">
       <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
@@ -19,7 +23,7 @@ export default function GalleryPage() {
           really good times.
         </p>
 
-        <GalleryGrid />
+        <GalleryGrid items={items} />
 
         <div className="mt-14 rounded-[2rem] bg-[#003118] px-6 py-12 text-center sm:px-10">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-white sm:text-3xl">

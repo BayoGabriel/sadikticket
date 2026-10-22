@@ -18,6 +18,8 @@ const ExperienceSchema = new Schema(
     whoItSuits: { type: [String], default: [] },
     addOns: { type: [String], default: [] },
     eventType: { type: String, default: "" }, // matches Event.eventType so public pages list related events
+    eventTags: { type: [String], default: [] }, // matched against event tags for "events of this type"
+    wide: { type: Boolean, default: false }, // spans full row on /experiences
     order: { type: Number, default: 0 },
     published: { type: Boolean, default: true, index: true },
     seeded: { type: Boolean, default: false },

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { contentService } from "@/services/contentService";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 export const metadata: Metadata = {
   title: "Terms | SerenArt",
@@ -28,7 +30,11 @@ const sections = [
   },
 ];
 
-export default function TermsPage() {
+export const dynamic = "force-dynamic";
+
+export default async function TermsPage() {
+  // Admin-edited copy wins when saved in Settings → Policies & pages.
+  const custom = await contentService.page("terms");
   return (
     <main className="min-h-screen bg-[#fffedd] text-[#1a1a1a]">
       <section className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
@@ -38,19 +44,33 @@ export default function TermsPage() {
         <p className="mt-3 text-base leading-7 text-[#4a4a45]">
           The small print, in plain words.
         </p>
-        <div className="mt-10 space-y-6 text-sm leading-7 text-[#4a4a45]">
-          {sections.map((s) => (
-            <section
-              key={s.title}
-              className="rounded-2xl bg-white p-6 shadow-sm"
-            >
-              <h2 className="text-lg font-semibold text-[#003118]">
-                {s.title}
-              </h2>
-              <p className="mt-2">{s.body}</p>
-            </section>
-          ))}
-        </div>
+        {custom ? (
+          <>
+            <div
+              className="rich-page mt-10 rounded-2xl bg-white p-6 shadow-sm sm:p-8"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(custom.content) }}
+            />
+            {custom.lastUpdatedAt && (
+              <p className="mt-4 text-xs text-[#8a8a7d]">
+                Last updated {new Date(custom.lastUpdatedAt).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric" })}
+              </p>
+            )}
+          </>
+        ) : (
+          <div className="mt-10 space-y-6 text-sm leading-7 text-[#4a4a45]">
+            {sections.map((s) => (
+              <section
+                key={s.title}
+                className="rounded-2xl bg-white p-6 shadow-sm"
+              >
+                <h2 className="text-lg font-semibold text-[#003118]">
+                  {s.title}
+                </h2>
+                <p className="mt-2">{s.body}</p>
+              </section>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );

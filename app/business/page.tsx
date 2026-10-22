@@ -3,6 +3,7 @@ import { EnquiryForm } from "@/components/forms/EnquiryForm";
 import { Img } from "@/components/ui/Img";
 import { images } from "@/lib/images";
 import { whatsappUrl } from "@/lib/site-config";
+import { contentService } from "@/services/contentService";
 
 export const metadata: Metadata = {
   title: "SerenArt Business | Team experiences and brand events",
@@ -69,7 +70,10 @@ const ways = [
   },
 ];
 
-export default function BusinessPage() {
+export const dynamic = "force-dynamic";
+
+export default async function BusinessPage() {
+  const clients = await contentService.clients();
   const wa = whatsappUrl("Hi SerenArt Business! I'd like to plan a team experience.");
   return (
     <main className="min-h-screen bg-[#fffedd] text-[#1a1a1a]">
@@ -173,43 +177,89 @@ export default function BusinessPage() {
             Companies we’ve worked with
           </h2>
           <div className="mt-6 grid grid-cols-3 gap-4 sm:grid-cols-5">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex h-16 items-center justify-center rounded-2xl bg-white text-xs font-semibold text-[#8a8a7d] shadow-sm"
-              >
-                Client logo
-              </div>
-            ))}
+            {clients.length > 0
+              ? clients.map((c) => (
+                  <div
+                    key={String(c._id)}
+                    className="flex h-16 items-center justify-center rounded-2xl bg-white px-3 text-center text-xs font-semibold text-[#8a8a7d] shadow-sm"
+                  >
+                    {c.logo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={c.logo} alt={c.name} className="max-h-10 max-w-full object-contain" />
+                    ) : (
+                      c.name
+                    )}
+                  </div>
+                ))
+              : Array.from({ length: 5 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex h-16 items-center justify-center rounded-2xl bg-white text-xs font-semibold text-[#8a8a7d] shadow-sm"
+                  >
+                    Client logo
+                  </div>
+                ))}
           </div>
           <div className="mt-8 grid gap-5 sm:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div
-                key={i}
-                className="overflow-hidden rounded-3xl bg-white shadow-sm"
-              >
-                <Img
-                  image={
-                    [images.business.work1, images.business.work2, images.business.work3][i]
-                  }
-                  rounded="rounded-none"
-                />
-                <div className="p-5">
-                  <div className="font-semibold text-[#003118]">
-                    [Client name]
+            {clients.length > 0
+              ? clients.map((c) => (
+                  <div
+                    key={String(c._id)}
+                    className="overflow-hidden rounded-3xl bg-white shadow-sm"
+                  >
+                    <Img
+                      image={
+                        c.photo
+                          ? { src: c.photo, alt: c.name, aspect: "4/3", label: c.name.toUpperCase() }
+                          : images.business.work1
+                      }
+                      rounded="rounded-none"
+                    />
+                    <div className="p-5">
+                      <div className="font-semibold text-[#003118]">
+                        {c.name}
+                      </div>
+                      <div className="mt-0.5 text-xs font-semibold uppercase tracking-wider text-[#8a8a7d]">
+                        {c.engagement}
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-[#575750]">
+                        {c.description}
+                      </p>
+                      {c.quote && (
+                        <blockquote className="mt-3 border-l-2 border-[#f27a00] pl-3 text-sm italic leading-6 text-[#575750]">
+                          “{c.quote}”
+                        </blockquote>
+                      )}
+                    </div>
                   </div>
-                  <div className="mt-0.5 text-xs font-semibold uppercase tracking-wider text-[#8a8a7d]">
-                    [Type of engagement]
+                ))
+              : Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="overflow-hidden rounded-3xl bg-white shadow-sm"
+                  >
+                    <Img
+                      image={
+                        [images.business.work1, images.business.work2, images.business.work3][i]
+                      }
+                      rounded="rounded-none"
+                    />
+                    <div className="p-5">
+                      <div className="font-semibold text-[#003118]">
+                        [Client name]
+                      </div>
+                      <div className="mt-0.5 text-xs font-semibold uppercase tracking-wider text-[#8a8a7d]">
+                        [Type of engagement]
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-[#575750]">
+                        [Short description of what we did.]
+                      </p>
+                      <blockquote className="mt-3 border-l-2 border-[#f27a00] pl-3 text-sm italic leading-6 text-[#575750]">
+                        “[Approved testimonial or result.]”
+                      </blockquote>
+                    </div>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-[#575750]">
-                    [Short description of what we did.]
-                  </p>
-                  <blockquote className="mt-3 border-l-2 border-[#f27a00] pl-3 text-sm italic leading-6 text-[#575750]">
-                    “[Approved testimonial or result.]”
-                  </blockquote>
-                </div>
-              </div>
-            ))}
+                ))}
           </div>
         </div>
       </section>

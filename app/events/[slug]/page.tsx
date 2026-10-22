@@ -7,7 +7,7 @@ import { getEventBySlug, listTicketTypesBySlug } from "@/features/checkout/api";
 import { TicketPicker } from "@/components/events/TicketPicker";
 import { Accordion } from "@/components/ui/Accordion";
 import { Img } from "@/components/ui/Img";
-import { faqsForEvent } from "@/lib/faqs";
+import { contentService } from "@/services/contentService";
 import { siteConfig, whatsappUrl } from "@/lib/site-config";
 import { images } from "@/lib/images";
 import { formatEventDate, formatEventTime } from "@/lib/format";
@@ -87,7 +87,7 @@ export default async function PublicEventPage({
               ? "Few tickets left"
               : "Tickets on sale";
 
-  const eventFaqs = faqsForEvent([...(ev.tags ?? []), ev.eventType ?? ""]);
+  const eventFaqs = await contentService.faqsForEvent([...(ev.tags ?? []), ev.eventType ?? ""]);
   const wa = whatsappUrl(`Hi SerenArt! I have a question about ${ev.name}.`);
 
   const goodToKnow = [

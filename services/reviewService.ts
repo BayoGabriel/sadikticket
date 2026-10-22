@@ -15,8 +15,9 @@ export const reviewService = {
   async listApproved(limit = 3): Promise<PublicReview[]> {
     try {
       await connectDb();
-      const rows = await ReviewModel.find({ approved: true })
-        .sort({ createdAt: -1 })
+      // Only reviews with confirmed permission may be published anywhere.
+      const rows = await ReviewModel.find({ approved: true, permissionConfirmed: true })
+        .sort({ featured: -1, order: 1, createdAt: -1 })
         .limit(limit)
         .lean<Review[]>();
       return rows.map((r) => ({
@@ -24,7 +25,7 @@ export const reviewService = {
         name: r.name,
         context: r.context ?? undefined,
         kind: r.kind,
-        text: r.text,
+        text: r.shortText || r.text,
       }));
     } catch {
       return [];

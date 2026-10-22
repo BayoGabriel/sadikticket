@@ -490,3 +490,18 @@ textarea:focus-visible,
     animation: none;
   }
 }
+
+/* ── Public rich text (admin-edited pages: refunds, terms, privacy, about) ── */
+.rich-page { font-size: 0.875rem; line-height: 1.75; color: #4a4a45; }
+.rich-page h2 { font-size: 1.125rem; font-weight: 600; color: #003118; margin-top: 2rem; }
+.rich-page h2:first-child { margin-top: 0; }
+.rich-page h3 { font-size: 1rem; font-weight: 600; color: #003118; margin-top: 1.5rem; }
+.rich-page p { margin-top: 0.75rem; }
+.rich-page ul, .rich-page ol { margin-top: 0.75rem; padding-left: 1.4rem; }
+.rich-page ul { list-style: disc; }
+.rich-page ol { list-style: decimal; }
+.rich-page li { margin-top: 0.35rem; }
+.rich-page a { color: #003118; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.rich-page a:hover { color: #f27a00; }
+.rich-page blockquote { border-left: 2px solid #f27a00; padding-left: 1rem; margin-top: 1rem; font-style: italic; }
+.rich-page hr { margin: 1.5rem 0; border-color: #ecebd8; }

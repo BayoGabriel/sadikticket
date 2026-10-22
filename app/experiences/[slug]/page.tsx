@@ -2,15 +2,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import type { Metadata } from "next";
 
-import {
-  experiences,
-  getExperience,
-  experienceImage,
-} from "@/lib/experiences";
+import { experiences } from "@/lib/experiences";
 import { Img } from "@/components/ui/Img";
 import { EventCard } from "@/components/events/EventCard";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { listPublicEvents } from "@/services/eventDiscoveryService";
+import { contentService } from "@/services/contentService";
 
 export function generateStaticParams() {
   return experiences.map((e) => ({ slug: e.slug }));
@@ -22,7 +19,8 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const exp = getExperience(slug);
+  const { items } = await contentService.experiences();
+  const exp = items.find((e) => e.slug === slug);
   if (!exp) return { title: "Experience" };
   return {
     title: `${exp.name} | SerenArt`,
@@ -36,7 +34,8 @@ export default async function ExperienceDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const exp = getExperience(slug);
+  const { items, images: expImages } = await contentService.experiences();
+  const exp = items.find((e) => e.slug === slug);
   if (!exp) return notFound();
 
   // Upcoming public events of this type — matched on eventType or tags.
@@ -79,7 +78,7 @@ export default async function ExperienceDetailPage({
             />
           </div>
         </div>
-        <Img image={experienceImage(exp.slug)} />
+        <Img image={expImages[exp.slug]} />
       </section>
 
       {/* What it is / what to expect / who it suits / add-ons */}
