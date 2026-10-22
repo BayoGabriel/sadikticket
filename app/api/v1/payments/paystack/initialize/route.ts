@@ -3,6 +3,7 @@ import { ok, fail } from "@/lib/response";
 import { OrderModel, type Order } from "@/models/order";
 import { paystackService } from "@/services/paystackService";
 import { connectDb } from "@/lib/db";
+import { env } from "@/lib/env";
 
 // POST /api/v1/payments/paystack/initialize
 export async function POST(req: NextRequest) {
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
       reference: order.paymentReference,
       currency: order.currency,
       metadata: { orderId: order._id.toString() },
-      callback_url: `${process.env.APP_URL}/payment/callback`,
+      callback_url: `${env.APP_URL}/payment/callback`,
     });
 
     return ok({

@@ -3,6 +3,7 @@ import { ok, fail } from "@/lib/response";
 import { connectDb } from "@/lib/db";
 import { OrderModel, type Order } from "@/models/order";
 import { PaymentModel, type Payment } from "@/models/payment";
+import { paymentService } from "@/services/paymentService";
 import { TicketModel, type Ticket } from "@/models/ticket";
 import { EventModel, type Event } from "@/models/event";
 
@@ -16,10 +17,26 @@ export async function GET(
     if (!reference) throw new Error("reference required");
 
     await connectDb();
-    const order = await OrderModel.findOne({
+    let order = await OrderModel.findOne({
       paymentReference: reference,
     }).lean<Order | null>();
     if (!order) return ok({ found: false });
+
+    // Fallback for when the Paystack webhook hasn't landed (or isn't
+    // configured): verify the transaction directly with Paystack.
+    if (order.status === "PENDING") {
+      try {
+        const result = await paymentService.confirmPaystackPayment(reference);
+        if (result.status === "PAID") {
+          order =
+            (await OrderModel.findOne({ paymentReference: reference }).lean<
+              Order | null
+            >()) ?? order;
+        }
+      } catch {
+        // Verification failure (network, bad key) shouldn't break status reads
+      }
+    }
 
     const [event, payment, tickets] = await Promise.all([
       EventModel.findById(order.eventId).lean<Event | null>(),
