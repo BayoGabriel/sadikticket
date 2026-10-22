@@ -174,7 +174,9 @@ const seedEvents = [
 ];
 
 async function main() {
-  await mongoose.connect(process.env.MONGODB_URI);
+  // dbName MUST match lib/db.ts — a URI without a path defaults to "test"
+  // and the app would never see the seeded data.
+  await mongoose.connect(process.env.MONGODB_URI, { dbName: "sadikticket" });
   console.log("Connected");
 
   // Owner account — set ADMIN_EMAIL / ADMIN_PASSWORD / ADMIN_NAME in .env
