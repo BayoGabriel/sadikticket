@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       email,
       passwordHash,
       name,
-      role: "SUPER_ADMIN",
+      role: "OWNER",
     });
 
     const token = jwt.sign(

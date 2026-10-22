@@ -24,16 +24,24 @@ export type CreateEventInput = {
   country: string;
   startsAt: Date;
   endsAt: Date;
+  doorsOpenAt?: Date | null;
   timezone: string;
   capacity: number;
+  scheduledPublishAt?: Date | null;
+  fewLeftThreshold?: number | null;
+  checkoutQuestion?: { text: string; required: boolean; options: string[] } | null;
+  goodToKnow?: { ageLimit: string; whatToWear: string; runningLate: string };
+  coverImageAlt?: string;
+  mapImage?: string;
 };
 
 function assertStatusTransition(prev: EventStatus, next: EventStatus) {
   const allowed: Record<EventStatus, EventStatus[]> = {
-    DRAFT: ["PUBLISHED"],
-    PUBLISHED: ["DRAFT", "CANCELLED", "COMPLETED"],
-    CANCELLED: [],
-    COMPLETED: [],
+    DRAFT: ["PUBLISHED", "ARCHIVED"],
+    PUBLISHED: ["DRAFT", "CANCELLED", "COMPLETED", "ARCHIVED"],
+    CANCELLED: ["ARCHIVED"],
+    COMPLETED: ["ARCHIVED"],
+    ARCHIVED: ["DRAFT"],
   };
   if (!allowed[prev].includes(next)) {
     throw new ApiError(
@@ -74,8 +82,15 @@ export const eventService = {
       country: input.country,
       startsAt: input.startsAt,
       endsAt: input.endsAt,
+      doorsOpenAt: input.doorsOpenAt ?? null,
       timezone: input.timezone,
       capacity: input.capacity,
+      scheduledPublishAt: input.scheduledPublishAt ?? null,
+      fewLeftThreshold: input.fewLeftThreshold ?? undefined,
+      checkoutQuestion: input.checkoutQuestion ?? undefined,
+      goodToKnow: input.goodToKnow,
+      coverImageAlt: input.coverImageAlt,
+      mapImage: input.mapImage,
       status: "DRAFT",
       publishedAt: null,
     });
@@ -141,9 +156,17 @@ export const eventService = {
       country: string;
       startsAt: Date;
       endsAt: Date;
+      doorsOpenAt?: Date | null;
       timezone: string;
       capacity: number;
       status: EventStatus;
+      scheduledPublishAt?: Date | null;
+      fewLeftThreshold?: number | null;
+      checkoutQuestion?: { text: string; required: boolean; options: string[] } | null;
+      goodToKnow?: { ageLimit: string; whatToWear: string; runningLate: string };
+      coverImageAlt?: string;
+      coverImage?: string;
+      mapImage?: string;
     }>,
   ) {
     await connectDb();

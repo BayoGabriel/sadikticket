@@ -17,7 +17,10 @@ export type ApiErrorCode =
   | 'TICKET_ALREADY_CHECKED_IN'
   | 'ENQUIRY_FAILED'
   | 'COUPON_INVALID'
-  | 'RATE_LIMITED';
+  | 'RATE_LIMITED'
+  | 'STORAGE_NOT_CONFIGURED'
+  | 'FILE_TOO_LARGE'
+  | 'CAPACITY_ERROR';
 
 export class ApiError extends Error {
   code: ApiErrorCode;

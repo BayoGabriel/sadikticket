@@ -31,6 +31,30 @@ const OrderSchema = new Schema(
     discountAmount: { type: Number, default: 0 },
     checkoutAnswer: { type: String }, // "What's your preferred experience?"
     reminderSentAt: { type: Date },
+    // 'paystack' for online sales; cash/transfer/pos/complimentary for manual sales
+    paymentMethod: {
+      type: String,
+      enum: ['paystack', 'cash', 'transfer', 'pos', 'complimentary'],
+      default: 'paystack',
+      index: true,
+    },
+    manual: { type: Boolean, default: false, index: true }, // sold by a team member
+    soldBy: { type: String }, // team member name for manual sales
+    refundedAmount: { type: Number, default: 0 }, // kobo
+    refundedAt: { type: Date },
+    refundReason: { type: String },
+    notes: {
+      type: [
+        {
+          text: { type: String, required: true },
+          author: { type: String, required: true },
+          createdAt: { type: Date, default: Date.now },
+          _id: false,
+        },
+      ],
+      default: [],
+    },
+    transferredTo: { type: String }, // free-text note if order was transferred
     status: {
       type: String,
       enum: ['PENDING', 'PAYMENT_PROCESSING', 'PAID', 'FAILED', 'CANCELLED', 'REFUNDED', 'EXPIRED'],

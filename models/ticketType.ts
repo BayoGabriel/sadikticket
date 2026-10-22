@@ -11,6 +11,7 @@ const TicketTypeSchema = new Schema(
     currency: { type: String, required: true },
     quantity: { type: Number, required: true, min: 0 },
     quantitySold: { type: Number, required: true, min: 0, default: 0 },
+    maxPerOrder: { type: Number, min: 1 },
     salesStart: { type: Date },
     salesEnd: { type: Date },
     status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE', index: true },
