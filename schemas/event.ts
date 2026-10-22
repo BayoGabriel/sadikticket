@@ -14,6 +14,16 @@ export const createEventSchema = z.object({
   shortDescription: z.string().optional(),
   description: z.string().optional(),
   includes: z.array(z.string()).optional(),
+  tags: z.array(z.string()).optional(),
+  eventType: z.string().optional(),
+  directions: z.string().optional(),
+  mapLink: z.string().optional(),
+  gallery: z.array(z.string()).optional(),
+  faqIds: z.array(z.string()).optional(),
+  statusOverride: z
+    .enum(["on-sale", "few-left", "sold-out", "coming-soon"])
+    .nullable()
+    .optional(),
   venueName: z.string().min(1),
   venueAddress: z.string().min(1),
   city: z.string().min(1),

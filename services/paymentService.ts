@@ -1,9 +1,10 @@
 import { connectDb } from "@/lib/db";
 import { PaymentModel } from "@/models/payment";
 import { OrderModel } from "@/models/order";
-import { paystackService } from "@/services/paystackService";
+import { getPaymentProvider } from "@/services/payments";
 import { ticketService } from "@/services/ticketService";
 import { ticketEmailService } from "@/services/ticketEmailService";
+import { couponService } from "@/services/couponService";
 
 export type PaymentConfirmation =
   | { status: "PAID"; orderId: string }
@@ -29,7 +30,7 @@ export const paymentService = {
       return { status: "PAID", orderId: existing.orderId.toString() };
     }
 
-    const verify = await paystackService.verify(reference);
+    const verify = await getPaymentProvider().verify(reference);
     if (verify.status !== "success") return { status: "UNPAID" };
 
     const order = await OrderModel.findOne({ paymentReference: reference });
@@ -58,6 +59,9 @@ export const paymentService = {
       order.status = "PAID";
       await order.save();
       await ticketService.issueTicketsForOrder(order._id.toString());
+      if (order.couponCode) {
+        await couponService.redeem(order.couponCode).catch(() => {});
+      }
     }
 
     await ticketEmailService.sendAllForOrder(order._id.toString());

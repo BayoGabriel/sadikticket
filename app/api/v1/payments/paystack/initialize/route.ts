@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/response";
 import { OrderModel, type Order } from "@/models/order";
-import { paystackService } from "@/services/paystackService";
+import { getPaymentProvider } from "@/services/payments";
 import { connectDb } from "@/lib/db";
 import { env } from "@/lib/env";
 
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     if (!order) throw new Error("Order not found");
     if (order.status !== "PENDING") throw new Error("Order not pending");
 
-    const init = await paystackService.initializePayment({
+    const init = await getPaymentProvider().initializePayment({
       email: order.customerEmail,
       amountKobo: order.total,
       reference: order.paymentReference,

@@ -33,6 +33,7 @@ export type PublicEventItem = {
   statusTag: EventStatusTag;
   tags?: string[];
   eventType?: string;
+  statusOverride?: EventStatusTag | null;
 };
 
 export type PublicEventsResult = {
@@ -122,6 +123,9 @@ async function attachTicketInfo(
   const byEvent = new Map(rows.map((r) => [String(r._id), r]));
 
   return items.map((item) => {
+    if (item.statusOverride) {
+      return { ...item, statusTag: item.statusOverride };
+    }
     const r = byEvent.get(item.id);
     if (!r || r.onSaleCount === 0) {
       return {
@@ -213,6 +217,8 @@ export async function listPublicEvents(
       startsAt: e.startsAt.toISOString(),
       tags: (e as { tags?: string[] }).tags ?? [],
       eventType: (e as { eventType?: string }).eventType,
+      statusOverride: (e as { statusOverride?: EventStatusTag | null })
+        .statusOverride,
       statusTag: "coming-soon",
     }));
 

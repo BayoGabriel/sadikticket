@@ -28,6 +28,9 @@ const OrderSchema = new Schema(
     customerEmail: { type: String, required: true, index: true },
     customerPhone: { type: String },
     couponCode: { type: String },
+    discountAmount: { type: Number, default: 0 },
+    checkoutAnswer: { type: String }, // "What's your preferred experience?"
+    reminderSentAt: { type: Date },
     status: {
       type: String,
       enum: ['PENDING', 'PAYMENT_PROCESSING', 'PAID', 'FAILED', 'CANCELLED', 'REFUNDED', 'EXPIRED'],

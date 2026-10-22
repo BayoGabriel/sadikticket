@@ -15,7 +15,9 @@ export type ApiErrorCode =
   | 'INVALID_WEBHOOK_SIGNATURE'
   | 'INVALID_TICKET'
   | 'TICKET_ALREADY_CHECKED_IN'
-  | 'ENQUIRY_FAILED';
+  | 'ENQUIRY_FAILED'
+  | 'COUPON_INVALID'
+  | 'RATE_LIMITED';
 
 export class ApiError extends Error {
   code: ApiErrorCode;

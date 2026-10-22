@@ -11,6 +11,17 @@ const EventSchema = new Schema(
     description: { type: String },
     coverImage: { type: String },
     includes: { type: [String], default: [] },
+    tags: { type: [String], default: [] },
+    eventType: { type: String }, // painting, karaoke, picnic, pottery…
+    directions: { type: String }, // how to get there / parking / landmark
+    mapLink: { type: String },
+    gallery: { type: [String], default: [] },
+    faqIds: { type: [String], default: [] },
+    statusOverride: {
+      type: String,
+      enum: ["on-sale", "few-left", "sold-out", "coming-soon", null],
+      default: null,
+    },
     venueName: { type: String },
     venueAddress: { type: String },
     city: { type: String },

@@ -24,6 +24,7 @@ export function NotifyForm({
   successClassName?: string;
 }) {
   const [email, setEmail] = useState("");
+  const [website, setWebsite] = useState(""); // honeypot
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">(
     "idle",
   );
@@ -37,7 +38,14 @@ export function NotifyForm({
       const res = await fetch("/api/v1/enquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ kind, email, eventSlug, eventName, city }),
+        body: JSON.stringify({
+          kind,
+          email,
+          eventSlug,
+          eventName,
+          city,
+          website,
+        }),
       });
       const data = await res.json();
       if (!res.ok || !data.success)
@@ -61,6 +69,17 @@ export function NotifyForm({
 
   return (
     <form onSubmit={submit} className={className}>
+      {/* honeypot — hidden from humans, bots fill it */}
+      <input
+        type="text"
+        name="website"
+        value={website}
+        onChange={(e) => setWebsite(e.target.value)}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="absolute -left-[9999px] h-0 w-0 opacity-0"
+      />
       <div className="flex gap-2">
         <input
           type="email"

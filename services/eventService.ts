@@ -10,6 +10,13 @@ export type CreateEventInput = {
   shortDescription?: string;
   description?: string;
   includes?: string[];
+  tags?: string[];
+  eventType?: string;
+  directions?: string;
+  mapLink?: string;
+  gallery?: string[];
+  faqIds?: string[];
+  statusOverride?: string | null;
   venueName: string;
   venueAddress: string;
   city: string;
@@ -53,6 +60,13 @@ export const eventService = {
       shortDescription: input.shortDescription,
       description: input.description,
       includes: input.includes ?? [],
+      tags: input.tags ?? [],
+      eventType: input.eventType,
+      directions: input.directions,
+      mapLink: input.mapLink,
+      gallery: input.gallery ?? [],
+      faqIds: input.faqIds ?? [],
+      statusOverride: input.statusOverride ?? null,
       venueName: input.venueName,
       venueAddress: input.venueAddress,
       city: input.city,
@@ -113,6 +127,13 @@ export const eventService = {
       shortDescription?: string;
       description?: string;
       includes?: string[];
+      tags?: string[];
+      eventType?: string;
+      directions?: string;
+      mapLink?: string;
+      gallery?: string[];
+      faqIds?: string[];
+      statusOverride?: string | null;
       venueName: string;
       venueAddress: string;
       city: string;

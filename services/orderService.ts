@@ -5,6 +5,7 @@ import { EventModel, type Event } from "@/models/event";
 import { TicketTypeModel, type TicketType } from "@/models/ticketType";
 import { nanoid } from "nanoid";
 import { Types } from "mongoose";
+import { couponService } from "@/services/couponService";
 
 export const orderService = {
   async create(input: {
@@ -12,6 +13,7 @@ export const orderService = {
     items: { ticketTypeId: string; quantity: number }[];
     customer: { name: string; email: string; phone?: string };
     couponCode?: string;
+    checkoutAnswer?: string;
   }) {
     await connectDb();
 
@@ -56,8 +58,25 @@ export const orderService = {
       };
     });
 
+    // Server-side coupon validation — discount is computed here, never
+    // trusted from the client.
+    let discountAmount = 0;
+    let couponCode: string | undefined;
+    if (input.couponCode) {
+      const check = await couponService.validate(
+        input.couponCode,
+        input.eventId,
+        subtotal,
+      );
+      if (!check.valid) {
+        throw new ApiError("COUPON_INVALID", check.reason, 400);
+      }
+      discountAmount = check.discount;
+      couponCode = check.code;
+    }
+
     const fees = 0; // placeholder for future fee model
-    const total = subtotal + fees;
+    const total = Math.max(0, subtotal - discountAmount + fees);
 
     const paymentReference = `EVT-${new Date().getFullYear()}-${nanoid(10).toUpperCase()}`;
 
@@ -67,7 +86,9 @@ export const orderService = {
       customerName: input.customer.name,
       customerEmail: input.customer.email,
       customerPhone: input.customer.phone,
-      couponCode: input.couponCode,
+      couponCode,
+      discountAmount,
+      checkoutAnswer: input.checkoutAnswer,
       status: "PENDING",
       subtotal,
       fees,

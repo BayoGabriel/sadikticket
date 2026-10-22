@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
         quantity: i.quantity,
       })),
       subtotal: order.subtotal,
+      discountAmount: order.discountAmount ?? 0,
       fees: order.fees,
       total: order.total,
       currency: order.currency,
