@@ -6,6 +6,7 @@ import { ticketService } from "@/services/ticketService";
 import { ticketEmailService } from "@/services/ticketEmailService";
 import { couponService } from "@/services/couponService";
 import { capacityService } from "@/services/capacityService";
+import { waitlistService } from "@/services/waitlistService";
 
 export type PaymentConfirmation =
   | { status: "PAID"; orderId: string }
@@ -97,6 +98,7 @@ export const paymentService = {
       if (order.couponCode) {
         await couponService.redeem(order.couponCode, order.discountAmount ?? 0).catch(() => {});
       }
+      await waitlistService.markConverted(order.eventId, order.customerEmail).catch(() => {});
     }
 
     await ticketEmailService.sendAllForOrder(order._id.toString());

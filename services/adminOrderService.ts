@@ -14,6 +14,7 @@ import { paymentService } from "@/services/paymentService";
 import { paystackService } from "@/services/paystackService";
 import { emailService } from "@/services/emailService";
 import { couponService } from "@/services/couponService";
+import { waitlistService } from "@/services/waitlistService";
 import type { AuthUser } from "@/lib/auth";
 
 type OrderDoc = HydratedDocument<Order>;
@@ -106,6 +107,7 @@ export const adminOrderService = {
     await ticketService.issueTicketsForOrder(orderId);
     await ticketEmailService.sendAllForOrder(orderId);
     if (order.couponCode) await couponService.redeem(order.couponCode, order.discountAmount).catch(() => {});
+    await waitlistService.markConverted(order.eventId, order.customerEmail).catch(() => {});
     return { already: false };
   },
 
@@ -292,6 +294,7 @@ export const adminOrderService = {
       });
       await ticketService.issueTicketsForOrder(String(order._id));
       await ticketEmailService.sendAllForOrder(String(order._id));
+      await waitlistService.markConverted(order.eventId, order.customerEmail).catch(() => {});
       return order.toObject();
     } catch (e) {
       await capacityService.release(input.items.map((i) => ({ ticketTypeId: new Types.ObjectId(i.ticketTypeId), quantity: i.quantity })));

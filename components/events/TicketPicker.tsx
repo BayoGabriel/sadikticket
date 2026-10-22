@@ -78,7 +78,12 @@ export function TicketPicker({
       const res = await fetch("/api/v1/coupons/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, eventId, subtotal }),
+        body: JSON.stringify({
+          code,
+          eventId,
+          subtotal,
+          ticketTypeIds: Object.entries(qty).filter(([, n]) => n > 0).map(([id]) => id),
+        }),
       });
       const data = await res.json();
       const r = data?.data;

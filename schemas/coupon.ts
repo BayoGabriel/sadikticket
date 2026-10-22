@@ -3,6 +3,8 @@ import { z } from "zod";
 export const couponValidateSchema = z.object({
   code: z.string().min(1).max(64),
   eventId: z.string().min(1),
+  ticketTypeIds: z.array(z.string()).optional(),
+  customerEmail: z.string().email().optional(),
 });
 
 export const couponCreateSchema = z.object({

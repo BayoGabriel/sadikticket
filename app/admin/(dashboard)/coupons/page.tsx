@@ -1,32 +1,52 @@
-import { adminFetch } from "@/features/admin/api";
-import { listEvents } from "@/features/admin/events/api";
-import { CouponsManager, type CouponRow } from "./CouponsManager";
+import { couponService } from "@/services/couponService";
+import { connectDb } from "@/lib/db";
+import { EventModel } from "@/models/event";
+import { TicketTypeModel } from "@/models/ticketType";
+import { PageHeader } from "@/components/admin/ui/PageHeader";
+import { CouponsClient } from "@/components/admin/coupons/CouponsClient";
 
-export default async function AdminCouponsPage() {
-  let items: CouponRow[] = [];
-  let events: { id: string; name: string }[] = [];
-  let loadError: string | null = null;
-  try {
-    const [coupons, evs] = await Promise.all([
-      adminFetch<{ items: CouponRow[] }>("/api/v1/admin/coupons"),
-      listEvents({ limit: 50 }).catch(() => ({ items: [] as { id: string; name: string }[] })),
-    ]);
-    items = coupons.items;
-    events = evs.items.map((e) => ({ id: e.id, name: e.name }));
-  } catch (e) {
-    loadError = e instanceof Error ? e.message : "Failed to load coupons";
-  }
+export const dynamic = "force-dynamic";
+
+export default async function CouponsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ new?: string }>;
+}) {
+  const sp = await searchParams;
+  const [items, events, types] = await Promise.all([
+    couponService.list(),
+    connectDb().then(() =>
+      EventModel.find({ status: { $ne: "ARCHIVED" } }).sort({ startsAt: -1 }).select("name").lean(),
+    ),
+    TicketTypeModel.find().select("eventId name").lean(),
+  ]);
+  const eventName = new Map(events.map((e) => [String(e._id), e.name]));
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Coupons</h1>
-        <p className="text-[#6B6B6B]">
-          Codes guests can apply on an event page for a discount.
-        </p>
-      </div>
-      {loadError && <p className="text-sm text-red-600">{loadError}</p>}
-      <CouponsManager initial={items} events={events} />
+    <div>
+      <PageHeader title="Coupons" subtitle="Discount codes guests type in at checkout." />
+      <CouponsClient
+        openNew={sp.new === "1"}
+        items={items.map((c) => ({
+          id: String(c._id),
+          code: c.code,
+          kind: c.kind,
+          value: c.value,
+          startsAt: c.startsAt ? String(c.startsAt) : null,
+          expiresAt: c.expiresAt ? String(c.expiresAt) : null,
+          usageCount: c.usageCount,
+          usageLimit: c.usageLimit ?? null,
+          perCustomerLimit: c.perCustomerLimit ?? null,
+          minOrderAmount: c.minOrderAmount ?? null,
+          eventIds: [...(c.eventId ? [String(c.eventId)] : []), ...(c.eventIds ?? []).map(String)],
+          ticketTypeIds: (c.ticketTypeIds ?? []).map(String),
+          discountedTotal: c.discountedTotal ?? 0,
+          active: c.active,
+        }))}
+        events={events.map((e) => ({ id: String(e._id), name: e.name }))}
+        ticketTypes={types.map((t) => ({ id: String(t._id), eventId: String(t.eventId), name: `${eventName.get(String(t.eventId)) ?? "?"} — ${t.name}` }))}
+        eventName={Object.fromEntries(eventName)}
+      />
     </div>
   );
 }

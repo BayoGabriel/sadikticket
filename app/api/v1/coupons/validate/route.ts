@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
       input.code,
       input.eventId,
       Number(json.subtotal ?? 0),
+      { ticketTypeIds: input.ticketTypeIds, customerEmail: input.customerEmail },
     );
     return ok(result);
   } catch (e: unknown) {
