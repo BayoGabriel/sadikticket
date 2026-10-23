@@ -1,6 +1,5 @@
 // Data-driven FAQ list. Each event page shows the entries whose `topics`
 // intersect the event's tags/type (first 3), falling back to `defaultIds`.
-// Answers marked "[Your policy.]" are placeholders — fill in before launch.
 
 export type Faq = {
   id: string;
@@ -31,25 +30,25 @@ export const faqs: Faq[] = [
   {
     id: "byo",
     q: "Can I bring my own drinks or food?",
-    a: "[Your policy.]",
+    a: "No need — a drink and a snack come with your ticket. Booking privately? Tell us what you'd like on the table and we'll make it happen.",
     topics: ["picnic", "outdoor"],
   },
   {
     id: "age-limit",
     q: "Is there an age limit?",
-    a: "[Your policy.] Most experiences are 18+ — family-friendly sessions are marked on the event page.",
+    a: "Most experiences are 18+ — family-friendly sessions are marked on the event page.",
     topics: [],
   },
   {
     id: "refund",
     q: "Can I get a refund?",
-    a: "[Your policy.] Read the full policy on our Refunds and Cancellations page.",
+    a: "Life happens — check our Refunds and Cancellations page for the full policy, or message us on WhatsApp and we'll sort something out.",
     topics: [],
   },
   {
     id: "late",
     q: "What if I'm running late?",
-    a: "[Your policy.]",
+    a: "Lagos traffic happens — message us on WhatsApp as soon as you know and we'll help you catch up where we can.",
     topics: [],
   },
   {

@@ -27,16 +27,26 @@ function slotFromUrl(url: string, alt: string, fallback: ImageSlot): ImageSlot {
 
 // ── Experiences ─────────────────────────────────────────────────────────────
 
+// Strip leftover editorial markers like "[One-line description.]" or
+// "[What to expect.]" that shipped in earlier seeded copies. Strings that are
+// nothing but a marker are dropped entirely.
+function cleanText(s: string): string {
+  return (s || "").replace(/^\s*\[[^\]]*\]\s*/, "");
+}
+function cleanList(items: string[] | undefined): string[] {
+  return (items ?? []).map(cleanText).filter(Boolean);
+}
+
 function docToExperience(d: ExperienceDoc): Experience {
   return {
     slug: d.slug,
     name: d.name,
     category: d.category as ExperienceCategory,
-    oneLiner: d.oneLiner,
-    whatItIs: (d.whatItIs || "").split(/\n{2,}/).filter(Boolean),
-    whatToExpect: d.whatToExpect ?? [],
-    whoItSuits: d.whoItSuits ?? [],
-    addons: d.addOns ?? [],
+    oneLiner: cleanText(d.oneLiner),
+    whatItIs: cleanList((d.whatItIs || "").split(/\n{2,}/)),
+    whatToExpect: cleanList(d.whatToExpect),
+    whoItSuits: cleanList(d.whoItSuits),
+    addons: cleanList(d.addOns),
     eventTags: (d.eventTags?.length ? d.eventTags : [d.eventType].filter(Boolean)) as string[],
     wide: d.wide,
   };
@@ -101,9 +111,14 @@ export const contentService = {
       await connectDb();
       const docs = await FaqModel.find({ published: true }).sort({ priority: -1, order: 1, createdAt: 1 }).lean<FaqDoc[]>();
       if (!docs.length) throw new Error("empty");
-      return docs.map((d) => ({ id: String(d._id), q: d.question, a: d.answer, topics: d.topics ?? [], onEventPages: d.showOnEventPages }));
+      // Unanswered placeholders ("[Your policy.]") never reach the public site.
+      return docs
+        .map((d) => ({ id: String(d._id), q: d.question, a: cleanText(d.answer), topics: d.topics ?? [], onEventPages: d.showOnEventPages }))
+        .filter((f) => f.a.trim().length > 0);
     } catch {
-      return staticFaqs.map((f) => ({ ...f, onEventPages: true }));
+      return staticFaqs
+        .map((f) => ({ ...f, a: cleanText(f.a), onEventPages: true }))
+        .filter((f) => f.a.trim().length > 0);
     }
   },
 

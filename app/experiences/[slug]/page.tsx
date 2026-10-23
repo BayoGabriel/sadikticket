@@ -85,54 +85,70 @@ export default async function ExperienceDetailPage({
       <section className="border-t border-[#ecebd8] bg-[#fffdf0]">
         <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 sm:py-14 lg:grid-cols-2 lg:px-10">
           <div>
-            <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118]">
-              What it is
-            </h2>
-            <div className="mt-4 space-y-3 text-base leading-7 text-[#4a4a45]">
-              {exp.whatItIs.map((p, i) => (
-                <p key={i}>{p}</p>
-              ))}
-            </div>
+            {exp.whatItIs.length > 0 && (
+              <>
+                <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118]">
+                  What it is
+                </h2>
+                <div className="mt-4 space-y-3 text-base leading-7 text-[#4a4a45]">
+                  {exp.whatItIs.map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+              </>
+            )}
 
-            <h2 className="mt-10 font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118]">
-              What to expect on the day
-            </h2>
-            <ul className="mt-4 space-y-2.5">
-              {exp.whatToExpect.map((x, i) => (
-                <li key={i} className="flex gap-3 text-sm leading-6 text-[#4a4a45]">
-                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#f27a00]" />
-                  {x}
-                </li>
-              ))}
-            </ul>
+            {exp.whatToExpect.length > 0 && (
+              <>
+                <h2 className="mt-10 font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118]">
+                  What to expect on the day
+                </h2>
+                <ul className="mt-4 space-y-2.5">
+                  {exp.whatToExpect.map((x, i) => (
+                    <li key={i} className="flex gap-3 text-sm leading-6 text-[#4a4a45]">
+                      <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#f27a00]" />
+                      {x}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
 
           <div>
-            <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118]">
-              Who it suits
-            </h2>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {exp.whoItSuits.map((w) => (
-                <span
-                  key={w}
-                  className="rounded-full border border-[#e0dfcf] bg-white px-4 py-2 text-sm font-medium text-[#003118]"
-                >
-                  {w}
-                </span>
-              ))}
-            </div>
+            {exp.whoItSuits.length > 0 && (
+              <>
+                <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118]">
+                  Who it suits
+                </h2>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {exp.whoItSuits.map((w) => (
+                    <span
+                      key={w}
+                      className="rounded-full border border-[#e0dfcf] bg-white px-4 py-2 text-sm font-medium text-[#003118]"
+                    >
+                      {w}
+                    </span>
+                  ))}
+                </div>
+              </>
+            )}
 
-            <h2 className="mt-10 font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118]">
-              Add-ons you can ask for
-            </h2>
-            <ul className="mt-4 space-y-2.5">
-              {exp.addons.map((a, i) => (
-                <li key={i} className="flex gap-3 text-sm leading-6 text-[#4a4a45]">
-                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#0c4a2b]" />
-                  {a}
-                </li>
-              ))}
-            </ul>
+            {exp.addons.length > 0 && (
+              <>
+                <h2 className="mt-10 font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118]">
+                  Add-ons you can ask for
+                </h2>
+                <ul className="mt-4 space-y-2.5">
+                  {exp.addons.map((a, i) => (
+                    <li key={i} className="flex gap-3 text-sm leading-6 text-[#4a4a45]">
+                      <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#0c4a2b]" />
+                      {a}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
         </div>
       </section>

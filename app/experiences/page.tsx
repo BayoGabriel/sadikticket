@@ -15,25 +15,38 @@ export const metadata: Metadata = {
 
 const sectionTheme: Record<
   ExperienceCategory,
-  { bg: string; heading: string; body: string; card: string }
+  {
+    bg: string;
+    heading: string;
+    body: string;
+    card: string;
+    cardTitle: string;
+    cardBody: string;
+  }
 > = {
   creative: {
     bg: "bg-[#f27a00]",
     heading: "text-[#003118]",
     body: "text-[#003118]/80",
     card: "bg-[#fffedd]",
+    cardTitle: "text-[#003118]",
+    cardBody: "text-[#575750]",
   },
   social: {
     bg: "bg-[#e7efe9]",
     heading: "text-[#003118]",
     body: "text-[#4a4a45]",
     card: "bg-white",
+    cardTitle: "text-[#003118]",
+    cardBody: "text-[#575750]",
   },
   outdoor: {
     bg: "bg-[#003118]",
     heading: "text-[#fffedd]",
     body: "text-[#fffedd]/75",
     card: "bg-[#0c4a2b]",
+    cardTitle: "text-[#fffedd]",
+    cardBody: "text-[#fffedd]/70",
   },
 };
 
@@ -103,10 +116,12 @@ export default async function ExperiencesPage() {
                       className="transition duration-300 group-hover:scale-[1.02]"
                     />
                     <div className="p-5">
-                      <h3 className="font-semibold text-[#003118]">
+                      <h3 className={`font-semibold ${theme.cardTitle}`}>
                         {exp.name}
                       </h3>
-                      <p className="mt-1.5 text-sm leading-6 text-[#575750]">
+                      <p
+                        className={`mt-1.5 text-sm leading-6 ${theme.cardBody}`}
+                      >
                         {exp.oneLiner}
                       </p>
                       <span className="mt-3 inline-block text-sm font-semibold text-[#f27a00] underline underline-offset-4">
