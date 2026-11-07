@@ -10,7 +10,7 @@ const links = [
   { href: "/experiences", label: "Experiences" },
   { href: "/private-bookings", label: "Private Bookings" },
   { href: "/business", label: "SerenArt Business" },
-  { href: "/gallery", label: "Gallery" },
+  { href: "/shop", label: "Shop" },
 ];
 
 export function Header() {

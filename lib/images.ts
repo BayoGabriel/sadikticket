@@ -79,6 +79,13 @@ export const images = {
     somethingElse: slot({ alt: "Any celebration", aspect: "4/3", label: "PHOTO · YOUR IDEA", tint: "mint" }),
   },
 
+  // Shop (SerenFinds) — creative kits, merch and gift sets
+  shop: {
+    kits: slot({ alt: "SerenArt creative kit", aspect: "4/3", label: "PRODUCT · CREATIVE KIT", tint: "peach" }),
+    merch: slot({ alt: "SerenArt merch", aspect: "4/3", label: "PRODUCT · MERCH", tint: "mint" }),
+    gifts: slot({ alt: "SerenArt gift set", aspect: "4/3", label: "PRODUCT · GIFT SET", tint: "cream" }),
+  },
+
   business: {
     hero: slot({ alt: "Corporate team experience", aspect: "4/3", label: "PHOTO · TEAM EXPERIENCE", tint: "green" }),
     work1: slot({ alt: "Client project one", aspect: "4/3", label: "PHOTO · CLIENT PROJECT", tint: "mint" }),

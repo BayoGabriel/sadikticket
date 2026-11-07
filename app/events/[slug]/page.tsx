@@ -9,7 +9,7 @@ import { Accordion } from "@/components/ui/Accordion";
 import { Img } from "@/components/ui/Img";
 import { contentService } from "@/services/contentService";
 import { settingsService } from "@/services/settingsService";
-import { siteConfig, whatsappUrl } from "@/lib/site-config";
+import { whatsappUrl } from "@/lib/site-config";
 import { images } from "@/lib/images";
 import { formatEventDate, formatEventTime } from "@/lib/format";
 import { eventStatusLabel } from "@/lib/eventStatus";
@@ -72,27 +72,6 @@ export default async function PublicEventPage({
 
   const eventFaqs = await contentService.faqsForEvent([...(ev.tags ?? []), ev.eventType ?? ""]);
   const wa = whatsappUrl(`Hi SerenArt! I have a question about ${ev.name}.`);
-  const policies = siteSettings?.policies ?? siteConfig.policies;
-
-  const goodToKnow = [
-    { title: "Age limit", body: policies.ageLimit || siteConfig.policies.ageLimit },
-    { title: "What to wear", body: policies.whatToWear || siteConfig.policies.whatToWear },
-    { title: "Running late", body: policies.runningLate || siteConfig.policies.runningLate },
-    {
-      title: "Refunds",
-      body: (
-        <>
-          {siteSettings?.refundSummary || siteConfig.policies.refunds}{" "}
-          <Link
-            href="/refunds"
-            className="font-semibold text-[#003118] underline decoration-[#f27a00] underline-offset-4 hover:text-[#f27a00]"
-          >
-            Read the full policy
-          </Link>
-        </>
-      ),
-    },
-  ];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -161,7 +140,17 @@ export default async function PublicEventPage({
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-black/5" />
 
             <div className="absolute left-5 top-5 sm:left-8 sm:top-8">
-              <span className="inline-flex items-center rounded-full bg-[#f27a00] px-4 py-1.5 text-xs font-bold uppercase tracking-[0.14em] text-[#003118]">
+              <span
+                className={`inline-flex items-center rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-[0.14em] ${
+                  statusLabel === "Few tickets left"
+                    ? "bg-[#f27a00] text-[#003118]"
+                    : statusLabel === "Sold out" ||
+                        statusLabel === "Draft" ||
+                        statusLabel === "Cancelled"
+                      ? "bg-[#3d3d38] text-white"
+                      : "bg-[#003118] text-[#fffedd]"
+                }`}
+              >
                 {statusLabel}
               </span>
             </div>
@@ -294,43 +283,6 @@ export default async function PublicEventPage({
               </div>
             </div>
 
-            {/* Good to know — accordion */}
-            <div>
-              <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-                Good to know
-              </h2>
-              <Accordion className="mt-5" items={goodToKnow} />
-            </div>
-
-            {/* FAQs */}
-            {eventFaqs.length > 0 && (
-              <div>
-                <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-                  FAQs
-                </h2>
-                <Accordion
-                  className="mt-5"
-                  items={eventFaqs.map((f) => ({ title: f.q, body: f.a }))}
-                />
-              </div>
-            )}
-
-            {/* Questions? */}
-            {wa && (
-              <div className="rounded-3xl bg-[#e7efe9] p-7">
-                <h2 className="font-display text-xl font-semibold text-[#003118]">
-                  Questions?
-                </h2>
-                <a
-                  href={wa}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-green mt-4"
-                >
-                  Chat on WhatsApp
-                </a>
-              </div>
-            )}
           </article>
 
           {/* Tickets — sticky card */}
@@ -351,6 +303,39 @@ export default async function PublicEventPage({
           </aside>
         </div>
       </section>
+
+      {/* FAQs + Questions — full width, after the tickets section */}
+      {(eventFaqs.length > 0 || wa) && (
+        <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8 lg:px-10">
+          {eventFaqs.length > 0 && (
+            <div>
+              <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
+                FAQs
+              </h2>
+              <Accordion
+                className="mt-5"
+                items={eventFaqs.map((f) => ({ title: f.q, body: f.a }))}
+              />
+            </div>
+          )}
+
+          {wa && (
+            <div className="mt-10 rounded-3xl bg-[#e7efe9] p-7">
+              <h2 className="font-display text-xl font-semibold text-[#003118]">
+                Questions?
+              </h2>
+              <a
+                href={wa}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-green mt-4"
+              >
+                Chat on WhatsApp
+              </a>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* Sticky mobile CTA */}
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#e0dfcf] bg-white/95 p-3 backdrop-blur lg:hidden">

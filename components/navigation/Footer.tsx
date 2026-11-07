@@ -86,11 +86,11 @@ export function Footer({ settings }: { settings?: FooterSettings }) {
               {siteConfig.tagline}
             </p>
             <p className="mt-6 text-sm font-medium text-white/90">
-              Want first dibs on tickets? Drop your email.
+              Get first access to upcoming experiences and special offers
             </p>
             <NotifyForm
               kind="updates"
-              buttonLabel="Tell me first"
+              buttonLabel="Keep me in the loop"
               className="mt-3 max-w-xs"
               successMessage="Done. You'll hear from us first."
               successClassName="text-white"
@@ -107,6 +107,7 @@ export function Footer({ settings }: { settings?: FooterSettings }) {
                 ["Experiences", "/experiences"],
                 ["Private Bookings", "/private-bookings"],
                 ["SerenArt Business", "/business"],
+                ["Shop", "/shop"],
                 ["Gallery", "/gallery"],
               ].map(([label, href]) => (
                 <li key={href}>

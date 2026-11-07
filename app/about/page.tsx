@@ -84,7 +84,7 @@ export default function AboutPage() {
         <div className="grid gap-8 rounded-[2rem] bg-[#f27a00] p-8 sm:p-12 md:grid-cols-[1fr_320px] md:items-center">
           <div>
             <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-              Ready? Let’s make a night of it.
+              Ready? Let’s make it a date.
             </h2>
             <p className="mt-3 max-w-lg text-sm leading-6 text-[#003118]/80 sm:text-base">
               Public events in Lagos and Benin City, or a private experience

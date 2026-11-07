@@ -9,7 +9,7 @@ const tagStyles: Record<EventStatusTag, { label: string; cls: string }> = {
   "on-sale": { label: "Tickets on sale", cls: "bg-[#003118] text-[#fffedd]" },
   "few-left": { label: "Few tickets left", cls: "bg-[#f27a00] text-[#003118]" },
   "sold-out": { label: "Sold out", cls: "bg-[#3d3d38] text-white" },
-  "coming-soon": { label: "Coming soon", cls: "bg-white/95 text-[#003118]" },
+  "coming-soon": { label: "Coming soon", cls: "bg-[#003118] text-[#fffedd]" },
 };
 
 export function EventCard({ event }: { event: EventSummary }) {

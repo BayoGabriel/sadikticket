@@ -16,6 +16,7 @@ export type PublicEventsQuery = {
   range?: "today" | "week" | "month";
   city?: string;
   month?: string; // YYYY-MM
+  date?: string; // YYYY-MM-DD — events on a specific day (calendar picker)
   tag?: string;
   type?: string; // eventType
   upcomingOnly?: boolean; // default true — hide past events
@@ -186,7 +187,12 @@ export async function listPublicEvents(
   if (params.tag) query.tags = params.tag;
   if (params.type) query.eventType = params.type;
   // Upcoming events only by default
-  if (params.upcomingOnly !== false && !params.range && !params.month) {
+  if (
+    params.upcomingOnly !== false &&
+    !params.range &&
+    !params.month &&
+    !params.date
+  ) {
     query.startsAt = { $gte: now };
   }
 
@@ -202,6 +208,14 @@ export async function listPublicEvents(
     query.startsAt = {
       $gte: new Date(y, m - 1, 1),
       $lt: new Date(y, m, 1),
+    };
+  }
+
+  if (params.date && /^\d{4}-\d{2}-\d{2}$/.test(params.date)) {
+    const [y, m, d] = params.date.split("-").map(Number);
+    query.startsAt = {
+      $gte: new Date(y, m - 1, d),
+      $lt: new Date(y, m - 1, d + 1),
     };
   }
 

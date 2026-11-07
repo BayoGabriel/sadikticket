@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
     range,
     city: url.searchParams.get("city") ?? undefined,
     month: url.searchParams.get("month") ?? undefined,
+    date: url.searchParams.get("date") ?? undefined,
     tag: url.searchParams.get("tag") ?? undefined,
     type: url.searchParams.get("type") ?? undefined,
     upcomingOnly: url.searchParams.get("upcomingOnly") !== "false",

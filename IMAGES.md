@@ -17,6 +17,7 @@ matching key in `lib/images.ts` (e.g. `src: "/images/hero-canvas.jpg"`).
 | `experiences.*` | `/experiences` cards + detail pages | 4/3 (wide: 21/9) | 1200×900 |
 | `privateBookings.hero` | Private bookings hero | 4/5 | 960×1200 |
 | `privateBookings.*` | "What are you celebrating?" cards | 4/3 | 1200×900 |
+| `shop.kits` / `shop.merch` / `shop.gifts` | `/shop` product cards | 4/3 | 1200×900 |
 | `business.hero`, `business.work1..3` | SerenArt Business | 4/3 | 1200×900 |
 | `about.team1..3` | About page | 4/5 | 960×1200 |
 | `logos.logo1..6` | "Brands we've worked with" | any (contained) | ~400×300, PNG/SVG |

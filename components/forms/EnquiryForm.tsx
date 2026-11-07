@@ -45,6 +45,16 @@ const SERVICES = [
 
 const PLACES = ["Lagos", "Benin City", "Somewhere else"];
 
+// Used only when no experiences are published in the backend yet.
+const FALLBACK_EXPERIENCES = [
+  "Canvas Painting",
+  "Clay Hand Building",
+  "Gypsum Art",
+  "Karaoke",
+  "Games & Trivia",
+  "Picnic",
+];
+
 // Turn the current form values into a readable WhatsApp opener.
 function waMessage(kind: "private-booking" | "business", fd: FormData) {
   const parts: string[] = [
@@ -68,7 +78,16 @@ function waMessage(kind: "private-booking" | "business", fd: FormData) {
   return parts.join("\n");
 }
 
-export function EnquiryForm({ kind, responseTime }: { kind: "private-booking" | "business"; responseTime?: string }) {
+export function EnquiryForm({
+  kind,
+  responseTime,
+  experienceOptions,
+}: {
+  kind: "private-booking" | "business";
+  responseTime?: string;
+  // "Preferred experience" options — managed in admin → Content → Experiences.
+  experienceOptions?: string[];
+}) {
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">(
     "idle",
   );
@@ -205,9 +224,23 @@ export function EnquiryForm({ kind, responseTime }: { kind: "private-booking" | 
             </Field>
             <Field
               label="What would you like to do?"
-              helper="Paint, pottery, karaoke, picnic, not sure yet? All fine."
+              helper="Pick a favourite, or choose “Not sure yet” and we’ll suggest."
             >
-              <input name="experience" className={inputCls} />
+              <select name="experience" className={inputCls} defaultValue="">
+                <option value="" disabled>
+                  Pick one
+                </option>
+                {(experienceOptions?.length
+                  ? experienceOptions
+                  : FALLBACK_EXPERIENCES
+                ).map((o) => (
+                  <option key={o} value={o}>
+                    {o}
+                  </option>
+                ))}
+                <option value="Something else">Something else</option>
+                <option value="Not sure yet">Not sure yet</option>
+              </select>
             </Field>
             <Field label="When?" helper="Rough date is fine.">
               <input name="date" className={inputCls} />

@@ -21,10 +21,10 @@ const tickerItems = [
   "Clay",
   "Karaoke",
   "Picnics",
-  "Trivia",
-  "RnB nights",
+  "Games & Trivia",
+  "RnB Parties",
   "Birthdays",
-  "Team days",
+  "Team Bonding",
 ];
 
 const moods = [
@@ -128,31 +128,33 @@ export default async function HomePage() {
       <Marquee items={tickerItems} />
 
       {/* 2 ─ We're SerenArt */}
-      <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-2 lg:px-10 lg:py-24">
-        <Reveal>
-          <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-5xl">
-            We&rsquo;re SerenArt.
-          </h2>
-          <p className="mt-5 max-w-lg text-base leading-7 text-[#575750]">
-            We believe life should be about more than routines. It&rsquo;s about
-            trying something new, meeting people, expressing yourself and
-            creating moments worth remembering.
-          </p>
-          <p className="mt-4 max-w-lg text-base leading-7 text-[#575750]">
-            From creative workshops and social events to personalised
-            celebrations and corporate experiences, we create spaces where
-            people can connect, unwind and have a genuinely good time.
-          </p>
-          <Link href="/experiences" className="btn btn-green mt-7">
-            Explore Experiences
-          </Link>
-        </Reveal>
-        <div className="relative mx-auto grid w-full max-w-md grid-cols-2 gap-4">
-          <Img image={images.whoWeAre.main} className="rotate-2 shadow-md" />
-          <Img
-            image={images.whoWeAre.offset}
-            className="mt-12 -rotate-2 shadow-md"
-          />
+      <section className="bg-[#003118]">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-2 lg:px-10 lg:py-24">
+          <Reveal>
+            <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-[#fffedd] sm:text-5xl">
+              We&rsquo;re SerenArt.
+            </h2>
+            <p className="mt-5 max-w-lg text-base leading-7 text-[#fffedd]/75">
+              We believe life should be about more than routines. It&rsquo;s
+              about trying something new, meeting people, expressing yourself
+              and creating moments worth remembering.
+            </p>
+            <p className="mt-4 max-w-lg text-base leading-7 text-[#fffedd]/75">
+              From creative workshops and social events to personalised
+              celebrations and corporate experiences, we create spaces where
+              people can connect, unwind and have a genuinely good time.
+            </p>
+            <Link href="/experiences" className="btn btn-orange mt-7">
+              Explore Experiences
+            </Link>
+          </Reveal>
+          <div className="relative mx-auto grid w-full max-w-md grid-cols-2 gap-4">
+            <Img image={images.whoWeAre.main} className="rotate-2 shadow-md" />
+            <Img
+              image={images.whoWeAre.offset}
+              className="mt-12 -rotate-2 shadow-md"
+            />
+          </div>
         </div>
       </section>
 
@@ -185,64 +187,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 4 ─ What are you in the mood for? */}
-      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
-        <Reveal>
-          <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-5xl">
-            What are you in the mood for?
-          </h2>
-        </Reveal>
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {moods.map((m, i) => (
-            <Reveal key={m.title} delay={i * 80}>
-              <div className={`overflow-hidden rounded-3xl ${m.cls}`}>
-                <Img
-                  image={m.image}
-                  rounded="rounded-none"
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                />
-                <div className="p-6">
-                  <h3 className="font-display text-xl font-semibold">
-                    {m.title}
-                  </h3>
-                  <p className="mt-1.5 text-sm leading-6 opacity-80">{m.body}</p>
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-        <div className="mt-8">
-          <Link href="/experiences" className="btn btn-outline">
-            See everything we do
-          </Link>
-        </div>
-      </section>
-
-      {/* 5 ─ Easy, we promise */}
-      <section className="bg-[#003118] text-[#fffedd]">
-        <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
-          <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
-            Easy, we promise
-          </h2>
-          <div className="mt-10 grid gap-8 sm:grid-cols-3">
-            {steps.map((s) => (
-              <div key={s.n}>
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f27a00] font-display text-xl font-bold text-[#003118]">
-                  {s.n}
-                </div>
-                <h3 className="mt-4 font-display text-xl font-semibold">
-                  {s.title}
-                </h3>
-                <p className="mt-1.5 max-w-xs text-sm leading-6 text-[#fffedd]/75">
-                  {s.body}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 6 ─ Got something to celebrate? */}
+      {/* 4 ─ Got something to celebrate? */}
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
         <h2 className="max-w-2xl font-display text-4xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-5xl">
           Got something to celebrate? Make It a{" "}
@@ -287,25 +232,87 @@ export default async function HomePage() {
                 in ways they&rsquo;ll actually enjoy.
               </p>
               <Link href="/business" className="btn btn-orange mt-5">
-                Talk to SerenArt Business
+                Book a team experience
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 7 ─ Proof */}
+      {/* 5 ─ What are you in the mood for? */}
+      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
+        <Reveal>
+          <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-5xl">
+            What are you in the mood for?
+          </h2>
+        </Reveal>
+        <div className="mt-8 grid gap-5 md:grid-cols-3">
+          {moods.map((m, i) => (
+            <Reveal key={m.title} delay={i * 80}>
+              <div className={`overflow-hidden rounded-3xl ${m.cls}`}>
+                <Img
+                  image={m.image}
+                  rounded="rounded-none"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+                <div className="p-6">
+                  <h3 className="font-display text-xl font-semibold">
+                    {m.title}
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-6 opacity-80">{m.body}</p>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <div className="mt-8">
+          <Link href="/experiences" className="btn btn-outline">
+            See everything we do
+          </Link>
+        </div>
+      </section>
+
+      {/* 6 ─ Easy, we promise */}
+      <section className="bg-[#003118] text-[#fffedd]">
+        <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
+          <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+            Easy, we promise
+          </h2>
+          <div className="mt-10 grid gap-8 sm:grid-cols-3">
+            {steps.map((s) => (
+              <div key={s.n}>
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f27a00] font-display text-xl font-bold text-[#003118]">
+                  {s.n}
+                </div>
+                <h3 className="mt-4 font-display text-xl font-semibold">
+                  {s.title}
+                </h3>
+                <p className="mt-1.5 max-w-xs text-sm leading-6 text-[#fffedd]/75">
+                  {s.body}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 7 ─ Shop */}
       <section className="bg-[#e7efe9]">
         <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
           <div className="flex flex-wrap items-end justify-between gap-4">
-            <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-5xl">
-              See the fun we&rsquo;ve had
-            </h2>
+            <div>
+              <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-5xl">
+                Shop
+              </h2>
+              <p className="mt-3 max-w-lg text-base leading-7 text-[#575750]">
+                Take the fun home. Creative kits, merch and gift sets.
+              </p>
+            </div>
             <Link
-              href="/gallery"
+              href="/shop"
               className="text-sm font-bold text-[#003118] underline decoration-[#f27a00] decoration-2 underline-offset-4 hover:text-[#f27a00]"
             >
-              See the gallery
+              Visit the shop
             </Link>
           </div>
           <div className="mt-8 columns-2 gap-4 sm:columns-3">
@@ -343,28 +350,36 @@ export default async function HomePage() {
             )}
           </div>
 
+          <div className="mt-14 flex flex-wrap items-end justify-between gap-4">
+            <h3 className="font-display text-3xl font-semibold tracking-[-0.03em] text-[#003118]">
+              Don&rsquo;t take our word for it
+            </h3>
+            <a
+              href="https://share.google/vrrTp7L49YzfnKmls"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-bold text-[#003118] underline decoration-[#f27a00] decoration-2 underline-offset-4 hover:text-[#f27a00]"
+            >
+              Read our reviews on Google
+            </a>
+          </div>
           {reviews.length > 0 && (
-            <>
-              <h3 className="mt-14 font-display text-3xl font-semibold tracking-[-0.03em] text-[#003118]">
-                Don&rsquo;t take our word for it
-              </h3>
-              <div className="mt-6 grid gap-5 md:grid-cols-3">
-                {reviews.map((r) => (
-                  <figure
-                    key={r.id}
-                    className="rounded-3xl bg-white p-7 shadow-sm"
-                  >
-                    <blockquote className="text-sm leading-7 text-[#575750]">
-                      &ldquo;{r.text}&rdquo;
-                    </blockquote>
-                    <figcaption className="mt-4 text-xs font-bold text-[#003118]">
-                      {r.name}
-                      {r.context ? ` · ${r.context}` : ""}
-                    </figcaption>
-                  </figure>
-                ))}
-              </div>
-            </>
+            <div className="mt-6 grid gap-5 md:grid-cols-3">
+              {reviews.map((r) => (
+                <figure
+                  key={r.id}
+                  className="rounded-3xl bg-white p-7 shadow-sm"
+                >
+                  <blockquote className="text-sm leading-7 text-[#575750]">
+                    &ldquo;{r.text}&rdquo;
+                  </blockquote>
+                  <figcaption className="mt-4 text-xs font-bold text-[#003118]">
+                    {r.name}
+                    {r.context ? ` · ${r.context}` : ""}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
           )}
         </div>
       </section>
@@ -373,7 +388,7 @@ export default async function HomePage() {
       <section className="bg-[#f27a00]">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-5 py-14 sm:px-8 lg:px-10">
           <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-5xl">
-            Ready? Let&rsquo;s make a night of it.
+            Ready? Let&rsquo;s make it a date.
           </h2>
           <div className="flex flex-wrap gap-3">
             <Link href="/events" className="btn btn-green">

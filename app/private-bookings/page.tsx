@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
 import { Img } from "@/components/ui/Img";
 import { images } from "@/lib/images";
+import { contentService } from "@/services/contentService";
 import { settingsService } from "@/services/settingsService";
 
 export const metadata: Metadata = {
@@ -56,7 +58,14 @@ const steps = [
 export const dynamic = "force-dynamic";
 
 export default async function PrivateBookingsPage() {
-  const responseTime = (await settingsService.getPublic().catch(() => null))?.responseTime;
+  const [settings, experienceList] = await Promise.all([
+    settingsService.getPublic().catch(() => null),
+    contentService.experiences().catch(() => ({ items: [], images: {} })),
+  ]);
+  const responseTime = settings?.responseTime;
+  // Options for the "preferred experience" question — edited in
+  // admin → Content → Experiences.
+  const experienceOptions = experienceList.items.map((e) => e.name);
   return (
     <main className="min-h-screen bg-[#fffedd] text-[#1a1a1a]">
       {/* Hero — peach */}
@@ -71,9 +80,14 @@ export default async function PrivateBookingsPage() {
               Birthdays, bridal showers, date nights, hangouts with the girls
               (or the boys). Tell us the plan and we’ll help you pull it off.
             </p>
-            <a href="#enquiry" className="btn btn-green mt-7">
-              Plan my event
-            </a>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <a href="#enquiry" className="btn btn-green">
+                Plan my event
+              </a>
+              <Link href="/business" className="btn btn-outline">
+                Book a team bonding experience
+              </Link>
+            </div>
           </div>
           <Img image={images.privateBookings.hero} />
         </div>
@@ -136,7 +150,11 @@ export default async function PrivateBookingsPage() {
             Let’s plan it!
           </h2>
           <div className="mt-7 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
-            <EnquiryForm kind="private-booking" responseTime={responseTime} />
+            <EnquiryForm
+              kind="private-booking"
+              responseTime={responseTime}
+              experienceOptions={experienceOptions}
+            />
           </div>
         </div>
       </section>
