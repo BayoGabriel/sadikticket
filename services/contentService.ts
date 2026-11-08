@@ -2,6 +2,7 @@ import { connectDb } from "@/lib/db";
 import { ExperienceModel, type Experience as ExperienceDoc } from "@/models/experience";
 import { FaqModel, type Faq as FaqDoc } from "@/models/faq";
 import { ClientModel, type Client } from "@/models/client";
+import { ProductModel, type Product } from "@/models/product";
 import { MediaAssetModel, type MediaAsset } from "@/models/mediaAsset";
 import { PageContentModel } from "@/models/pageContent";
 import { experiences as staticExperiences, experienceImage as staticExperienceImage, type Experience, type ExperienceCategory } from "@/lib/experiences";
@@ -210,6 +211,36 @@ export const contentService = {
       await connectDb();
       const docs = await ClientModel.find({ published: true }).sort({ order: 1, createdAt: 1 }).lean<Client[]>();
       return docs;
+    } catch {
+      return [];
+    }
+  },
+
+  // ── Shop products (SerenFinds) ────────────────────────────────────────────
+  // Public read — published products only, in admin-set order.
+  async products(): Promise<{
+    id: string;
+    name: string;
+    description: string;
+    price: number;
+    currency: string;
+    images: string[];
+    inStock: boolean;
+  }[]> {
+    try {
+      await connectDb();
+      const docs = await ProductModel.find({ published: true })
+        .sort({ order: 1, createdAt: 1 })
+        .lean<Product[]>();
+      return docs.map((d) => ({
+        id: String(d._id),
+        name: d.name,
+        description: d.description ?? "",
+        price: d.price,
+        currency: d.currency ?? "NGN",
+        images: d.images ?? [],
+        inStock: d.inStock ?? true,
+      }));
     } catch {
       return [];
     }

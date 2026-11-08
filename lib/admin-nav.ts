@@ -23,6 +23,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/admin/events", label: "Events", icon: "calendar", permission: "events" },
       { href: "/admin/orders", label: "Orders & tickets", icon: "ticket", permission: "orders", badgeKey: "orders" },
+      { href: "/admin/shop-orders", label: "Shop orders", icon: "tag", permission: "orders" },
       { href: "/admin/check-in", label: "Check-in", icon: "scan", permission: "checkin" },
       { href: "/admin/waitlist", label: "Waitlist", icon: "clock", permission: "waitlist", badgeKey: "waitlist" },
       { href: "/admin/coupons", label: "Coupons", icon: "tag", permission: "coupons" },
@@ -39,6 +40,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: "Content",
     items: [
+      { href: "/admin/products", label: "Shop products", icon: "tag", permission: "content" },
       { href: "/admin/experiences", label: "Experiences", icon: "sparkles", permission: "content" },
       { href: "/admin/gallery", label: "Gallery & media", icon: "image", permission: "content" },
       { href: "/admin/faqs", label: "FAQs", icon: "help", permission: "content" },

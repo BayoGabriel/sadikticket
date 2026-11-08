@@ -6,6 +6,7 @@ import { PaymentModel, type Payment } from "@/models/payment";
 import { paymentService } from "@/services/paymentService";
 import { TicketModel, type Ticket } from "@/models/ticket";
 import { EventModel, type Event } from "@/models/event";
+import { ProductOrderModel, type ProductOrder } from "@/models/productOrder";
 
 // GET /api/v1/orders/by-reference/:reference/status (public)
 export async function GET(
@@ -17,6 +18,46 @@ export async function GET(
     if (!reference) throw new Error("reference required");
 
     await connectDb();
+
+    // Shop orders — same polling contract, no tickets attached.
+    if (reference.startsWith("SHP-")) {
+      let order = await ProductOrderModel.findOne({
+        paymentReference: reference,
+      }).lean<ProductOrder | null>();
+      if (!order) return ok({ found: false });
+
+      if (order.status === "PENDING") {
+        try {
+          const result = await paymentService.confirmPaystackPayment(reference);
+          if (result.status === "PAID") {
+            order =
+              (await ProductOrderModel.findOne({ paymentReference: reference }).lean<
+                ProductOrder | null
+              >()) ?? order;
+          }
+        } catch { /* verification failure shouldn't break status reads */ }
+      }
+
+      const payment = await PaymentModel.findOne({
+        providerReference: reference,
+      }).lean<Payment | null>();
+
+      return ok({
+        found: true,
+        kind: "shop",
+        id: order._id.toString(),
+        status: order.status,
+        paymentStatus: payment?.status ?? "PENDING",
+        paymentReference: order.paymentReference,
+        items: order.items.map((i) => ({
+          name: i.name,
+          quantity: i.quantity,
+          unitPrice: i.unitPrice,
+        })),
+        total: order.total,
+      });
+    }
+
     let order = await OrderModel.findOne({
       paymentReference: reference,
     }).lean<Order | null>();

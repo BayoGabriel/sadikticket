@@ -92,7 +92,31 @@ function PaymentCallbackInner() {
             </div>
           </>
         )}
-        {status === "success" && payload && (
+        {status === "success" && payload && payload.kind === "shop" && (
+          <>
+            <h1 className="text-xl font-semibold text-(--brand-primary)">
+              Order confirmed!
+            </h1>
+            {payload.items && (
+              <p className="mt-2 text-(--text-primary)">
+                {payload.items
+                  .map((i) => `${i.quantity} × ${i.name}`)
+                  .join(", ")}
+              </p>
+            )}
+            <p className="mt-1 text-(--text-muted)">
+              Your receipt is on its way to your email — we&apos;ll be in touch
+              about getting your order to you.
+            </p>
+            <button
+              onClick={() => router.push("/shop")}
+              className="mt-4 inline-flex items-center rounded-lg bg-(--brand-primary) text-white px-4 py-2 font-medium hover:bg-(--brand-primary-hover)"
+            >
+              Back to the shop
+            </button>
+          </>
+        )}
+        {status === "success" && payload && payload.kind !== "shop" && (
           <>
             <h1 className="text-xl font-semibold text-(--brand-primary)">
               You&rsquo;re in!

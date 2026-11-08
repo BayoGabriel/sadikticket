@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 
 import { getEvents } from "@/features/events/server";
 import { reviewService } from "@/services/reviewService";
+import { contentService } from "@/services/contentService";
 import { EventCard } from "@/components/events/EventCard";
+import { ProductCard } from "@/components/shop/ProductCard";
 import { Img } from "@/components/ui/Img";
 import { Marquee } from "@/components/ui/Marquee";
 import { Reveal } from "@/components/ui/Reveal";
@@ -72,9 +74,10 @@ const proofSlots = [
 ];
 
 export default async function HomePage() {
-  const [{ items: events }, reviews] = await Promise.all([
+  const [{ items: events }, reviews, products] = await Promise.all([
     getEvents({ limit: 4 }),
     reviewService.listApproved(3),
+    contentService.products(),
   ]);
 
   return (
@@ -315,16 +318,24 @@ export default async function HomePage() {
               Visit the shop
             </Link>
           </div>
-          <div className="mt-8 columns-2 gap-4 sm:columns-3">
-            {proofSlots.map((img, i) => (
-              <Img
-                key={i}
-                image={img}
-                className="mb-4 break-inside-avoid"
-                sizes="(max-width: 640px) 50vw, 33vw"
-              />
-            ))}
-          </div>
+          {products.length > 0 ? (
+            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {products.slice(0, 3).map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          ) : (
+            <div className="mt-8 columns-2 gap-4 sm:columns-3">
+              {proofSlots.map((img, i) => (
+                <Img
+                  key={i}
+                  image={img}
+                  className="mb-4 break-inside-avoid"
+                  sizes="(max-width: 640px) 50vw, 33vw"
+                />
+              ))}
+            </div>
+          )}
 
           <h3 className="mt-14 text-center text-xs font-bold uppercase tracking-[0.2em] text-[#003118]/60">
             Brands we&rsquo;ve worked with

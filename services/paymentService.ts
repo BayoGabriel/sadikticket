@@ -25,6 +25,16 @@ export const paymentService = {
   ): Promise<PaymentConfirmation> {
     await connectDb();
 
+    // Shop orders carry their own reference prefix and fulfilment path.
+    if (reference.startsWith("SHP-")) {
+      const { productOrderService } = await import(
+        "@/services/productOrderService"
+      );
+      const r = await productOrderService.confirmPayment(reference);
+      if (r.status === "PAID") return { status: "PAID", orderId: r.orderId! };
+      return { status: r.status };
+    }
+
     const existing = await PaymentModel.findOne({
       providerReference: reference,
     });
