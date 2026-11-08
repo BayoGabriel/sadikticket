@@ -4,13 +4,14 @@ import type { Metadata } from "next";
 import { getEvents } from "@/features/events/server";
 import { reviewService } from "@/services/reviewService";
 import { contentService } from "@/services/contentService";
+import { copyGetter, withSiteImage } from "@/lib/site-copy";
 import { EventCard } from "@/components/events/EventCard";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { Img } from "@/components/ui/Img";
 import { Marquee } from "@/components/ui/Marquee";
 import { Reveal } from "@/components/ui/Reveal";
-import { Squiggle, Star } from "@/components/decorative/Doodles";
-import { images } from "@/lib/images";
+import { Star } from "@/components/decorative/Doodles";
+import { images, type ImageSlot } from "@/lib/images";
 
 export const metadata: Metadata = {
   title: "SerenArt — Life's Too Short for Boring Plans",
@@ -18,51 +19,17 @@ export const metadata: Metadata = {
     "Create art, vibe to your favourite playlists, meet your people and have a good time, with absolutely no pressure to be Picasso.",
 };
 
-const tickerItems = [
-  "Painting",
-  "Clay",
-  "Karaoke",
-  "Picnics",
-  "Games & Trivia",
-  "RnB Parties",
-  "Birthdays",
-  "Team Bonding",
-];
-
-const moods = [
-  {
-    title: "Creative Experiences",
-    body: "Canvas Painting, Clay Painting, Gypsum Art..",
-    image: images.moods.creative,
-    cls: "bg-[#f27a00] text-[#003118]",
-  },
-  {
-    title: "Social Experiences",
-    body: "Karaoke, games, trivia, Mixers…",
-    image: images.moods.social,
-    cls: "bg-[#e7efe9] text-[#003118]",
-  },
-  {
-    title: "Outdoor Experiences",
-    body: "Picnics, beach, retreats, outdoor games…",
-    image: images.moods.outdoor,
-    cls: "bg-[#003118] text-[#fffedd]",
-  },
-];
-
-const steps = [
-  { n: 1, title: "Pick an event", body: "Find one you like in your city." },
-  {
-    n: 2,
-    title: "Grab your ticket",
-    body: "Pay online, get your ticket by email.",
-  },
-  {
-    n: 3,
-    title: "Show up",
-    body: "We've got the setup. You bring the good mood.",
-  },
-];
+// Last 2 words in orange — keeps the designed accent while the whole
+// sentence stays admin-editable.
+const accent2 = (s: string) => {
+  const parts = s.split(" ");
+  const tail = parts.splice(-2).join(" ");
+  return (
+    <>
+      {parts.join(" ")} <span className="text-[#f27a00]">{tail}</span>
+    </>
+  );
+};
 
 const proofSlots = [
   images.gallery.g1,
@@ -74,11 +41,46 @@ const proofSlots = [
 ];
 
 export default async function HomePage() {
-  const [{ items: events }, reviews, products] = await Promise.all([
+  const [{ items: events }, reviews, products, c] = await Promise.all([
     getEvents({ limit: 4 }),
     reviewService.listApproved(3),
     contentService.products(),
+    contentService.siteContent(),
   ]);
+  const t = copyGetter(c);
+  const img = (s: ImageSlot, k: string) => withSiteImage(s, k, c);
+
+  const tickerItems = t("home.ticker.items")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const moods = [
+    {
+      title: t("home.moods.1.title"),
+      body: t("home.moods.1.body"),
+      image: img(images.moods.creative, "img.home.moods.creative"),
+      cls: "bg-[#f27a00] text-[#003118]",
+    },
+    {
+      title: t("home.moods.2.title"),
+      body: t("home.moods.2.body"),
+      image: img(images.moods.social, "img.home.moods.social"),
+      cls: "bg-[#e7efe9] text-[#003118]",
+    },
+    {
+      title: t("home.moods.3.title"),
+      body: t("home.moods.3.body"),
+      image: img(images.moods.outdoor, "img.home.moods.outdoor"),
+      cls: "bg-[#003118] text-[#fffedd]",
+    },
+  ];
+
+  const steps = [1, 2, 3].map((n) => ({
+    n,
+    title: t(`home.steps.${n}.title`),
+    body: t(`home.steps.${n}.body`),
+  }));
 
   return (
     <main className="bg-[#fffedd]">
@@ -86,22 +88,17 @@ export default async function HomePage() {
       <section className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-12 sm:px-8 lg:grid-cols-2 lg:px-10 lg:pt-20">
         <div>
           <h1 className="font-display text-5xl font-semibold leading-[1.02] tracking-[-0.03em] text-[#003118] sm:text-6xl lg:text-7xl">
-            Life&rsquo;s Too Short for{" "}
-            <span className="relative inline-block text-[#f27a00]">
-              Boring&nbsp;Plans.
-              <Squiggle className="absolute -bottom-2 left-0 h-3 w-full text-[#f27a00]" />
-            </span>
+            {accent2(t("home.hero.title"))}
           </h1>
           <p className="mt-6 max-w-md text-lg leading-8 text-[#575750]">
-            Create art, vibe to your favourite playlists, meet your people and
-            have a good time, with absolutely no pressure to be Picasso.
+            {t("home.hero.sub")}
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="/events" className="btn btn-orange">
-              View Upcoming Event
+              {t("home.hero.cta1")}
             </Link>
             <Link href="/private-bookings" className="btn btn-outline">
-              Plan A Private Experience
+              {t("home.hero.cta2")}
             </Link>
           </div>
         </div>
@@ -111,17 +108,17 @@ export default async function HomePage() {
           <Star className="absolute -top-4 right-6 h-8 w-8 rotate-12 text-[#f27a00]" />
           <div className="grid grid-cols-3 items-center gap-3">
             <Img
-              image={images.hero.canvas}
+              image={img(images.hero.canvas, "img.home.hero.canvas")}
               priority
               className="-rotate-3 shadow-md"
             />
             <Img
-              image={images.hero.karaoke}
+              image={img(images.hero.karaoke, "img.home.hero.karaoke")}
               priority
               className="mt-10 rotate-2 shadow-md"
             />
             <Img
-              image={images.hero.picnic}
+              image={img(images.hero.picnic, "img.home.hero.picnic")}
               priority
               className="-mb-8 rotate-4 shadow-md"
             />
@@ -135,26 +132,22 @@ export default async function HomePage() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 lg:grid-cols-2 lg:px-10 lg:py-24">
           <Reveal>
             <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-[#fffedd] sm:text-5xl">
-              We&rsquo;re SerenArt.
+              {t("home.serenart.title")}
             </h2>
             <p className="mt-5 max-w-lg text-base leading-7 text-[#fffedd]/75">
-              We believe life should be about more than routines. It&rsquo;s
-              about trying something new, meeting people, expressing yourself
-              and creating moments worth remembering.
+              {t("home.serenart.p1")}
             </p>
             <p className="mt-4 max-w-lg text-base leading-7 text-[#fffedd]/75">
-              From creative workshops and social events to personalised
-              celebrations and corporate experiences, we create spaces where
-              people can connect, unwind and have a genuinely good time.
+              {t("home.serenart.p2")}
             </p>
             <Link href="/experiences" className="btn btn-orange mt-7">
-              Explore Experiences
+              {t("home.serenart.cta")}
             </Link>
           </Reveal>
           <div className="relative mx-auto grid w-full max-w-md grid-cols-2 gap-4">
-            <Img image={images.whoWeAre.main} className="rotate-2 shadow-md" />
+            <Img image={img(images.whoWeAre.main, "img.home.whoweare.main")} className="rotate-2 shadow-md" />
             <Img
-              image={images.whoWeAre.offset}
+              image={img(images.whoWeAre.offset, "img.home.whoweare.offset")}
               className="mt-12 -rotate-2 shadow-md"
             />
           </div>
@@ -166,13 +159,13 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-5xl">
-              Upcoming Events
+              {t("home.events.title")}
             </h2>
             <Link
               href="/events"
               className="text-sm font-bold text-[#003118] underline decoration-[#f27a00] decoration-2 underline-offset-4 hover:text-[#f27a00]"
             >
-              See all events
+              {t("home.events.link")}
             </Link>
           </div>
           {events.length > 0 ? (
@@ -193,49 +186,45 @@ export default async function HomePage() {
       {/* 4 ─ Got something to celebrate? */}
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
         <h2 className="max-w-2xl font-display text-4xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-5xl">
-          Got something to celebrate? Make It a{" "}
-          <span className="text-[#f27a00]">Whole Vibe.</span>
+          {accent2(t("home.celebrate.title"))}
         </h2>
         <div className="mt-10 grid gap-5 md:grid-cols-2">
           <div className="overflow-hidden rounded-3xl bg-[#fdd3a2]">
             <Img
-              image={images.celebrate.private}
+              image={img(images.celebrate.private, "img.home.celebrate.private")}
               rounded="rounded-none"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
             <div className="p-8">
               <h3 className="font-display text-2xl font-semibold text-[#003118]">
-                Private Bookings.
+                {t("home.celebrate.private.title")}
               </h3>
               <p className="mt-2 text-sm leading-6 text-[#003118]/80">
-                Birthday, bridal shower, Friendship hangout. Tell us the plan
-                and we&rsquo;ll make it happen.
+                {t("home.celebrate.private.body")}
               </p>
               <Link href="/private-bookings" className="btn btn-orange mt-5">
-                Plan my party
+                {t("home.celebrate.private.cta")}
               </Link>
             </div>
           </div>
           <div className="overflow-hidden rounded-3xl bg-[#003118]">
             <Img
-              image={images.celebrate.business}
+              image={img(images.celebrate.business, "img.home.celebrate.business")}
               rounded="rounded-none"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
             <div className="p-8">
               <h3 className="font-display text-2xl font-semibold text-[#fffedd]">
-                SerenArt Business.
+                {t("home.celebrate.business.title")}
               </h3>
               <p className="mt-2 text-sm font-semibold text-[#f27a00]">
-                Team bonding people actually want to show up for.
+                {t("home.celebrate.business.tag")}
               </p>
               <p className="mt-2 text-sm leading-6 text-[#fffedd]/75">
-                From creative team sessions and staff celebrations to retreats
-                and brand experiences, we help companies bring people together
-                in ways they&rsquo;ll actually enjoy.
+                {t("home.celebrate.business.body")}
               </p>
               <Link href="/business" className="btn btn-orange mt-5">
-                Book a team experience
+                {t("home.celebrate.business.cta")}
               </Link>
             </div>
           </div>
@@ -246,7 +235,7 @@ export default async function HomePage() {
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
         <Reveal>
           <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-5xl">
-            What are you in the mood for?
+            {t("home.moods.title")}
           </h2>
         </Reveal>
         <div className="mt-8 grid gap-5 md:grid-cols-3">
@@ -270,7 +259,7 @@ export default async function HomePage() {
         </div>
         <div className="mt-8">
           <Link href="/experiences" className="btn btn-outline">
-            See everything we do
+            {t("home.moods.cta")}
           </Link>
         </div>
       </section>
@@ -279,7 +268,7 @@ export default async function HomePage() {
       <section className="bg-[#003118] text-[#fffedd]">
         <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-20">
           <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
-            Easy, we promise
+            {t("home.steps.title")}
           </h2>
           <div className="mt-10 grid gap-8 sm:grid-cols-3">
             {steps.map((s) => (
@@ -305,17 +294,17 @@ export default async function HomePage() {
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-5xl">
-                Shop
+                {t("home.shop.title")}
               </h2>
               <p className="mt-3 max-w-lg text-base leading-7 text-[#575750]">
-                Take the fun home. Creative kits, merch and gift sets.
+                {t("home.shop.tagline")}
               </p>
             </div>
             <Link
               href="/shop"
               className="text-sm font-bold text-[#003118] underline decoration-[#f27a00] decoration-2 underline-offset-4 hover:text-[#f27a00]"
             >
-              Visit the shop
+              {t("home.shop.link")}
             </Link>
           </div>
           {products.length > 0 ? (
@@ -338,7 +327,7 @@ export default async function HomePage() {
           )}
 
           <h3 className="mt-14 text-center text-xs font-bold uppercase tracking-[0.2em] text-[#003118]/60">
-            Brands we&rsquo;ve worked with
+            {t("home.brands.title")}
           </h3>
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
             {Object.values(images.logos).map((logo, i) =>
@@ -363,7 +352,7 @@ export default async function HomePage() {
 
           <div className="mt-14 flex flex-wrap items-end justify-between gap-4">
             <h3 className="font-display text-3xl font-semibold tracking-[-0.03em] text-[#003118]">
-              Don&rsquo;t take our word for it
+              {t("home.reviews.title")}
             </h3>
             <a
               href="https://share.google/vrrTp7L49YzfnKmls"
@@ -371,7 +360,7 @@ export default async function HomePage() {
               rel="noopener noreferrer"
               className="text-sm font-bold text-[#003118] underline decoration-[#f27a00] decoration-2 underline-offset-4 hover:text-[#f27a00]"
             >
-              Read our reviews on Google
+              {t("home.reviews.link")}
             </a>
           </div>
           {reviews.length > 0 && (
@@ -399,14 +388,14 @@ export default async function HomePage() {
       <section className="bg-[#f27a00]">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-6 px-5 py-14 sm:px-8 lg:px-10">
           <h2 className="font-display text-4xl font-semibold tracking-[-0.03em] text-[#003118] sm:text-5xl">
-            Ready? Let&rsquo;s make it a date.
+            {t("home.cta.title")}
           </h2>
           <div className="flex flex-wrap gap-3">
             <Link href="/events" className="btn btn-green">
-              See upcoming events
+              {t("home.cta.primary")}
             </Link>
             <Link href="/private-bookings" className="btn btn-outline">
-              Plan something with us
+              {t("home.cta.secondary")}
             </Link>
           </div>
         </div>

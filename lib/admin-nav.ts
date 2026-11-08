@@ -45,6 +45,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/admin/gallery", label: "Gallery & media", icon: "image", permission: "content" },
       { href: "/admin/faqs", label: "FAQs", icon: "help", permission: "content" },
       { href: "/admin/clients", label: "Clients", icon: "briefcase", permission: "content" },
+      { href: "/admin/site-copy", label: "Site content", icon: "file", permission: "content" },
       { href: "/admin/pages", label: "Policies & pages", icon: "file", permission: "content" },
     ],
   },

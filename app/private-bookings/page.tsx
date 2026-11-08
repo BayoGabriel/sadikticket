@@ -5,6 +5,7 @@ import { Img } from "@/components/ui/Img";
 import { images } from "@/lib/images";
 import { contentService } from "@/services/contentService";
 import { settingsService } from "@/services/settingsService";
+import { copyGetter, withSiteImage } from "@/lib/site-copy";
 
 export const metadata: Metadata = {
   title: "Private Bookings | SerenArt",
@@ -12,56 +13,44 @@ export const metadata: Metadata = {
     "Birthdays, bridal showers, date nights, hangouts — tell us the plan and we'll help you pull it off.",
 };
 
-const occasions = [
-  { name: "Birthdays", line: "Another year, a better party.", img: images.privateBookings.birthdays },
-  {
-    name: "Bridal/Baby showers",
-    line: "Fun for the bride and everyone who loves her.",
-    img: images.privateBookings.showers,
-  },
-  {
-    name: "Anniversaries",
-    line: "Something to do together that isn't just dinner.",
-    img: images.privateBookings.anniversaries,
-  },
-  {
-    name: "Friends' hangouts",
-    line: "Group chat plans, finally happening.",
-    img: images.privateBookings.hangouts,
-  },
-  {
-    name: "Reunions",
-    line: "Get everyone in one room and give them something to do.",
-    img: images.privateBookings.reunions,
-  },
-  { name: "Something else", line: "Tell us the idea and we'll shape it.", img: images.privateBookings.somethingElse },
+const occasionSlots = [
+  images.privateBookings.birthdays,
+  images.privateBookings.showers,
+  images.privateBookings.anniversaries,
+  images.privateBookings.hangouts,
+  images.privateBookings.reunions,
+  images.privateBookings.somethingElse,
 ];
 
-const steps = [
-  {
-    n: "1",
-    title: "Tell us what you're planning",
-    body: "Fill in the short form with your date, group size and the kind of experience you like.",
-  },
-  {
-    n: "2",
-    title: "We chat",
-    body: "We'll talk through the venue, the details and the budget until it feels right.",
-  },
-  {
-    n: "3",
-    title: "Lock it in",
-    body: "Once you're happy, we confirm everything and you're set.",
-  },
-];
+const accent2 = (s: string) => {
+  const parts = s.split(" ");
+  const tail = parts.splice(-2).join(" ");
+  return (
+    <>
+      {parts.join(" ")} <span className="text-[#f27a00]">{tail}</span>
+    </>
+  );
+};
 
 export const dynamic = "force-dynamic";
 
 export default async function PrivateBookingsPage() {
-  const [settings, experienceList] = await Promise.all([
+  const [settings, experienceList, c] = await Promise.all([
     settingsService.getPublic().catch(() => null),
     contentService.experiences().catch(() => ({ items: [], images: {} })),
+    contentService.siteContent(),
   ]);
+  const t = copyGetter(c);
+  const occasions = occasionSlots.map((img, i) => ({
+    name: t(`pb.occasions.${i + 1}.name`),
+    line: t(`pb.occasions.${i + 1}.line`),
+    img: withSiteImage(img, `img.pb.occasions.${i + 1}`, c),
+  }));
+  const steps = [1, 2, 3].map((n) => ({
+    n: String(n),
+    title: t(`pb.steps.${n}.title`),
+    body: t(`pb.steps.${n}.body`),
+  }));
   const responseTime = settings?.responseTime;
   // Options for the "preferred experience" question — edited in
   // admin → Content → Experiences.
@@ -73,23 +62,21 @@ export default async function PrivateBookingsPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-12 sm:px-8 sm:py-16 lg:grid-cols-2 lg:px-10">
           <div>
             <h1 className="font-display text-4xl font-semibold leading-[1.02] tracking-[-0.04em] text-[#003118] sm:text-5xl">
-              Got something to celebrate? Make It a{" "}
-              <span className="text-[#f27a00]">Whole Vibe.</span>
+              {accent2(t("pb.hero.title"))}
             </h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-[#003118]/80 sm:text-lg">
-              Birthdays, bridal showers, date nights, hangouts with the girls
-              (or the boys). Tell us the plan and we’ll help you pull it off.
+              {t("pb.hero.sub")}
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <a href="#enquiry" className="btn btn-green">
-                Plan my event
+                {t("pb.hero.cta1")}
               </a>
               <Link href="/business" className="btn btn-outline">
-                Book a team bonding experience
+                {t("pb.hero.cta2")}
               </Link>
             </div>
           </div>
-          <Img image={images.privateBookings.hero} />
+          <Img image={withSiteImage(images.privateBookings.hero, "img.pb.hero", c)} />
         </div>
       </section>
 
@@ -97,7 +84,7 @@ export default async function PrivateBookingsPage() {
       <section className="bg-[#fffedd]">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-            What are you celebrating?
+            {t("pb.occasions.title")}
           </h2>
           <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {occasions.map((o) => (
@@ -122,7 +109,7 @@ export default async function PrivateBookingsPage() {
       <section className="bg-[#003118]">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#fffedd] sm:text-3xl">
-            How it works
+            {t("pb.steps.title")}
           </h2>
           <div className="mt-7 grid gap-5 sm:grid-cols-3">
             {steps.map((s) => (
@@ -147,7 +134,7 @@ export default async function PrivateBookingsPage() {
       >
         <div className="mx-auto max-w-3xl px-5 py-14 sm:px-8 lg:px-10">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-            Let’s plan it!
+            {t("pb.form.title")}
           </h2>
           <div className="mt-7 rounded-3xl bg-white p-6 shadow-sm sm:p-8">
             <EnquiryForm

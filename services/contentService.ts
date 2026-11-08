@@ -3,6 +3,8 @@ import { ExperienceModel, type Experience as ExperienceDoc } from "@/models/expe
 import { FaqModel, type Faq as FaqDoc } from "@/models/faq";
 import { ClientModel, type Client } from "@/models/client";
 import { ProductModel, type Product } from "@/models/product";
+import { SiteContentModel } from "@/models/siteContent";
+import { siteCopyFields, siteCopyDefaults } from "@/lib/site-copy";
 import { MediaAssetModel, type MediaAsset } from "@/models/mediaAsset";
 import { PageContentModel } from "@/models/pageContent";
 import { experiences as staticExperiences, experienceImage as staticExperienceImage, type Experience, type ExperienceCategory } from "@/lib/experiences";
@@ -244,6 +246,47 @@ export const contentService = {
     } catch {
       return [];
     }
+  },
+
+  // ── Site copy & images (admin → Site content) ─────────────────────────────
+  // Public read: every registered key resolved to its edited value or default.
+  async siteContent(): Promise<Record<string, string>> {
+    const map = { ...siteCopyDefaults };
+    try {
+      await connectDb();
+      const docs = await SiteContentModel.find()
+        .select("key value")
+        .lean<{ key: string; value: string }[]>();
+      for (const d of docs) map[d.key] = d.value;
+    } catch { /* defaults */ }
+    return map;
+  },
+
+  // Admin read: registered fields + stored overrides (key → value).
+  async adminSiteContent() {
+    await connectDb();
+    const docs = await SiteContentModel.find()
+      .select("key value")
+      .lean<{ key: string; value: string }[]>();
+    const stored = Object.fromEntries(docs.map((d) => [d.key, d.value]));
+    return siteCopyFields.map((f) => ({
+      ...f,
+      value: stored[f.key] ?? "",
+      edited: f.key in stored,
+    }));
+  },
+
+  async saveSiteContent(key: string, value: string | null) {
+    const field = siteCopyFields.find((f) => f.key === key);
+    if (!field) throw new Error("Unknown content key");
+    await connectDb();
+    if (value === null) await SiteContentModel.deleteOne({ key });
+    else
+      await SiteContentModel.updateOne(
+        { key },
+        { $set: { key, kind: field.kind, value } },
+        { upsert: true },
+      );
   },
 
   // ── Editable pages (refunds, terms, privacy, about) ───────────────────────

@@ -6,6 +6,7 @@ import { Footer } from "@/components/navigation/Footer";
 import { StickyTicketsBar } from "@/components/ui/StickyTicketsBar";
 import { siteConfig } from "@/lib/site-config";
 import { settingsService } from "@/services/settingsService";
+import { contentService } from "@/services/contentService";
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -45,7 +46,16 @@ export default async function RootLayout({
   // or when the DB is unreachable, so the public site never breaks.
   let settings;
   try {
-    settings = await settingsService.getPublic();
+    const [pub, copy] = await Promise.all([
+      settingsService.getPublic(),
+      contentService.siteContent(),
+    ]);
+    settings = {
+      ...pub,
+      tagline: copy["footer.tagline"],
+      newsletter: copy["footer.newsletter"],
+      newsletterButton: copy["footer.newsletter.button"],
+    };
   } catch {
     settings = null;
   }

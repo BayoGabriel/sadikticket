@@ -4,6 +4,8 @@ import { siteConfig, whatsappUrl } from "@/lib/site-config";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { ContactForm } from "@/components/forms/ContactForm";
 import { settingsService } from "@/services/settingsService";
+import { contentService } from "@/services/contentService";
+import { copyGetter } from "@/lib/site-copy";
 
 export const metadata: Metadata = {
   title: "Contact | SerenArt",
@@ -14,16 +16,16 @@ export const dynamic = "force-dynamic";
 
 export default async function ContactPage() {
   const settings = await settingsService.getPublic().catch(() => null);
+  const t = copyGetter(await contentService.siteContent());
   const wa = whatsappUrl();
   return (
     <main className="min-h-screen bg-[#fffedd] text-[#1a1a1a]">
       <section className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
         <h1 className="font-display text-4xl font-semibold tracking-[-0.04em] text-[#003118] sm:text-5xl">
-          Say hi
+          {t("contact.title")}
         </h1>
         <p className="mt-3 max-w-xl text-base leading-7 text-[#4a4a45]">
-          Questions about an event, a private booking or working with us? We’re
-          easiest to reach on WhatsApp.
+          {t("contact.sub")}
         </p>
 
         <div className="mt-10 space-y-4">

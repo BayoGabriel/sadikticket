@@ -4,6 +4,7 @@ import { Img } from "@/components/ui/Img";
 import { images } from "@/lib/images";
 import { whatsappUrl } from "@/lib/site-config";
 import { contentService } from "@/services/contentService";
+import { copyGetter, withSiteImage } from "@/lib/site-copy";
 import { ProductCard } from "@/components/shop/ProductCard";
 
 export const metadata: Metadata = {
@@ -11,39 +12,34 @@ export const metadata: Metadata = {
   description: "Take the fun home. Creative kits, merch and gift sets.",
 };
 
-// Preview tiles shown until the first product is posted in admin.
-const categories = [
-  {
-    name: "Creative kits",
-    line: "Everything you need for a session at home — supplies, guide and good vibes included.",
-    img: images.shop.kits,
-  },
-  {
-    name: "Merch",
-    line: "Wear the vibe. Tees, totes and bits for people who'd rather be painting.",
-    img: images.shop.merch,
-  },
-  {
-    name: "Gift sets",
-    line: "For the person who has everything — except plans. Boxed and ready to give.",
-    img: images.shop.gifts,
-  },
-];
-
 export const dynamic = "force-dynamic";
 
 export default async function ShopPage() {
-  const products = await contentService.products();
+  const [products, c] = await Promise.all([
+    contentService.products(),
+    contentService.siteContent(),
+  ]);
+  const t = copyGetter(c);
+  // Preview tiles shown until the first product is posted in admin.
+  const categories = [1, 2, 3].map((n) => ({
+    name: t(`shop.cat${n}.name`),
+    line: t(`shop.cat${n}.line`),
+    img: withSiteImage(
+      [images.shop.kits, images.shop.merch, images.shop.gifts][n - 1],
+      `img.shop.${["kits", "merch", "gifts"][n - 1]}`,
+      c,
+    ),
+  }));
   const wa = whatsappUrl("Hi SerenArt! I'd like to ask about your shop.");
 
   return (
     <main className="min-h-screen bg-[#fffedd] text-[#1a1a1a]">
       <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
         <h1 className="font-display text-4xl font-semibold tracking-[-0.04em] text-[#003118] sm:text-5xl">
-          Shop
+          {t("shop.title")}
         </h1>
         <p className="mt-3 max-w-xl text-base leading-7 text-[#4a4a45]">
-          Take the fun home. Creative kits, merch and gift sets.
+          {t("shop.tagline")}
         </p>
 
         {products.length > 0 ? (
@@ -72,15 +68,13 @@ export default async function ShopPage() {
                 </div>
               ))}
             </div>
-            <p className="mt-8 text-sm text-[#8a8a7d]">
-              New items land here first — check back soon.
-            </p>
+            <p className="mt-8 text-sm text-[#8a8a7d]">{t("shop.empty")}</p>
           </>
         )}
 
         <div className="mt-14 rounded-[2rem] bg-[#003118] px-6 py-12 text-center sm:px-10">
           <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] text-white sm:text-3xl">
-            Ready? Let&rsquo;s make it a date.
+            {t("shop.cta.title")}
           </h2>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             {wa && (

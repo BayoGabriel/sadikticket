@@ -16,6 +16,9 @@ export type FooterSettings = {
   businessEmail?: string;
   instagramHandle?: string;
   cities?: string[];
+  tagline?: string;
+  newsletter?: string;
+  newsletterButton?: string;
 };
 
 export function Footer({ settings }: { settings?: FooterSettings }) {
@@ -83,14 +86,15 @@ export function Footer({ settings }: { settings?: FooterSettings }) {
               SerenArt
             </div>
             <p className="mt-3 max-w-xs text-sm leading-6 text-white/70">
-              {siteConfig.tagline}
+              {settings?.tagline || siteConfig.tagline}
             </p>
             <p className="mt-6 text-sm font-medium text-white/90">
-              Get first access to upcoming experiences and special offers
+              {settings?.newsletter ||
+                "Get first access to upcoming experiences and special offers"}
             </p>
             <NotifyForm
               kind="updates"
-              buttonLabel="Keep me in the loop"
+              buttonLabel={settings?.newsletterButton || "Keep me in the loop"}
               className="mt-3 max-w-xs"
               successMessage="Done. You'll hear from us first."
               successClassName="text-white"

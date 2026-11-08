@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Accordion } from "@/components/ui/Accordion";
 import { WhatsAppButton } from "@/components/ui/WhatsAppButton";
 import { contentService } from "@/services/contentService";
+import { copyGetter } from "@/lib/site-copy";
 
 export const metadata: Metadata = {
   title: "FAQs | SerenArt",
@@ -22,16 +23,18 @@ function extraLinkFor(q: string, topics: string[]): { href: string; label: strin
 export const dynamic = "force-dynamic";
 
 export default async function FAQsPage() {
-  const faqs = await contentService.faqs();
+  const [faqs, c] = await Promise.all([
+    contentService.faqs(),
+    contentService.siteContent(),
+  ]);
+  const t = copyGetter(c);
   return (
     <main className="min-h-screen bg-[#fffedd] text-[#1a1a1a]">
       <section className="mx-auto max-w-3xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10">
         <h1 className="font-display text-4xl font-semibold tracking-[-0.04em] text-[#003118] sm:text-5xl">
-          FAQs
+          {t("faqs.title")}
         </h1>
-        <p className="mt-3 text-base leading-7 text-[#4a4a45]">
-          Quick answers. Anything else, ask us on WhatsApp.
-        </p>
+        <p className="mt-3 text-base leading-7 text-[#4a4a45]">{t("faqs.sub")}</p>
 
         <Accordion
           className="mt-10"

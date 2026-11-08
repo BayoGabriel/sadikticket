@@ -5,6 +5,7 @@ import { images } from "@/lib/images";
 import { whatsappUrl } from "@/lib/site-config";
 import { contentService } from "@/services/contentService";
 import { settingsService } from "@/services/settingsService";
+import { copyGetter, withSiteImage } from "@/lib/site-copy";
 
 export const metadata: Metadata = {
   title: "SerenArt Business | Team experiences and brand events",
@@ -12,71 +13,24 @@ export const metadata: Metadata = {
     "Painting sessions, game days, staff parties and brand activations for companies that want their people — and their customers — to have a great time.",
 };
 
-const whatWeDo = [
-  {
-    title: "Team bonding",
-    body: "Creative sessions, games and challenges, department socials. Good for new teams, old teams and teams that don't talk enough.",
-  },
-  {
-    title: "Celebrations",
-    body: "End-of-year parties, staff appreciation, anniversaries and milestones.",
-  },
-  {
-    title: "Retreats and wellness",
-    body: "Offsites, retreats, art and relaxation sessions, outdoor days.",
-  },
-  {
-    title: "Brand experiences",
-    body: "Brand activations, launches, customer events and custom experiences for your audience.",
-  },
-];
+const whatWeDo = [1, 2, 3, 4];
 
-// TODO before launch: back each of these points with a real photo or client
-// story — generic claims won't sell the page on their own.
-const whyUs = [
-  "We start with what you want out of the day, then build around it.",
-  "Activities that get everyone involved, not just the loud ones.",
-  "Built around your team size, mood and budget.",
-  "We plan and run it, so you don't have to.",
-  "A reason for people to talk to someone outside their usual circle.",
-];
+const howWeWork = [1, 2, 3];
 
-const howWeWork = [
-  {
-    n: "1",
-    title: "Brief us",
-    body: "Tell us your goal, team size, date and rough budget.",
-  },
-  {
-    n: "2",
-    title: "Get a proposal",
-    body: "We send ideas and a clear quote.",
-  },
-  {
-    n: "3",
-    title: "We run the day",
-    body: "You turn up and enjoy it too.",
-  },
-];
-
-const ways = [
-  { name: "One-off", body: "A single event or team day." },
-  {
-    name: "Regular",
-    body: "Monthly or quarterly sessions for your team.",
-  },
-  {
-    name: "Custom",
-    body: "A full programme built around your company.",
-  },
-];
+const ways = [1, 2, 3];
 
 export const dynamic = "force-dynamic";
 
 export default async function BusinessPage() {
-  const clients = await contentService.clients();
-  const responseTime = (await settingsService.getPublic().catch(() => null))?.responseTime;
+  const [clients, settings, c] = await Promise.all([
+    contentService.clients(),
+    settingsService.getPublic().catch(() => null),
+    contentService.siteContent(),
+  ]);
+  const t = copyGetter(c);
+  const responseTime = settings?.responseTime;
   const wa = whatsappUrl("Hi SerenArt Business! I'd like to plan a team experience.");
+  const whyUs = t("biz.why.items").split("\n").map((s) => s.trim()).filter(Boolean);
   return (
     <main className="min-h-screen bg-[#fffedd] text-[#1a1a1a]">
       {/* Hero — same brand, calmer tone */}
@@ -84,45 +38,43 @@ export default async function BusinessPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-2 lg:px-10">
           <div>
             <div className="text-xs font-bold uppercase tracking-[0.2em] text-[#f27a00]">
-              SerenArt Business
+              {t("biz.eyebrow")}
             </div>
             <h1 className="mt-4 text-4xl font-semibold leading-[1.02] tracking-[-0.035em] text-white sm:text-5xl">
-              Your team deserves better than another meeting.
+              {t("biz.hero.title")}
             </h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-white/75 sm:text-lg">
-              Painting sessions, game days, staff parties and brand activations
-              for companies that want their people, and their customers, to have
-              a great time.
+              {t("biz.hero.sub")}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a
                 href="#enquire"
                 className="inline-flex items-center rounded-full bg-[#f27a00] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#d56c00]"
               >
-                Plan a team experience
+                {t("biz.hero.cta1")}
               </a>
               <a
                 href="#our-work"
                 className="inline-flex items-center rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
               >
-                See our work
+                {t("biz.hero.cta2")}
               </a>
             </div>
           </div>
-          <Img image={images.business.hero} />
+          <Img image={withSiteImage(images.business.hero, "img.biz.hero", c)} />
         </div>
       </section>
 
       {/* What we do */}
       <section className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10">
         <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-          What we do
+          {t("biz.what.title")}
         </h2>
         <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {whatWeDo.map((w) => (
-            <div key={w.title} className="rounded-3xl bg-white p-6 shadow-sm">
-              <h3 className="font-semibold text-[#003118]">{w.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-[#575750]">{w.body}</p>
+          {whatWeDo.map((n) => (
+            <div key={n} className="rounded-3xl bg-white p-6 shadow-sm">
+              <h3 className="font-semibold text-[#003118]">{t(`biz.what.${n}.title`)}</h3>
+              <p className="mt-2 text-sm leading-6 text-[#575750]">{t(`biz.what.${n}.body`)}</p>
             </div>
           ))}
         </div>
@@ -133,7 +85,7 @@ export default async function BusinessPage() {
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-14 sm:px-8 lg:grid-cols-2 lg:px-10">
           <div>
             <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-              Why companies pick us
+              {t("biz.why.title")}
             </h2>
             <ol className="mt-6 space-y-4">
               {whyUs.map((w, i) => (
@@ -148,21 +100,21 @@ export default async function BusinessPage() {
           </div>
           <div>
             <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-              How we work
+              {t("biz.how.title")}
             </h2>
             <div className="mt-6 space-y-4">
-              {howWeWork.map((s) => (
+              {howWeWork.map((n) => (
                 <div
-                  key={s.n}
+                  key={n}
                   className="flex gap-4 rounded-2xl bg-white p-5 shadow-sm"
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#f27a00] text-sm font-bold text-white">
-                    {s.n}
+                    {n}
                   </span>
                   <div>
-                    <h3 className="font-semibold text-[#003118]">{s.title}</h3>
+                    <h3 className="font-semibold text-[#003118]">{t(`biz.how.${n}.title`)}</h3>
                     <p className="mt-1 text-sm leading-6 text-[#575750]">
-                      {s.body}
+                      {t(`biz.how.${n}.body`)}
                     </p>
                   </div>
                 </div>
@@ -176,7 +128,7 @@ export default async function BusinessPage() {
       <section id="our-work" className="scroll-mt-24">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10">
           <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-            Companies we’ve worked with
+            {t("biz.work.title")}
           </h2>
           <div className="mt-6 grid grid-cols-3 gap-4 sm:grid-cols-5">
             {clients.length > 0
@@ -270,16 +222,16 @@ export default async function BusinessPage() {
       <section className="border-t border-[#ecebd8] bg-[#fffdf0]">
         <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10">
           <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-            Ways to work with us
+            {t("biz.ways.title")}
           </h2>
           <div className="mt-7 grid gap-5 sm:grid-cols-3">
-            {ways.map((w) => (
-              <div key={w.name} className="rounded-3xl bg-white p-7 shadow-sm">
+            {ways.map((n) => (
+              <div key={n} className="rounded-3xl bg-white p-7 shadow-sm">
                 <h3 className="text-lg font-semibold text-[#003118]">
-                  {w.name}
+                  {t(`biz.ways.${n}.name`)}
                 </h3>
                 <p className="mt-2 text-sm leading-6 text-[#575750]">
-                  {w.body}
+                  {t(`biz.ways.${n}.body`)}
                 </p>
               </div>
             ))}
@@ -292,7 +244,7 @@ export default async function BusinessPage() {
         <div className="mx-auto max-w-3xl px-5 py-14 sm:px-8 lg:px-10">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
-              Tell us about your team
+              {t("biz.form.title")}
             </h2>
             {wa && (
               <a
