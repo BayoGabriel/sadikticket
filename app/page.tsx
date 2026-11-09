@@ -329,25 +329,26 @@ export default async function HomePage() {
           <h3 className="mt-14 text-center text-xs font-bold uppercase tracking-[0.2em] text-[#003118]/60">
             {t("home.brands.title")}
           </h3>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
-            {Object.values(images.logos).map((logo, i) =>
-              logo.src ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={i}
-                  src={logo.src}
-                  alt={logo.alt}
-                  className="h-8 w-auto opacity-70 grayscale"
-                />
-              ) : (
-                <span
-                  key={i}
-                  className="font-display text-sm font-semibold text-[#003118]/40"
+          <div className="marquee marquee-slow mt-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+            <div className="marquee-track">
+              {[false, true].map((hidden) => (
+                <div
+                  key={String(hidden)}
+                  aria-hidden={hidden}
+                  className="flex shrink-0 items-center gap-10 pr-10"
                 >
-                  Client logo
-                </span>
-              ),
-            )}
+                  {Object.values(images.logos).map((logo, i) => (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={i}
+                      src={logo.src}
+                      alt={logo.alt}
+                      className="h-8 w-auto opacity-70 grayscale"
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="mt-14 flex flex-wrap items-end justify-between gap-4">

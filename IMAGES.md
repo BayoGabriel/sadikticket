@@ -20,7 +20,7 @@ matching key in `lib/images.ts` (e.g. `src: "/images/hero-canvas.jpg"`).
 | `shop.kits` / `shop.merch` / `shop.gifts` | `/shop` product cards | 4/3 | 1200×900 |
 | `business.hero`, `business.work1..3` | SerenArt Business | 4/3 | 1200×900 |
 | `about.team1..3` | About page | 4/5 | 960×1200 |
-| `logos.logo1..6` | "Brands we've worked with" | any (contained) | ~400×300, PNG/SVG |
+| `logos.*` | "Brands we've worked with" + `/business` fallback | any (contained) | ~400×300, PNG/SVG — files in `/images/brands/` |
 | `eventFallback` | Event cards without a cover image | 4/3 | 1200×900 |
 
 **Event covers** come from the admin image upload (Cloudinary) — `eventFallback`

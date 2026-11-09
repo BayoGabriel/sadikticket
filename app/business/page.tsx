@@ -130,30 +130,45 @@ export default async function BusinessPage() {
           <h2 className="text-2xl font-semibold tracking-[-0.02em] text-[#003118] sm:text-3xl">
             {t("biz.work.title")}
           </h2>
-          <div className="mt-6 grid grid-cols-3 gap-4 sm:grid-cols-5">
-            {clients.length > 0
-              ? clients.map((c) => (
+          {clients.length > 0 ? (
+            <div className="mt-6 grid grid-cols-3 gap-4 sm:grid-cols-5">
+              {clients.map((c) => (
+                <div
+                  key={String(c._id)}
+                  className="flex h-16 items-center justify-center rounded-2xl bg-white px-3 text-center text-xs font-semibold text-[#8a8a7d] shadow-sm"
+                >
+                  {c.logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={c.logo} alt={c.name} className="max-h-10 max-w-full object-contain" />
+                  ) : (
+                    c.name
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="marquee marquee-slow mt-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+              <div className="marquee-track">
+                {[false, true].map((hidden) => (
                   <div
-                    key={String(c._id)}
-                    className="flex h-16 items-center justify-center rounded-2xl bg-white px-3 text-center text-xs font-semibold text-[#8a8a7d] shadow-sm"
+                    key={String(hidden)}
+                    aria-hidden={hidden}
+                    className="flex shrink-0 items-center gap-4 pr-4"
                   >
-                    {c.logo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.logo} alt={c.name} className="max-h-10 max-w-full object-contain" />
-                    ) : (
-                      c.name
-                    )}
-                  </div>
-                ))
-              : Array.from({ length: 5 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="flex h-16 items-center justify-center rounded-2xl bg-white text-xs font-semibold text-[#8a8a7d] shadow-sm"
-                  >
-                    Client logo
+                    {Object.values(images.logos).map((logo) => (
+                      <div
+                        key={logo.src}
+                        className="flex h-16 w-40 shrink-0 items-center justify-center rounded-2xl bg-white px-3 shadow-sm"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={logo.src} alt={logo.alt} className="max-h-10 max-w-full object-contain" />
+                      </div>
+                    ))}
                   </div>
                 ))}
-          </div>
+              </div>
+            </div>
+          )}
           <div className="mt-8 grid gap-5 sm:grid-cols-3">
             {clients.length > 0
               ? clients.map((c) => (

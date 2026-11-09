@@ -122,6 +122,9 @@ body {
 .marquee:hover .marquee-track {
   animation-play-state: paused;
 }
+.marquee-slow .marquee-track {
+  animation-duration: 48s;
+}
 
 /* ── Scroll reveal ────────────────────────────────── */
 .reveal {
@@ -146,6 +149,9 @@ textarea:focus-visible,
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .marquee {
+    overflow-x: auto;
+  }
   .marquee-track {
     animation: none;
   }

@@ -17,6 +17,14 @@ export type ImageSlot = {
 const slot = (s: Omit<ImageSlot, "src" | "tint"> & { tint?: ImageSlot["tint"] }) =>
   ({ src: "", tint: "mint", ...s }) as ImageSlot;
 
+const logo = (alt: string, src: string): ImageSlot => ({
+  src,
+  alt,
+  aspect: "4/3",
+  label: alt.toUpperCase(),
+  tint: "cream",
+});
+
 export const images = {
   hero: {
     canvas: slot({ alt: "Guests painting at a canvas night", aspect: "3/4", label: "PHOTO · CANVAS PAINTING NIGHT", tint: "peach" }),
@@ -99,13 +107,25 @@ export const images = {
     team3: slot({ alt: "Event setup", aspect: "4/5", label: "PHOTO · EVENT SETUP", tint: "cream" }),
   },
 
-  // Brand logos for "Brands we've worked with" — text placeholders until supplied
-  logos: Object.fromEntries(
-    Array.from({ length: 6 }, (_, i) => [
-      `logo${i + 1}`,
-      slot({ alt: `Client logo ${i + 1}`, aspect: "4/3", label: `[LOGO ${i + 1}]`, tint: "cream" }),
-    ]),
-  ) as Record<string, ImageSlot>,
+  // Brand logos for "Brands we've worked with" — files live in /public/images/brands
+  logos: {
+    advad: logo("Advad", "/images/brands/advad.png"),
+    andersen: logo("Andersen", "/images/brands/andersen.png"),
+    ashcorp: logo("Ashcorp", "/images/brands/ashcorp.jpg"),
+    belema: logo("Belema Fintech", "/images/brands/belema.jpg"),
+    capitalfield: logo("Capitalfield", "/images/brands/capitalfield.png"),
+    chiLimited: logo("Chi Limited", "/images/brands/chi-limited.jpg"),
+    gtbank: logo("GTBank", "/images/brands/gtbank.webp"),
+    internationalBreweries: logo("International Breweries", "/images/brands/international-breweries.jpg"),
+    icsan: logo("ICSAN", "/images/brands/icsan.jpg"),
+    krones: logo("Krones", "/images/brands/krones.png"),
+    medcourt: logo("Medcourt", "/images/brands/medcourt.png"),
+    nbc: logo("NBC", "/images/brands/nbc.jpg"),
+    panAtlantic: logo("Pan-Atlantic University", "/images/brands/pan-atlantic-university.jpg"),
+    pesa: logo("Pesa", "/images/brands/pesa.jpg"),
+    piggyvest: logo("PiggyVest", "/images/brands/piggyvest.png"),
+    sela: logo("Sela", "/images/brands/sela.jpg"),
+  } as Record<string, ImageSlot>,
 
   // Fallback for events without a cover image
   eventFallback: slot({ alt: "SerenArt event", aspect: "4/3", label: "PHOTO · SERENART EVENT", tint: "mint" }),
