@@ -28,6 +28,7 @@ export default async function AdminReviewsPage() {
           shortText: r.shortText ?? "",
           photo: r.photo ?? "",
           source: r.source ?? "written",
+          rating: r.rating ?? null,
           permissionConfirmed: Boolean(r.permissionConfirmed),
           featured: Boolean(r.featured),
           approved: Boolean(r.approved),

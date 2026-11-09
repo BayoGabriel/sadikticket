@@ -56,6 +56,8 @@ export const siteConfig = {
     "https://search.google.com/local/reviews?placeid=ChIJ93wTPUMD-gERn6av8om_nbM&q=SerenArt+Lagos+Nigeria&hl=en&gl=NG",
   googleMapsEmbedUrl:
     "https://maps.google.com/maps?cid=12942711503335696031&output=embed",
+  googleRating: "4.7",
+  googleReviewCount: "22",
 
   // How fast the team replies to enquiries — used in form confirmations.
   responseTime: "[response time]",

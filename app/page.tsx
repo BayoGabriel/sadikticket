@@ -12,6 +12,7 @@ import { Marquee } from "@/components/ui/Marquee";
 import { Reveal } from "@/components/ui/Reveal";
 import { Star } from "@/components/decorative/Doodles";
 import { images, type ImageSlot } from "@/lib/images";
+import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
   title: "SerenArt — Life's Too Short for Boring Plans",
@@ -323,7 +324,7 @@ export default async function HomePage() {
                 <Img
                   key={i}
                   image={img}
-                  className="mb-4 break-inside-avoid"
+                  className={`mb-4 break-inside-avoid ${i >= 4 ? "hidden sm:block" : ""}`}
                   sizes="(max-width: 640px) 50vw, 33vw"
                 />
               ))}
@@ -359,14 +360,23 @@ export default async function HomePage() {
             <h3 className="font-display text-3xl font-semibold tracking-[-0.03em] text-[#003118]">
               {t("home.reviews.title")}
             </h3>
-            <a
-              href="https://share.google/vrrTp7L49YzfnKmls"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm font-bold text-[#003118] underline decoration-[#f27a00] decoration-2 underline-offset-4 hover:text-[#f27a00]"
-            >
-              {t("home.reviews.link")}
-            </a>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <span className="flex items-center gap-1.5 text-sm font-bold text-[#003118]">
+                <span className="text-[#f27a00]">★</span>
+                {siteConfig.googleRating}
+                <span className="font-semibold text-[#8a8a7d]">
+                  · {siteConfig.googleReviewCount} reviews on Google
+                </span>
+              </span>
+              <a
+                href={siteConfig.googleReviewsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-bold text-[#003118] underline decoration-[#f27a00] decoration-2 underline-offset-4 hover:text-[#f27a00]"
+              >
+                {t("home.reviews.link")}
+              </a>
+            </div>
           </div>
           {reviews.length > 0 && (
             <div className="mt-6 grid gap-5 md:grid-cols-3">
@@ -375,6 +385,19 @@ export default async function HomePage() {
                   key={r.id}
                   className="rounded-3xl bg-white p-7 shadow-sm"
                 >
+                  {r.source === "google" && (
+                    <div className="mb-3 flex items-center gap-2">
+                      <span aria-hidden className="text-sm tracking-tight text-[#f27a00]">
+                        {"★".repeat(r.rating ?? 5)}
+                        <span className="text-[#e8e8e5]">
+                          {"★".repeat(5 - (r.rating ?? 5))}
+                        </span>
+                      </span>
+                      <span className="text-xs font-semibold text-[#8a8a7d]">
+                        Google review
+                      </span>
+                    </div>
+                  )}
                   <blockquote className="text-sm leading-7 text-[#575750]">
                     &ldquo;{r.text}&rdquo;
                   </blockquote>
@@ -386,6 +409,16 @@ export default async function HomePage() {
               ))}
             </div>
           )}
+          <div className="mt-6 overflow-hidden rounded-3xl shadow-sm">
+            <iframe
+              src={siteConfig.googleMapsEmbedUrl}
+              title="SerenArt on Google Maps — ratings and reviews"
+              loading="lazy"
+              allowFullScreen
+              referrerPolicy="no-referrer-when-downgrade"
+              className="h-72 w-full border-0"
+            />
+          </div>
         </div>
       </section>
 

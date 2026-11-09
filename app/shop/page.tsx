@@ -44,8 +44,12 @@ export default async function ShopPage() {
 
         {products.length > 0 ? (
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((p) => (
-              <ProductCard key={p.id} product={p} />
+            {products.map((p, i) => (
+              <ProductCard
+                key={p.id}
+                product={p}
+                className={i >= 4 ? "hidden sm:flex" : ""}
+              />
             ))}
           </div>
         ) : (
