@@ -50,14 +50,9 @@ export const siteConfig = {
     return h ? `@${h.replace(/^@/, "")}` : "@[handle]";
   })(),
 
-  // Google business profile — full reviews page and the embeddable Maps
-  // place card (the only Google surface that permits iframing).
+  // Google business profile — the "Read our reviews" link on the homepage.
   googleReviewsUrl:
     "https://share.google/FGCMWWbVIxsdICVDr",
-  googleMapsEmbedUrl:
-    "https://maps.google.com/maps?cid=12942711503335696031&output=embed",
-  googleRating: "4.7",
-  googleReviewCount: "22",
 
   // How fast the team replies to enquiries — used in form confirmations.
   responseTime: "[response time]",
