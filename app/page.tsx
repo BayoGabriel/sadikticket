@@ -348,7 +348,7 @@ export default async function HomePage() {
                       key={i}
                       src={logo.src}
                       alt={logo.alt}
-                      className="h-8 w-auto opacity-70 grayscale"
+                      className="h-8 w-auto"
                     />
                   ))}
                 </div>
@@ -361,13 +361,6 @@ export default async function HomePage() {
               {t("home.reviews.title")}
             </h3>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-              <span className="flex items-center gap-1.5 text-sm font-bold text-[#003118]">
-                <span className="text-[#f27a00]">★</span>
-                {siteConfig.googleRating}
-                <span className="font-semibold text-[#8a8a7d]">
-                  · {siteConfig.googleReviewCount} reviews on Google
-                </span>
-              </span>
               <a
                 href={siteConfig.googleReviewsUrl}
                 target="_blank"
@@ -401,9 +394,19 @@ export default async function HomePage() {
                   <blockquote className="text-sm leading-7 text-[#575750]">
                     &ldquo;{r.text}&rdquo;
                   </blockquote>
-                  <figcaption className="mt-4 text-xs font-bold text-[#003118]">
-                    {r.name}
-                    {r.context ? ` · ${r.context}` : ""}
+                  <figcaption className="mt-4 flex items-center gap-3 text-xs font-bold text-[#003118]">
+                    {r.photo && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={r.photo}
+                        alt={r.name}
+                        className="h-9 w-9 rounded-full object-cover"
+                      />
+                    )}
+                    <span>
+                      {r.name}
+                      {r.context ? ` · ${r.context}` : ""}
+                    </span>
                   </figcaption>
                 </figure>
               ))}

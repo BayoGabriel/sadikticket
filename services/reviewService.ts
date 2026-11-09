@@ -9,6 +9,7 @@ export type PublicReview = {
   text: string;
   source?: string;
   rating?: number;
+  photo?: string;
 };
 
 export const reviewService = {
@@ -30,6 +31,7 @@ export const reviewService = {
         text: r.shortText || r.text,
         source: r.source,
         rating: r.rating ?? undefined,
+        photo: r.photo ?? undefined,
       }));
     } catch {
       return [];

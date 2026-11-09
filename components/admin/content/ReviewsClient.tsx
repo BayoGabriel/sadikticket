@@ -280,7 +280,7 @@ export function ReviewsClient({ initial }: { initial: ReviewRow[] }) {
                 </select>
               </Field>
             )}
-            <Field label="Screenshot / photo" hint="A WhatsApp or Instagram screenshot keeps it provable.">
+            <Field label="Reviewer photo (optional)" hint="Shown next to their name on the site — a headshot or a screenshot of their message.">
               <ImagePicker value={editing.photo} folder="serenart/reviews" onChange={(f) => setEditing({ ...editing, photo: f?.url ?? "" })} />
             </Field>
             <Toggle
