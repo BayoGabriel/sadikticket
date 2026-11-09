@@ -16,13 +16,21 @@ export type ShopProduct = {
   inStock: boolean;
 };
 
-export function ProductCard({ product }: { product: ShopProduct }) {
+export function ProductCard({
+  product,
+  className = "",
+}: {
+  product: ShopProduct;
+  className?: string;
+}) {
   const photos = product.images.filter(Boolean);
   const [idx, setIdx] = useState(0);
   const current = photos[Math.min(idx, Math.max(0, photos.length - 1))];
 
   return (
-    <div className="group flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md">
+    <div
+      className={`group flex flex-col overflow-hidden rounded-3xl bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md ${className}`}
+    >
       <div className="relative aspect-[4/3] overflow-hidden">
         {current ? (
           <Image

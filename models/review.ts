@@ -10,9 +10,11 @@ const ReviewSchema = new Schema(
     photo: { type: String }, // screenshot / photo URL
     source: {
       type: String,
-      enum: ["written", "whatsapp", "instagram", "verbal", "other"],
+      enum: ["written", "whatsapp", "instagram", "verbal", "google", "other"],
       default: "written",
     },
+    // Google reviews carry a 1–5 star rating
+    rating: { type: Number, min: 1, max: 5 },
     // must be true before the review can be published
     permissionConfirmed: { type: Boolean, default: false },
     featured: { type: Boolean, default: false }, // homepage (max 3 shown)

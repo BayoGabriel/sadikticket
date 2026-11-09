@@ -7,6 +7,8 @@ export type PublicReview = {
   context?: string;
   kind: "guest" | "client";
   text: string;
+  source?: string;
+  rating?: number;
 };
 
 export const reviewService = {
@@ -26,6 +28,8 @@ export const reviewService = {
         context: r.context ?? undefined,
         kind: r.kind,
         text: r.shortText || r.text,
+        source: r.source,
+        rating: r.rating ?? undefined,
       }));
     } catch {
       return [];

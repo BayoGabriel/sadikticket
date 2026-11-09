@@ -18,6 +18,7 @@ export type ReviewRow = {
   shortText: string;
   photo: string;
   source: string;
+  rating: number | null;
   permissionConfirmed: boolean;
   featured: boolean;
   approved: boolean;
@@ -30,12 +31,13 @@ const SOURCES = [
   { value: "whatsapp", label: "WhatsApp" },
   { value: "instagram", label: "Instagram" },
   { value: "verbal", label: "Said out loud" },
+  { value: "google", label: "Google review" },
   { value: "other", label: "Other" },
 ];
 
 const emptyReview = (): ReviewRow => ({
   id: "", name: "", context: "", kind: "guest", text: "", shortText: "",
-  photo: "", source: "written", permissionConfirmed: false,
+  photo: "", source: "written", rating: null, permissionConfirmed: false,
   featured: false, approved: false, company: "", role: "",
 });
 
@@ -173,6 +175,7 @@ export function ReviewsClient({ initial }: { initial: ReviewRow[] }) {
                   <span className="text-sm font-semibold">{item.name}</span>
                   {item.context && <span className="text-xs" style={{ color: "var(--admin-ink-soft)" }}>· {item.context}</span>}
                   <span className="a-chip a-chip-grey">{SOURCES.find((s) => s.value === item.source)?.label ?? item.source}</span>
+                  {item.rating != null && <span className="a-chip a-chip-grey">★ {item.rating}</span>}
                   {item.featured && <span className="a-chip a-chip-orange">Featured</span>}
                   {!item.permissionConfirmed && <span className="a-chip a-chip-amber">No permission yet</span>}
                 </div>
@@ -264,6 +267,19 @@ export function ReviewsClient({ initial }: { initial: ReviewRow[] }) {
                 ))}
               </select>
             </Field>
+            {editing.source === "google" && (
+              <Field label="Star rating" hint="The rating they left on Google (1–5 stars).">
+                <select
+                  className="a-input"
+                  value={editing.rating ?? 5}
+                  onChange={(e) => setEditing({ ...editing, rating: Number(e.target.value) })}
+                >
+                  {[5, 4, 3, 2, 1].map((n) => (
+                    <option key={n} value={n}>{n} star{n === 1 ? "" : "s"}</option>
+                  ))}
+                </select>
+              </Field>
+            )}
             <Field label="Screenshot / photo" hint="A WhatsApp or Instagram screenshot keeps it provable.">
               <ImagePicker value={editing.photo} folder="serenart/reviews" onChange={(f) => setEditing({ ...editing, photo: f?.url ?? "" })} />
             </Field>

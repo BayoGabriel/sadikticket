@@ -308,9 +308,13 @@ export default async function HomePage() {
             </Link>
           </div>
           {products.length > 0 ? (
-            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {products.slice(0, 3).map((p) => (
-                <ProductCard key={p.id} product={p} />
+            <div className="mt-8 grid grid-cols-2 gap-5 lg:grid-cols-3">
+              {products.slice(0, 4).map((p, i) => (
+                <ProductCard
+                  key={p.id}
+                  product={p}
+                  className={i === 3 ? "lg:hidden" : ""}
+                />
               ))}
             </div>
           ) : (
@@ -326,7 +330,7 @@ export default async function HomePage() {
             </div>
           )}
 
-          <h3 className="mt-14 text-center text-xs font-bold uppercase tracking-[0.2em] text-[#003118]/60">
+          <h3 className="mt-14 text-center text-lg font-bold uppercase tracking-[0.2em] text-black sm:text-xl">
             {t("home.brands.title")}
           </h3>
           <div className="marquee marquee-slow mt-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
