@@ -126,35 +126,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Brands we've worked with */}
-      <section className="mx-auto max-w-7xl px-5 pb-14 sm:px-8 lg:px-10">
-        <h3 className="text-center text-lg font-bold uppercase tracking-[0.2em] text-black sm:text-xl">
-          {t("home.brands.title")}
-        </h3>
-        <div className="marquee marquee-slow mt-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
-          <div className="marquee-track">
-            {[false, true].map((hidden) => (
-              <div
-                key={String(hidden)}
-                aria-hidden={hidden}
-                className="flex shrink-0 items-center gap-10 pr-10"
-              >
-                {Object.values(images.logos).map((logo, i) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    key={i}
-                    src={logo.src}
-                    alt={logo.alt}
-                    className="h-8 w-auto"
-                  />
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <Marquee items={tickerItems} />
 
       {/* 2 ─ We're SerenArt */}
@@ -180,6 +151,34 @@ export default async function HomePage() {
               image={img(images.whoWeAre.offset, "img.home.whoweare.offset")}
               className="mt-12 -rotate-2 shadow-md"
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Brands we've worked with */}
+      <section className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:px-10">
+        <h3 className="text-center text-lg font-bold uppercase tracking-[0.2em] text-black sm:text-xl">
+          {t("home.brands.title")}
+        </h3>
+        <div className="marquee marquee-slow mt-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
+          <div className="marquee-track">
+            {[false, true].map((hidden) => (
+              <div
+                key={String(hidden)}
+                aria-hidden={hidden}
+                className="flex shrink-0 items-center gap-10 pr-10"
+              >
+                {Object.values(images.logos).map((logo, i) => (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    key={i}
+                    src={logo.src}
+                    alt={logo.alt}
+                    className="h-8 w-auto"
+                  />
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </section>
