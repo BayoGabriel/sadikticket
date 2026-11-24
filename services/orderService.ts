@@ -12,7 +12,7 @@ export const orderService = {
   async create(input: {
     eventId: string;
     items: { ticketTypeId: string; quantity: number }[];
-    customer: { name: string; email: string; phone?: string };
+    customer: { name: string; email: string; phone: string };
     couponCode?: string;
     checkoutAnswer?: string;
   }) {

@@ -11,7 +11,7 @@ export const orderCreateSchema = z.object({
   customer: z.object({
     name: z.string().min(1),
     email: z.string().email(),
-    phone: z.string().min(6).max(32).optional(),
+    phone: z.string().min(6).max(32),
   }),
   couponCode: z.string().max(64).optional(),
   checkoutAnswer: z.string().max(500).optional(),

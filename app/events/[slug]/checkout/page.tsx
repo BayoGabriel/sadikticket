@@ -135,13 +135,17 @@ export default function CheckoutPage({
       setError("Please enter a valid email");
       return;
     }
+    if (phone.trim().length < 6) {
+      setError("Please enter your phone number");
+      return;
+    }
 
     setLoading(true);
     try {
       const order = await createOrder({
         eventId: eventDetail.id,
         items: tickets,
-        customer: { name, email, phone: phone || undefined },
+        customer: { name, email, phone: phone.trim() },
         couponCode: coupon || undefined,
         checkoutAnswer: answer || undefined,
       });
@@ -190,12 +194,11 @@ export default function CheckoutPage({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">
-                Phone (optional)
-              </label>
+              <label className="block text-sm font-medium">Phone</label>
               <input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+                required
                 className="mt-1 w-full rounded-lg border border-(--border) px-3 py-2 focus:outline-none focus:ring-2 focus:ring-(--brand-primary)"
               />
             </div>
