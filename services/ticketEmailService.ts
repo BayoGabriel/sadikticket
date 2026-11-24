@@ -62,11 +62,17 @@ export const ticketEmailService = {
       });
 
       try {
-        await emailService.sendTicketEmail({
+        const res = await emailService.sendTicketEmail({
           to: t.holderEmail,
           subject: `Your ticket for ${event?.name ?? "event"}`,
           html,
         });
+        // emailService returns { failed: true } instead of throwing when
+        // SMTP isn't configured — don't stamp SENT on a send that never
+        // happened, or it's skipped forever.
+        if (res && typeof res === "object" && "failed" in res && res.failed) {
+          throw new Error("SMTP not configured");
+        }
         await TicketModel.updateOne(
           { _id: t._id },
           { $set: { emailStatus: "SENT", emailedAt: new Date() } },
