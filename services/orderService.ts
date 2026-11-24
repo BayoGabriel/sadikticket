@@ -23,6 +23,12 @@ export const orderService = {
     if (event.status !== "PUBLISHED")
       throw new ApiError("EVENT_NOT_PUBLISHED", "Event is not published", 400);
 
+    // Sales close when the event ends — a ticket type without its own
+    // sales window can never be bought after the event day has passed.
+    const eventEnd = event.endsAt ?? event.startsAt;
+    if (eventEnd && new Date() > new Date(eventEnd))
+      throw new ApiError("EVENT_SALES_CLOSED", "This event has already ended", 400);
+
     const typeIds = input.items.map((i) => new Types.ObjectId(i.ticketTypeId));
     const types = await TicketTypeModel.find({
       _id: { $in: typeIds },

@@ -51,8 +51,12 @@ export function TicketPicker({
     return { t, available, onSale, soldOut, max };
   });
 
+  // Nothing purchasable yet: every type is outside its sales window. That's
+  // a "coming soon" state, not a sellout — only rows that WERE on sale and
+  // exhausted their stock count as sold out.
+  const noneOnSale = rows.length > 0 && rows.every((r) => !r.onSale);
   const allSoldOut =
-    rows.length > 0 && rows.every((r) => r.soldOut || !r.onSale);
+    !noneOnSale && rows.every((r) => r.soldOut || !r.onSale);
 
   const subtotal = useMemo(
     () =>
@@ -121,7 +125,7 @@ export function TicketPicker({
     router.push(`/events/${slug}/checkout?${params.toString()}`);
   };
 
-  if (rows.length === 0) {
+  if (rows.length === 0 || noneOnSale) {
     return (
       <div className="px-3 py-8 text-center">
         <h3 className="font-semibold text-[#003118]">

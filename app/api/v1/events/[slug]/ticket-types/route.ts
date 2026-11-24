@@ -10,7 +10,9 @@ export async function GET(
   try {
     const { slug } = await ctx.params;
     const now = new Date();
-    const { types } = await ticketTypeService.listPublicByEventSlug(slug);
+    const { event, types } = await ticketTypeService.listPublicByEventSlug(slug);
+    // A type with no sales window sells until the event ends.
+    const eventEnd = event.endsAt ?? event.startsAt;
     return ok({
       items: types.map((t) => ({
         id: t._id.toString(),
@@ -23,10 +25,10 @@ export async function GET(
           (t.quantity ?? 0) - (t.quantitySold ?? 0),
         ),
         salesStart: t.salesStart,
-        salesEnd: t.salesEnd,
+        salesEnd: t.salesEnd ?? eventEnd,
         isOnSale:
           (!t.salesStart || new Date(t.salesStart) <= now) &&
-          (!t.salesEnd || new Date(t.salesEnd) >= now),
+          new Date(t.salesEnd ?? eventEnd) >= now,
       })),
     });
   } catch (e: unknown) {

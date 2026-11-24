@@ -68,6 +68,7 @@ export default async function PublicEventPage({
     statusOverride: ev.statusOverride,
     ticketTypes,
     fewLeftThreshold: fewLeft,
+    eventEndsAt: ev.endsAt ?? ev.startsAt,
   });
 
   const eventFaqs = await contentService.faqsForEvent([...(ev.tags ?? []), ev.eventType ?? ""]);

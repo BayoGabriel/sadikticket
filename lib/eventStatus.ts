@@ -15,11 +15,17 @@ export type SaleWindowTicket = {
   quantityAvailable?: number;
 };
 
-export function isOnSaleNow(t: SaleWindowTicket, now: Date): boolean {
+export function isOnSaleNow(
+  t: SaleWindowTicket,
+  now: Date,
+  eventEndsAt?: Date | string | null,
+): boolean {
+  // A type with no explicit sales window sells until the event itself ends.
+  const effectiveEnd = t.salesEnd ?? eventEndsAt;
   return (
     t.isOnSale !== false &&
     (!t.salesStart || new Date(t.salesStart) <= now) &&
-    (!t.salesEnd || new Date(t.salesEnd) >= now)
+    (!effectiveEnd || new Date(effectiveEnd) >= now)
   );
 }
 
@@ -28,6 +34,7 @@ export function eventStatusLabel(args: {
   eventStatus?: string;
   ticketTypes: SaleWindowTicket[];
   fewLeftThreshold?: number;
+  eventEndsAt?: Date | string | null;
   now?: Date;
 }): EventStatusLabel {
   const now = args.now ?? new Date();
@@ -42,7 +49,9 @@ export function eventStatusLabel(args: {
   }
   if (override === "on-sale") return "Tickets on sale";
 
-  const onSaleTypes = args.ticketTypes.filter((t) => isOnSaleNow(t, now));
+  const onSaleTypes = args.ticketTypes.filter((t) =>
+    isOnSaleNow(t, now, args.eventEndsAt),
+  );
   const remaining = onSaleTypes.reduce((acc, t) => acc + (t.quantityAvailable ?? 0), 0);
 
   if (args.ticketTypes.length === 0 || onSaleTypes.length === 0) return "Coming soon";
