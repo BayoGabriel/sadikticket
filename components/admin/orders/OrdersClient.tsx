@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { format } from "date-fns";
-import { formatNaira } from "@/lib/format";
+import { formatNaira, describeVerifyResult } from "@/lib/format";
 import { StatusChip } from "@/components/admin/ui/StatusChip";
 import { Icon } from "@/components/admin/ui/icons";
 import { EmptyState } from "@/components/admin/ui/EmptyState";
@@ -66,7 +66,7 @@ export function OrdersClient({
     if (data.success && data.data.status === "PAID") {
       toast("Payment confirmed — tickets issued.");
       router.refresh();
-    } else toast(data.success ? `Paystack says: ${data.data.status}` : data.error || "Couldn't verify.", { error: data.data?.status !== "PAID" });
+    } else toast(data.success ? describeVerifyResult(data.data) : data.error || "Couldn't verify.", { error: true });
   }
 
   return (

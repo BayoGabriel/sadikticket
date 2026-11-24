@@ -86,8 +86,14 @@ export const productOrderService = {
     const order = await ProductOrderModel.findOne({ paymentReference: reference });
     if (!order) return { status: "ORDER_NOT_FOUND" as const };
 
-    if (verify.amount !== order.total || verify.currency !== order.currency) {
-      return { status: "AMOUNT_MISMATCH" as const };
+    // Customer-borne transaction fees mean the captured amount is often
+    // order.total + fees — at or above the total counts as paid in full.
+    if (verify.currency !== order.currency || verify.amount < order.total) {
+      return {
+        status: "AMOUNT_MISMATCH" as const,
+        expected: { amount: order.total, currency: order.currency },
+        received: { amount: verify.amount, currency: verify.currency },
+      };
     }
 
     await PaymentModel.findOneAndUpdate(
@@ -96,7 +102,7 @@ export const productOrderService = {
         orderId: order._id,
         provider: "PAYSTACK",
         providerReference: reference,
-        amount: order.total,
+        amount: verify.amount,
         currency: order.currency,
         status: "SUCCESS",
         providerResponse: verify,

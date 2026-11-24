@@ -61,6 +61,8 @@ export async function POST(
         const r = await adminOrderService.reverify(orderId);
         if (r.status === "PAID")
           await auditService.record({ actor: user, action: "order.marked-paid", entityType: "order", entityId: orderId, detail: { via: "reverify" } });
+        else if (r.status === "AMOUNT_MISMATCH")
+          await auditService.record({ actor: user, action: "order.verify-mismatch", entityType: "order", entityId: orderId, detail: { expected: r.expected, received: r.received } });
         return ok(r);
       }
       case "transfer": {

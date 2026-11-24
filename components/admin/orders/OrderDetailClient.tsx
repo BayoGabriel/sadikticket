@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { formatNaira } from "@/lib/format";
+import { formatNaira, describeVerifyResult } from "@/lib/format";
 import { StatusChip } from "@/components/admin/ui/StatusChip";
 import { Icon } from "@/components/admin/ui/icons";
 import { Modal } from "@/components/admin/ui/Modal";
@@ -70,7 +70,7 @@ export function OrderDetailClient({
   const [note, setNote] = useState("");
   const [confirmCancel, setConfirmCancel] = useState(false);
 
-  async function act(action: string, body?: unknown, successMsg?: string) {
+  async function act(action: string, body?: unknown, successMsg?: string | false) {
     setBusy(action);
     try {
       const res = await fetch(`/api/v1/admin/orders/${order._id}/${action}`, {
@@ -80,7 +80,7 @@ export function OrderDetailClient({
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "That didn't work");
-      toast(successMsg ?? "Done.");
+      if (successMsg !== false) toast(successMsg ?? "Done.");
       return data.data;
     } catch (e) {
       toast((e as Error).message, { error: true });
@@ -89,6 +89,13 @@ export function OrderDetailClient({
       setBusy("");
       router.refresh();
     }
+  }
+
+  async function reverify() {
+    const r = await act("reverify", undefined, false);
+    if (!r) return;
+    if (r.status === "PAID") toast("Confirmed paid — tickets issued.");
+    else toast(describeVerifyResult(r), { error: true });
   }
 
   const remaining = order.total - (order.refundedAmount ?? 0);
@@ -218,7 +225,7 @@ export function OrderDetailClient({
             {["PENDING", "PAYMENT_PROCESSING", "FAILED", "EXPIRED"].includes(order.status) && (
               <>
                 {order.paymentMethod === "paystack" && (
-                  <button className="a-btn a-btn-green w-full" disabled={busy === "reverify"} onClick={async () => { const r = await act("reverify"); if (r?.status === "PAID") toast("Confirmed paid — tickets issued."); }}>
+                  <button className="a-btn a-btn-green w-full" disabled={busy === "reverify"} onClick={reverify}>
                     <Icon name="refresh" size={14} /> Re-verify with Paystack
                   </button>
                 )}

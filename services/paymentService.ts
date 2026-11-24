@@ -11,7 +11,11 @@ import { waitlistService } from "@/services/waitlistService";
 export type PaymentConfirmation =
   | { status: "PAID"; orderId: string }
   | { status: "UNPAID" }
-  | { status: "AMOUNT_MISMATCH" }
+  | {
+      status: "AMOUNT_MISMATCH";
+      expected: { amount: number; currency: string };
+      received: { amount: number; currency: string };
+    }
   | { status: "ORDER_NOT_FOUND" };
 
 export const paymentService = {
@@ -32,7 +36,7 @@ export const paymentService = {
       );
       const r = await productOrderService.confirmPayment(reference);
       if (r.status === "PAID") return { status: "PAID", orderId: r.orderId! };
-      return { status: r.status };
+      return r;
     }
 
     const existing = await PaymentModel.findOne({
@@ -63,9 +67,18 @@ export const paymentService = {
     const order = await OrderModel.findOne({ paymentReference: reference });
     if (!order) return { status: "ORDER_NOT_FOUND" };
 
-    if (verify.amount !== order.total || verify.currency !== order.currency) {
-      return { status: "AMOUNT_MISMATCH" };
+    // Paystack can be configured so the customer covers transaction fees —
+    // then the captured amount is order.total + fees. Anything at or above
+    // the total counts as paid in full; only a shortfall or a wrong
+    // currency is a real mismatch.
+    if (verify.currency !== order.currency || verify.amount < order.total) {
+      return {
+        status: "AMOUNT_MISMATCH",
+        expected: { amount: order.total, currency: order.currency },
+        received: { amount: verify.amount, currency: verify.currency },
+      };
     }
+    const overpaidBy = verify.amount - order.total;
 
     await PaymentModel.findOneAndUpdate(
       { providerReference: reference },
@@ -73,7 +86,7 @@ export const paymentService = {
         orderId: order._id,
         provider: "PAYSTACK",
         providerReference: reference,
-        amount: order.total,
+        amount: verify.amount,
         currency: order.currency,
         status: "SUCCESS",
         providerResponse: verify,
@@ -101,6 +114,14 @@ export const paymentService = {
             createdAt: new Date(),
           });
         }
+      }
+      if (overpaidBy > 0) {
+        order.notes = order.notes ?? [];
+        order.notes.push({
+          text: `Paystack captured ₦${(verify.amount / 100).toLocaleString("en-NG")} — ₦${(overpaidBy / 100).toLocaleString("en-NG")} above the order total (customer-borne transaction fees, or an overpayment to review).`,
+          author: "system",
+          createdAt: new Date(),
+        });
       }
       order.status = "PAID";
       await order.save();
