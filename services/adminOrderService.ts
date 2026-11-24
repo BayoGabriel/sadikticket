@@ -100,6 +100,22 @@ export const adminOrderService = {
     if (order.status === "PAID") return { already: true };
     if (["REFUNDED", "CANCELLED"].includes(order.status))
       throw new ApiError("VALIDATION_ERROR", `This order is ${order.status.toLowerCase()} — it can't be marked paid.`, 400);
+    // A failed/expired order had its seats released — take them back
+    // before flipping to paid, flagging if the capacity is gone.
+    if (["FAILED", "EXPIRED"].includes(order.status)) {
+      try {
+        await capacityService.reserve(
+          order.items.map((i) => ({ ticketTypeId: String(i.ticketTypeId), quantity: i.quantity })),
+        );
+      } catch {
+        order.notes = order.notes ?? [];
+        order.notes.push({
+          text: "Marked paid after seats were released — order is over capacity. Please contact the guest.",
+          author: "system",
+          createdAt: new Date(),
+        });
+      }
+    }
     order.status = "PAID";
     order.notes = order.notes ?? [];
     order.notes.push({ text: `Marked as paid by ${actor.name}`, author: actor.name, createdAt: new Date() });

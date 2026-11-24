@@ -78,6 +78,23 @@ export const capacityService = {
       createdAt: { $lt: cutoff },
     }).lean<Order[]>();
     for (const order of stale) {
+      // Before expiring, check whether a payment actually landed — an
+      // online order whose confirmation was missed (webhook not
+      // configured, buyer closed the tab) should recover, not be swept.
+      if (order.paymentMethod === "paystack" && order.paymentReference) {
+        try {
+          // Dynamic import: paymentService already imports this module.
+          const { paymentService } = await import("@/services/paymentService");
+          const r = await paymentService.confirmPaystackPayment(order.paymentReference);
+          if (r.status === "PAID") continue;
+          // UNPAID/ORDER_NOT_FOUND etc. → safe to expire below. A
+          // definitive failure will already have marked it FAILED itself.
+        } catch {
+          // Provider unreachable — leave it for the next run rather than
+          // expiring a payment we couldn't check.
+          continue;
+        }
+      }
       // Only expire if no successful payment raced in the meantime.
       const res = await OrderModel.updateOne(
         { _id: order._id, status: { $in: ["PENDING", "PAYMENT_PROCESSING"] } },

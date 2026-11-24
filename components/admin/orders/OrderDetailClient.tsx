@@ -215,7 +215,7 @@ export function OrderDetailClient({
                 </button>
               </>
             )}
-            {["PENDING", "PAYMENT_PROCESSING", "FAILED"].includes(order.status) && (
+            {["PENDING", "PAYMENT_PROCESSING", "FAILED", "EXPIRED"].includes(order.status) && (
               <>
                 {order.paymentMethod === "paystack" && (
                   <button className="a-btn a-btn-green w-full" disabled={busy === "reverify"} onClick={async () => { const r = await act("reverify"); if (r?.status === "PAID") toast("Confirmed paid — tickets issued."); }}>
@@ -227,7 +227,7 @@ export function OrderDetailClient({
                 </button>
               </>
             )}
-            {["PENDING", "PAYMENT_PROCESSING", "FAILED"].includes(order.status) && (
+            {["PENDING", "PAYMENT_PROCESSING", "FAILED", "EXPIRED"].includes(order.status) && (
               <button className="a-btn a-btn-ghost w-full" style={{ color: "var(--admin-red)" }} onClick={() => setConfirmCancel(true)}>
                 <Icon name="x" size={14} /> Cancel order
               </button>

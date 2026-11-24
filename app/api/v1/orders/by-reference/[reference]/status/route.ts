@@ -26,7 +26,7 @@ export async function GET(
       }).lean<ProductOrder | null>();
       if (!order) return ok({ found: false });
 
-      if (order.status === "PENDING") {
+      if (["PENDING", "PAYMENT_PROCESSING", "FAILED"].includes(order.status)) {
         try {
           const result = await paymentService.confirmPaystackPayment(reference);
           if (result.status === "PAID") {
@@ -64,8 +64,16 @@ export async function GET(
     if (!order) return ok({ found: false });
 
     // Fallback for when the Paystack webhook hasn't landed (or isn't
-    // configured): verify the transaction directly with Paystack.
-    if (order.status === "PENDING") {
+    // configured): verify the transaction directly with Paystack. Runs for
+    // every recoverable status — confirmPaystackPayment is idempotent and
+    // re-reserves seats for orders the sweeper already released, so an
+    // expired or failed order with a real payment self-heals on the next
+    // poll instead of staying dead.
+    if (
+      ["PENDING", "PAYMENT_PROCESSING", "FAILED", "EXPIRED"].includes(
+        order.status,
+      )
+    ) {
       try {
         const result = await paymentService.confirmPaystackPayment(reference);
         if (result.status === "PAID") {

@@ -167,7 +167,7 @@ export function OrdersClient({
             {
               label: "",
               render: (o) =>
-                ["PENDING", "PAYMENT_PROCESSING", "FAILED"].includes(o.status) && o.paymentMethod === "paystack" ? (
+                ["PENDING", "PAYMENT_PROCESSING", "FAILED", "EXPIRED"].includes(o.status) && o.paymentMethod === "paystack" ? (
                   <button
                     type="button"
                     className="a-btn a-btn-ghost a-btn-sm"
